@@ -1,0 +1,2151 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="个人博客系统"><meta name="keywords" content="Nginx, Zabbix, Shell, Python, OPS, HA"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><title>Nginx-HTTP模块详解 | MINT | BLOG</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Nginx-HTTP模块详解</h1><a id="logo" href="/.">MINT | BLOG</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">Nginx-HTTP模块详解</h1><div class="post-meta"><a href="/post/Nginx-HTTP模块详解.html#comments" class="comment-count"></a><p><span class="date">Jul 25, 2019</span><span><a href="/categories/Nginx/" class="category">Nginx</a></span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h2 id="openresty使用content-by-lua打印出用户浏览器信息"><a href="#openresty使用content-by-lua打印出用户浏览器信息" class="headerlink" title="openresty使用content_by_lua打印出用户浏览器信息"></a>openresty使用content_by_lua打印出用户浏览器信息</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /lua &#123;</span><br><span class="line">    default_type text/html;</span><br><span class="line">    content_by_lua <span class="string">'ngx.say("User-Agent:", ngx.req.get_headers()["User-Agent"])'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nginx-HTTP模块详解"><a href="#Nginx-HTTP模块详解" class="headerlink" title="Nginx HTTP模块详解"></a>Nginx HTTP模块详解</h2><h3 id="配置块的嵌套"><a href="#配置块的嵌套" class="headerlink" title="配置块的嵌套"></a>配置块的嵌套</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">main</span><br><span class="line">http &#123;</span><br><span class="line">    upstream &#123;...&#125;</span><br><span class="line">    split_clients &#123;...&#125;</span><br><span class="line">    map &#123;...&#125;</span><br><span class="line">    geo &#123;...&#125;</span><br><span class="line">    server &#123;</span><br><span class="line">        if () &#123;...&#125;</span><br><span class="line">        location &#123;</span><br><span class="line">            limit_except &#123;...&#125;</span><br><span class="line">        &#125;</span><br><span class="line">        location &#123;</span><br><span class="line">            location &#123;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    server &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="指令的context"><a href="#指令的context" class="headerlink" title="指令的context"></a>指令的context</h3><ul>
+<li>指令的能够出现的配置块，配置范围<ul>
+<li>log_format：http</li>
+<li>access_log：http,server,location,if in location, limit_except</li>
+<li>listen：server</li>
+<li>root：server,location</li>
+</ul>
+</li>
+</ul>
+<h3 id="指令的合并"><a href="#指令的合并" class="headerlink" title="指令的合并"></a>指令的合并</h3><ul>
+<li>指令在多个块下同时出现，</li>
+<li>并不是所有指令都能合并</li>
+</ul>
+<p>合并规则：子配置不存在时，直接使用父配置块；子配置存在时，覆盖父配置</p>
+<ul>
+<li>值指令：解析配置时，存储当时配置的值<ul>
+<li>root</li>
+<li>access_log</li>
+<li>gzip</li>
+</ul>
+</li>
+<li>动作指令<ul>
+<li>rewrite</li>
+<li>proxy_pass</li>
+<li>server_rewrite阶段</li>
+<li>rewrite阶段</li>
+<li>content阶段</li>
+</ul>
+</li>
+</ul>
+<h3 id="需要理解的问题"><a href="#需要理解的问题" class="headerlink" title="需要理解的问题"></a>需要理解的问题</h3><ol>
+<li>指令在哪个块下生效？</li>
+<li>指令允许出现在那些块下？</li>
+<li>在server块生效，从http向server合并指令</li>
+<li>配置缓存在内存</li>
+</ol>
+<h3 id="listen指令"><a href="#listen指令" class="headerlink" title="listen指令"></a>listen指令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">listen unix:/var/run/nginx.sock;      #监听unix socket地址</span><br><span class="line">listen 127.0.0.1:8000;			#监听端口加地址</span><br><span class="line">listen 127.0.0.1;		#只监听IP,默认会监听80端口</span><br><span class="line">listen 8000;</span><br><span class="line">listen *:8000;</span><br><span class="line">listen localhost:8000 bind;</span><br><span class="line">listen [::]:8000 ipv6only=on;        #只支持IPV6</span><br><span class="line">listen [::]</span><br></pre></td></tr></table></figure>
+
+<h3 id="Nginx正则表达式"><a href="#Nginx正则表达式" class="headerlink" title="Nginx正则表达式"></a>Nginx正则表达式</h3><ul>
+<li>元字符<ul>
+<li>. ：匹配换行符之外的任意字符</li>
+<li>\w：匹配字母数字或下划线或汉字</li>
+<li>\d：匹配数字</li>
+<li>\s：匹配任意的空白字符</li>
+<li>\b：匹配单词的开始或结束</li>
+<li>^：匹配字符串的开始</li>
+<li>$：匹配字符串的结束</li>
+</ul>
+</li>
+<li>重复<ul>
+<li>*：重复零次或多次</li>
+<li>+：重复一次或多次</li>
+<li>?：重复零次或一次</li>
+<li>{n}：重复n次</li>
+<li>{n，}：重复n次或更多次</li>
+<li>{n，m}：重复n到m次</li>
+</ul>
+</li>
+</ul>
+<h3 id="server-name指令块"><a href="#server-name指令块" class="headerlink" title="server_name指令块"></a>server_name指令块</h3><ul>
+<li>server_name：可以跟多个域名，第一个是主域名，支持泛域名（仅支持最前和最后），正则表达式（加~前缀）</li>
+<li>server_name_in_redirect：控制主域名</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 初始配置</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen       8099;</span><br><span class="line">    server_name  primary.dookt.com.cn second.dookt.com.cn;</span><br><span class="line">    server_name_in_redirect off;</span><br><span class="line">    return 302 /redirect;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl命令查看结果，发现主域名未生效</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -I  http://second.dookt.com.cn:8099/redirect</span><br><span class="line">HTTP/1.1 302 Moved Temporarily</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Thu, 11 Jul 2019 19:20:04 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: 167</span><br><span class="line">Location: http://second.dookt.com.cn:8099/redirect</span><br><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 开启server_name_in_redirect后的配置</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen       8099;</span><br><span class="line">    server_name  primary.dookt.com.cn second.dookt.com.cn;</span><br><span class="line">    server_name_in_redirect on;</span><br><span class="line">    return 302 /redirect;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl命令查看结果，发现使用非主域名访问，会自动跳转至主域名</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -I  http://second.dookt.com.cn:8099/redirect</span><br><span class="line">HTTP/1.1 302 Moved Temporarily</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Thu, 11 Jul 2019 19:19:55 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: 167</span><br><span class="line">Location: http://primary.dookt.com.cn:8099/redirect</span><br><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
+
+<h3 id="用正则表达式创建变量"><a href="#用正则表达式创建变量" class="headerlink" title="用正则表达式创建变量"></a>用正则表达式创建变量</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 案例一：位置变量，例如此处取到www.dookt.com,则<span class="variable">$2</span> = <span class="string">'dookt.com'</span>，即root /site/dookt.com;</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name ~^(www\.)?(.+)$;</span><br><span class="line">    location / &#123;</span><br><span class="line">        root /sites/$2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">案例二：命名变量</span></span><br><span class="line">server  &#123;</span><br><span class="line">    server_name ~^(www\.)?(?&lt;domain&gt;.+)$;</span><br><span class="line">    location / &#123;</span><br><span class="line">        root /sites/$domain;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他用法"><a href="#其他用法" class="headerlink" title="其他用法"></a>其他用法</h3><ul>
+<li>.dookt.com可以匹配dookt.com和*.dookt.com</li>
+<li>_匹配所有</li>
+<li>“”匹配没有传递Host头部</li>
+</ul>
+<h3 id="server-name匹配顺序"><a href="#server-name匹配顺序" class="headerlink" title="server_name匹配顺序"></a>server_name匹配顺序</h3><ol>
+<li>精确匹配</li>
+<li>*在前的泛域名</li>
+<li>*在后的泛域名</li>
+<li>按文件中的顺序匹配正则表达式域名</li>
+<li>default server<ol>
+<li>第一个</li>
+<li>listen指定default</li>
+</ol>
+</li>
+</ol>
+<h2 id="HTTP请求的11个阶段"><a href="#HTTP请求的11个阶段" class="headerlink" title="HTTP请求的11个阶段"></a>HTTP请求的11个阶段</h2><p>除http过滤模块以及只提供变量的nginx模块，所有的http模块必须从nginx定义好的11个阶段进行请求处理</p>
+<ol>
+<li>POST_READ：realip     #读取到http头部时</li>
+<li>SERVER_REWRITE：rewrite</li>
+<li>FIND_CONFIG：find_config</li>
+<li>REWRITE：rewrite</li>
+<li>POST_REWRITE：rewrite     #刚刚rewrite之后</li>
+<li>PREACCESS：limit_conn, limit_req</li>
+<li>ACCESS：access, auth_basic, auth_request</li>
+<li>POST_ACCESS</li>
+<li>PRECONNECT：try_file, mirrors</li>
+<li>CONNECT：concat, random_index, index, auto_index, static</li>
+<li>LOG：log</li>
+</ol>
+<h3 id="postread阶段—realip模块"><a href="#postread阶段—realip模块" class="headerlink" title="postread阶段—realip模块"></a>postread阶段—realip模块</h3><h4 id="如何拿到用户的真实IP地址？"><a href="#如何拿到用户的真实IP地址？" class="headerlink" title="如何拿到用户的真实IP地址？"></a>如何拿到用户的真实IP地址？</h4><ol>
+<li>TCP连接4元组(src ip, src port, dst ip, dst port)</li>
+<li>HTTP头部X_Forwarded_for用于传递IP</li>
+<li>HTTP头部X-Real-IP用于传递用户IP</li>
+<li>网络中存在许多反向代理</li>
+</ol>
+<p>用户 –&gt; ADSL –&gt; CDN –&gt; 反向代理1 –&gt; Nginx</p>
+<p>用户内网IP：172.16.100.x</p>
+<p>运营商IP：115.204.33.1</p>
+<p>CDN IP地址：1.1.1.1</p>
+<p>反向代理IP：2.2.2.2</p>
+<p>CDN添加：X-Forward_For：115.204.33.1    X-Real-IP：115.204.33.1</p>
+<p>反向代理添加的：X-Forward_For：115.204.33.1，1.1.1.1    X-Real-IP：115.204.33.1</p>
+<p>此时Nginx就知道用户地址为：115.204.33.1，远端地址(remote_addr)为：2.2.2.2</p>
+<h4 id="拿到用户真实IP地址如何使用"><a href="#拿到用户真实IP地址如何使用" class="headerlink" title="拿到用户真实IP地址如何使用?"></a>拿到用户真实IP地址如何使用?</h4><p>基于变量使用，如：binary_remote_addr，remote_addr。其值为真实的IP,这样做连接限制(limit_conn模块)才有意义。</p>
+<h4 id="realip模块的指令"><a href="#realip模块的指令" class="headerlink" title="realip模块的指令"></a>realip模块的指令</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 默认不带realip模块，编译添加该模块至nginx中</span></span><br><span class="line">./configure --with-http_realip_module --add-module=../tengine-2.2.2/modules/ngx_slab_stat/ </span><br><span class="line">gmake &amp;&amp; gmake install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>set_real_ip_from（是指接受从哪个信任前代理处获得真实用户ip，哪些地址里的x-forwareed-for才替换remote_addr变量）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>set_real_ip_from address | CIDR | unix:;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>real_ip_header（是指从接收到报文的哪个http首部去获取前代理传送的用户ip）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>real_ip_header X-Real-IP;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>real_ip_recursive（环回地址，打开时，把x_forwarded_for最后的地址如果和客户端地址相同的话，取下一个地址）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>real_ip_recursive on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>real_ip_recursive off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 关闭环回地址real_ip_recursive时</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name     realip.dookt.com.cn;</span><br><span class="line">    error_log logs/realip-error.log debug;</span><br><span class="line">    set_real_ip_from    172.16.100.11;     #把本机设置为可信地址</span><br><span class="line">    #real_ip_header X-Real-IP;</span><br><span class="line">    real_ip_recursive off;</span><br><span class="line">    real_ip_header X-Forwarded-For;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        return 200 "Client real ip: $remote_addr\n";</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl -H在请求中添加head</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -H 'X-Forwarded-For: 1.1.1.1, 172.16.100.11' realip.dookt.com.cn</span><br><span class="line">Client real ip: 172.16.100.11</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">开启环回地址real_ip_recursive时</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name     realip.dookt.com.cn;</span><br><span class="line">    error_log logs/realip-error.log debug;</span><br><span class="line">    set_real_ip_from    172.16.100.11;</span><br><span class="line">    #real_ip_header X-Real-IP;</span><br><span class="line">    real_ip_recursive on;</span><br><span class="line">    real_ip_header X-Forwarded-For;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        return 200 "Client real ip: $remote_addr\n";</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>开启环回地址后。这个变量remote_addr（1.1.1.1）就可以用来限速处理了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -H 'X-Forwarded-For: 1.1.1.1, 172.16.100.11' realip.dookt.com.cn</span><br><span class="line">Client real ip: 1.1.1.1</span><br></pre></td></tr></table></figure>
+
+<h3 id="Rewrite模块：return指令"><a href="#Rewrite模块：return指令" class="headerlink" title="Rewrite模块：return指令"></a>Rewrite模块：return指令</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>return code [text];<code></code>return code URL;<code></code>return URL;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code>, <code>if</code></td>
+</tr>
+</tbody></table>
+<h4 id="Nginx返回状态码"><a href="#Nginx返回状态码" class="headerlink" title="Nginx返回状态码"></a>Nginx返回状态码</h4><ul>
+<li>Nginx自定义<ul>
+<li>444：Nginx自定义的（Nginx立即关闭连接，不再向用户发送任何信息）</li>
+</ul>
+</li>
+<li>HTTP1.0标准<ul>
+<li>301：http1.0永久重定向</li>
+<li>302：临时重定向，禁止被缓存</li>
+</ul>
+</li>
+<li>HTTP1.1标准<ul>
+<li>303：临时重定向，允许改变方法，禁止被缓存</li>
+<li>307：临时重定向，不允许改变方法，禁止被缓存</li>
+<li>308：永久重定向，不允许改变方法</li>
+</ul>
+</li>
+</ul>
+<h3 id="Rewrite模块：return指令和error-page"><a href="#Rewrite模块：return指令和error-page" class="headerlink" title="Rewrite模块：return指令和error_page"></a>Rewrite模块：return指令和error_page</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>error_page code … [=[response]] uri;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code>, <code>if in location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">例子</span></span><br><span class="line">1. error_page 404 /404.html;</span><br><span class="line">2. error_page 500 502 503 504 /50x/html;</span><br><span class="line">3. error_page 404 = 200 /empty.gif;</span><br><span class="line">4. error_page 404 = /404.php;</span><br><span class="line">5. location / &#123;</span><br><span class="line">       error_page 404 = @fallback;</span><br><span class="line">   &#125;</span><br><span class="line">   location @fallback &#123;</span><br><span class="line">       proxy_pass http://backend;</span><br><span class="line">   &#125;</span><br><span class="line">6. error_page 403 http://example.com/forbidden,html;</span><br><span class="line">7. error_page 404 = 301 http://example.com/notfound.html;</span><br></pre></td></tr></table></figure>
+
+<h3 id="return指令和error-page例子"><a href="#return指令和error-page例子" class="headerlink" title="return指令和error_page例子"></a>return指令和error_page例子</h3><p>Q：server块下与location块下的return指令关系？</p>
+<p>A：server块下return与location块下return分别属于server rewrite阶段和rewrite阶段，前者server rewrite先于后者rewrite执行。return是动作类指令，没有合并关系</p>
+<p>Q：return与error_page指令的关系？</p>
+<p>A：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用error_page把404页面重定向到403.html</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen  8080;</span><br><span class="line">    server_name return.dookt.com.cn;</span><br><span class="line">    root html/;</span><br><span class="line">    error_page 404 /403.html;</span><br><span class="line">    #return 405;</span><br><span class="line">    location / &#123;</span><br><span class="line">        #return 404 <span class="string">"Find nothing!\n"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl访问测试结果如下，结果为自定义的403.html文件的内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl return.dookt.com.cn:8080/sdfgsag.txt</span><br><span class="line">&lt;h1&gt;test 403 Forbirdden&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> location块下<span class="built_in">return</span>与server块下error_page的关系</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen  8080;</span><br><span class="line">    server_name return.dookt.com.cn;</span><br><span class="line">    root html/;</span><br><span class="line">    error_page 404 /403.html;</span><br><span class="line">    #return 405;</span><br><span class="line">    location / &#123;</span><br><span class="line">        return 404 "Find nothing!\n";</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl访问测试结果如下，结果返回Find nothing！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl return.dookt.com.cn:8080/sdfgsag.txt</span><br><span class="line">Find nothing!</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> server与location块下的<span class="built_in">return</span>指令关系</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen  8080;</span><br><span class="line">    server_name return.dookt.com.cn;</span><br><span class="line">    root html/;</span><br><span class="line">    error_page 404 /403.html;</span><br><span class="line">    return 405;				#server rewrite阶段</span><br><span class="line">    location / &#123;</span><br><span class="line">        return 404 "Find nothing!\n";		#rewrite阶段</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl访问测试结果如下，返回结果405</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 extra]# curl return.dookt.com.cn:8080/sdfgsag.txt</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;405 Not Allowed&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;405 Not Allowed&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>结果表明：server阶段的return 先于location阶段的return执行</p>
+<h3 id="Rewrite模块：重写URL"><a href="#Rewrite模块：重写URL" class="headerlink" title="Rewrite模块：重写URL"></a>Rewrite模块：重写URL</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>rewrite regex replacement [flag];</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code>, <code>if</code></td>
+</tr>
+</tbody></table>
+<h4 id="rewrite功能"><a href="#rewrite功能" class="headerlink" title="rewrite功能"></a>rewrite功能</h4><ul>
+<li>将regex指定的url替换成replacement这个新的URL<ul>
+<li>可以使用正则表达式及变量提取</li>
+</ul>
+</li>
+<li>当replacement以http://或者https://或者$schema开头，则直接返回302重定向</li>
+<li>替换后的url根据flag指定的方式进行处理<ul>
+<li>last：用replacement这个URL进行新的location匹配</li>
+<li>break：break指令停止当前脚本指令的执行，等价于独立的break指令</li>
+<li>redirect：返回302重定向</li>
+<li>permanent：返回301重定向</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 目录结构如下</span></span><br><span class="line">tree html</span><br><span class="line">├── first</span><br><span class="line">│   └── 1.txt</span><br><span class="line">├── index.html</span><br><span class="line">├── second</span><br><span class="line">│   └── 2.txt</span><br><span class="line">└── third</span><br><span class="line">    └── 3.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置文件，未使用<span class="built_in">break</span></span></span><br><span class="line">server &#123;</span><br><span class="line">    listen 8057;</span><br><span class="line">    server_name rewrite.dookt.com.cn;</span><br><span class="line">    rewrite_log on;</span><br><span class="line">    error_log logs/rewrite_error.log notice;</span><br><span class="line"></span><br><span class="line">    root html/;</span><br><span class="line">    location /first &#123;</span><br><span class="line">        rewrite /first(.*) /second$1 last;</span><br><span class="line">        return 200 'first!\n';</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    location /second &#123;</span><br><span class="line">        rewrite /second(.*) /third$1;     #此处没有break,执行完之后，执行return 200 'second!\n';</span><br><span class="line">        return 200 'second!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /third &#123;</span><br><span class="line">        return 200 'third!\n';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl访问 first/3.txt，此时先匹配location /first，在重定向到location /second.然后返回 second!</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl rewrite.dookt.com.cn:8057/first/3.txt</span><br><span class="line">second!</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 此时使用<span class="built_in">break</span></span></span><br><span class="line">server &#123;</span><br><span class="line">    listen 8057;</span><br><span class="line">    server_name rewrite.dookt.com.cn;</span><br><span class="line">    rewrite_log on;</span><br><span class="line">    error_log logs/rewrite_error.log notice;</span><br><span class="line"></span><br><span class="line">    root html/;</span><br><span class="line">    location /first &#123;</span><br><span class="line">        rewrite /first(.*) /second$1 last;</span><br><span class="line">        return 200 'first!\n';</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    location /second &#123;</span><br><span class="line">        rewrite /second(.*) /third$1 break;        #此处使用break时，直接跳出location /second，同时也跳出了return 200 'second!\n'</span><br><span class="line">        return 200 'second!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /third &#123;</span><br><span class="line">        return 200 'third!\n';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl访问 first/3.txt，此时先匹配location /first，在重定向到location /second（使用breakt跳出，未执行return），然后转到location /third。返回 third！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl rewrite.dookt.com.cn:8057/first/3.txt</span><br><span class="line">test3</span><br></pre></td></tr></table></figure>
+
+<h3 id="Rewrite模块：条件判断if"><a href="#Rewrite模块：条件判断if" class="headerlink" title="Rewrite模块：条件判断if"></a>Rewrite模块：条件判断if</h3><p>根据请求中变量的值，判断变量的值是否满足某个条件，在执行if块下的配置指令，根据这些匹配指令在调用相应模块执行请求</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>if (condition) { … }</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>如果条件（condition）为真，则执行大括号内的指令，遵循值指令的继承规则</p>
+<h4 id="if指令的条件表达式"><a href="#if指令的条件表达式" class="headerlink" title="if指令的条件表达式"></a>if指令的条件表达式</h4><ol>
+<li>检查变量为空或值是否为0，直接使用</li>
+<li>将变量与字符串做匹配，或者使用 = 或者 !=</li>
+<li>将变量与正则表达式做匹配<ol>
+<li>大小写敏感：~  或者 !~</li>
+<li>大小写不敏感：<del>* 或者 !</del>*</li>
+</ol>
+</li>
+<li>检查文件是否存在，使用 -f 或者 !-f</li>
+<li>检查目录是否存在，使用 -d 或者 !-d</li>
+<li>检查文件，目录，软链是否存在，使用 -e 或者 !-e</li>
+<li>检查是否为可执行文件，使用 -x 或者 !-x</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 示例1,如果用户访问代理是IE浏览器就执行以下操作</span></span><br><span class="line">if ($http_user_agent ~ MSIE) &#123;</span><br><span class="line">    rewrite ^(.*)$ /msie/$1 break;         </span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 案例2，</span></span><br><span class="line">if ($http_cookie ~* "id=([^;]+)(?::|$)") &#123;</span><br><span class="line">    set $id $1;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 案例3，post方法返回405</span></span><br><span class="line">if ($request_mothod = POST) &#123;</span><br><span class="line">    return 405</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 案例4，满足需要是限速10k</span></span><br><span class="line">if ($slow) &#123;</span><br><span class="line">	limit_rate 10k;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 案例5,如果是盗链，则返回403</span></span><br><span class="line">if ($invalid_referer) &#123;</span><br><span class="line">    return 403;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="find-config阶段：找到处理请求的location指令块"><a href="#find-config阶段：找到处理请求的location指令块" class="headerlink" title="find_config阶段：找到处理请求的location指令块"></a>find_config阶段：找到处理请求的location指令块</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>location [ = | ~ | <del>* | ^</del> ] uri { … }<code></code>location @name { … }</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>merge_shashes：可以合并url中的斜杠</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>merge_slashes on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>merge_slashes on;</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code></td>
+</tr>
+</tbody></table>
+<h4 id="location匹配规则：仅匹配URI-忽略参数"><a href="#location匹配规则：仅匹配URI-忽略参数" class="headerlink" title="location匹配规则：仅匹配URI,忽略参数"></a>location匹配规则：仅匹配URI,忽略参数</h4><ul>
+<li>合并连续的 ‘/‘ 符号<ul>
+<li>merge_shashes on</li>
+</ul>
+</li>
+<li>前缀字符串<ul>
+<li>常规（）</li>
+<li>= ：精确匹配</li>
+<li>^~：匹配上后不再进行正则表达式匹配</li>
+</ul>
+</li>
+<li>用于内部跳转命名的location ：@</li>
+<li>正则表达式<ul>
+<li>~ ：大小写敏感的正则匹配</li>
+<li>~* ：忽略大小写的正则匹配</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 案例</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name     location.dookt.com.cn;</span><br><span class="line"></span><br><span class="line">    location ~/Test1/$ &#123;</span><br><span class="line">        return 200 'First regular expresssions match!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location ~* /Test1(\w+)$ &#123;</span><br><span class="line">        return 200 'Longest regular expresssions match!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location ^~/Test1/ &#123;</span><br><span class="line">        return 200 'Stop regular expresssions match!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /Test1/Test2 &#123;</span><br><span class="line">        return 200 'Longest prefix string match!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /Test1 &#123;</span><br><span class="line">        return 200 'Prefix string match!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location = /Test1 &#123;</span><br><span class="line">        return 200 'Exact match!\n';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl命令测试结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 访问 /Test1 --- 匹配到5，6，精确匹配</span></span><br><span class="line">[root@openresty01 ~]# curl location.dookt.com.cn/Test1</span><br><span class="line">Exact match!</span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问 /Test1/ ---匹配上1，</span></span><br><span class="line">[root@openresty01 ~]# curl location.dookt.com.cn/Test1/</span><br><span class="line">Stop regular expresssions match!</span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问 /Test1/Test2 --- 前缀匹配</span></span><br><span class="line">[root@openresty01 ~]# curl location.dookt.com.cn/Test1/Test2</span><br><span class="line">Longest regular expresssions match!</span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问 /Test1/Test2/ ---</span></span><br><span class="line">[root@openresty01 ~]# curl location.dookt.com.cn/Test1/Test2/</span><br><span class="line">Longest prefix string match!</span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问 /<span class="built_in">test</span>/Test2 ---</span></span><br><span class="line">[root@openresty01 ~]# curl location.dookt.com.cn/test1/Test2/</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="location匹配顺序"><a href="#location匹配顺序" class="headerlink" title="location匹配顺序"></a>location匹配顺序</h4><ul>
+<li>遍历匹配全部前缀字符串location<ul>
+<li>如果匹配上 “=” 字符串，则使用匹配上的”=”精确匹配location</li>
+<li>如果匹配上 “^<del>“ 字符串，则使用匹配上的 “^</del>“ 字符串location</li>
+<li>如果没有匹配上，则记住最长匹配的前缀字符串location<ul>
+<li>按nginx.conf中的顺序依次匹配正则表达式location<ul>
+<li>如果匹配上，则使用匹配上的正则表达式</li>
+<li>如果没有匹配上，则继续按nginx.conf中的顺序依次匹配正则表达式location</li>
+<li>如果所有的正则表达式都不匹配，则使用最长匹配的前缀字符串location</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="preaccess阶段：对连接做限制的limit-conn模块"><a href="#preaccess阶段：对连接做限制的limit-conn模块" class="headerlink" title="preaccess阶段：对连接做限制的limit_conn模块"></a>preaccess阶段：对连接做限制的limit_conn模块</h3><ul>
+<li>生效阶段：NGX_HTTP_PREACCESS_PHASH阶段</li>
+<li>模块：http_limit_conn_module</li>
+<li>默认编译进nginx，通过–wthout-http_limit_conn_module禁用该模块</li>
+<li>生效范围<ul>
+<li>全部的worker进程（基于共享内存）</li>
+<li>进入preaccess阶段前不生效</li>
+<li>限制的有效性取决于key的设计：依赖于postread阶段的realip模块总中取到的真实IP</li>
+</ul>
+</li>
+</ul>
+<h4 id="limit-conn指令"><a href="#limit-conn指令" class="headerlink" title="limit_conn指令"></a>limit_conn指令</h4><ul>
+<li>定义共享内存（包括大小），以及key关键字</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_conn_zone key zone=name:size;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>限制并发连接数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_conn zone number;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>限制发生时的日志级别</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_conn_log_level info | notice | warn | error;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>limit_conn_log_level error;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>限制发生时向客户端返回的错误码</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_conn_status code;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>limit_conn_status 503;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置一个叫addr的共享内存，用来限制客户端访问，还限制访问速率50字节，并给出限制访问客户端返回错误码500</span></span><br><span class="line">limit_conn_zone $binary_remote_addr zone=addr:10M;</span><br><span class="line">server &#123;</span><br><span class="line">    server_name limit.dookt.com.cn;</span><br><span class="line">    root html;</span><br><span class="line">    error_log logs/limit-error.log info;</span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_conn_status 500;</span><br><span class="line">        limit_conn_log_level warn;</span><br><span class="line">        limit_rate 50;</span><br><span class="line">        limit_conn addr 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 依次使用curl命令访问limit.dookt.com.cn,可以看出第二个返回了500</span></span><br><span class="line"> [root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">test index</span><br><span class="line">[root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;500 Internal Server Error&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;500 Internal Server Error&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="preaccess阶段对连接做限制的limit-req模块"><a href="#preaccess阶段对连接做限制的limit-req模块" class="headerlink" title="preaccess阶段对连接做限制的limit_req模块"></a>preaccess阶段对连接做限制的limit_req模块</h3><ul>
+<li><p>生效阶段：NGX_HTTP_PREACCESS_PHASE阶段</p>
+</li>
+<li><p>模块：http_limit_req_module</p>
+</li>
+<li><p>默认编辑进nginx，使用–without-http_limit_req_module禁用该模块</p>
+</li>
+<li><p>生效算法：leaky bucket算法</p>
+</li>
+<li><p>生效范围</p>
+<ul>
+<li>全部worker进程（基于共享内存）</li>
+<li>进入preaccess阶段前不生效</li>
+</ul>
+</li>
+<li><p>定义共享内存（包括大小），以及key关键字和限制速率， rate单位为r/s或者r/m</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_req_zone key zone=name:size rate=rate [sync];</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>限制并发连接数，burst默认为0，nodelay，对burst请求不再采用延时处理的做法，而是立刻处理</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_req zone=name [burst=number] [nodelay | delay=number];</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>限制发生时的日志级别</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_req_log_level info | notice | warn | error;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>limit_req_log_level error;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>限制发生时现客户端返回的错误码</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>limit_req_status code;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>limit_req_status 503;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>Q：limit_req与limit_conn配置同时生效时，哪个有效？</p>
+<p>A：limit_req</p>
+<p>Q：nodelay添加与否，有什么不同？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置一个叫one的共享内存，用来限制客户端访问，未使用brust，默认的限制访问错误码503</span></span><br><span class="line">limit_conn_zone $binary_remote_addr zone=addr:10M;</span><br><span class="line">limit_req_zone $binary_remote_addr zone=one:10m rate=2r/m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    server_name limit.dookt.com.cn;</span><br><span class="line">    root html;</span><br><span class="line">    error_log logs/limit-error.log info;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_conn_status 500;</span><br><span class="line">        limit_conn_log_level warn;</span><br><span class="line">        #limit_rate 50;</span><br><span class="line">        #limit_conn addr 1;</span><br><span class="line">        #limit_req zone=one burst=3 nodelay;</span><br><span class="line">        limit_req zone=one;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl测试访问，结果如下：访问第二次就不能继续访问了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">&lt;h1&gt;Welcome to OpenResty!&lt;/h1&gt;</span><br><span class="line"></span><br><span class="line">[root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">&lt;h1&gt;503 Service Temporarily Unavailable&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置一个叫one的共享内存，用来限制客户端访问，使用brust，默认的限制访问错误码503</span></span><br><span class="line">limit_conn_zone $binary_remote_addr zone=addr:10M;</span><br><span class="line">limit_req_zone $binary_remote_addr zone=one:10m rate=2r/m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    server_name limit.dookt.com.cn;</span><br><span class="line">    root html;</span><br><span class="line">    error_log logs/limit-error.log info;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_conn_status 500;</span><br><span class="line">        limit_conn_log_level warn;</span><br><span class="line">        #limit_rate 50;</span><br><span class="line">        #limit_conn addr 1;</span><br><span class="line">        limit_req zone=one burst=3 nodelay;</span><br><span class="line">        #limit_req zone=one;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl测试访问，结果如下：因为使用了burst，会立即处理，所以可以直接访问成功两次</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">&lt;h1&gt;Welcome to OpenResty!&lt;/h1&gt;</span><br><span class="line"></span><br><span class="line">[root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">&lt;h1&gt;Welcome to OpenResty!&lt;/h1&gt;</span><br><span class="line"></span><br><span class="line">[root@openresty01 ~]#  curl limit.dookt.com.cn</span><br><span class="line">&lt;h1&gt;503 Service Temporarily Unavailable&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
+
+<p>结果表明使用burst处理会立即处理，不会延时处理</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">同时启用限制连接和限制请求（limit_con、limit_req），若返回503则是限制请求生效，若返回500则限制连接生效</span></span><br><span class="line">limit_conn_zone $binary_remote_addr zone=addr:10M;</span><br><span class="line">limit_req_zone $binary_remote_addr zone=one:10m rate=2r/m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    server_name limit.dookt.com.cn;</span><br><span class="line">    root html;</span><br><span class="line">    error_log logs/limit-error.log info;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_conn_status 500;</span><br><span class="line">        limit_conn_log_level warn;</span><br><span class="line">        limit_rate 50;</span><br><span class="line">        limit_conn addr 1;</span><br><span class="line">        #limit_req zone=one burst=3 nodelay;</span><br><span class="line">        limit_req zone=one;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结论：limit_req在limit_conn之前</p>
+<h3 id="access阶段的模块"><a href="#access阶段的模块" class="headerlink" title="access阶段的模块"></a>access阶段的模块</h3><ul>
+<li>access模块</li>
+<li>auth_basic模块</li>
+<li>auth_request模块</li>
+<li>其他模块</li>
+</ul>
+<h3 id="access阶段：对IP做限制的access模块"><a href="#access阶段：对IP做限制的access模块" class="headerlink" title="access阶段：对IP做限制的access模块"></a>access阶段：对IP做限制的access模块</h3><ul>
+<li>生效阶段：NGX_HTTP_ACCESS_PHASH阶段</li>
+<li>模块：http_access_module</li>
+<li>默认编译进nginx，通过–without-http_access_module禁用功能</li>
+<li>生效范围<ul>
+<li>进入access阶段前不生效</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>allow address | CIDR | unix: | all;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>deny address | CIDR | unix: | all;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">示例</span></span><br><span class="line">    location / &#123;</span><br><span class="line">        deny 172.16.100.1;</span><br><span class="line">        allow 172.16.100.0/24;</span><br><span class="line">        deny all;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="access阶段：对用户名和密码做限制的auth-basic模块"><a href="#access阶段：对用户名和密码做限制的auth-basic模块" class="headerlink" title="access阶段：对用户名和密码做限制的auth_basic模块"></a>access阶段：对用户名和密码做限制的auth_basic模块</h3><h4 id="auth-basic模块的功能"><a href="#auth-basic模块的功能" class="headerlink" title="auth_basic模块的功能"></a>auth_basic模块的功能</h4><ul>
+<li>基于HTTP Basic Authutication协议进行用户名密码认证</li>
+<li>默认编译进Nginx，通过–without-http_auth_basic_module禁用该模块</li>
+</ul>
+<h4 id="auth-basic模块指令"><a href="#auth-basic模块指令" class="headerlink" title="auth_basic模块指令"></a>auth_basic模块指令</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>auth_basic string | off;    #显示的titile</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>auth_basic off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>auth_basic_user_file file;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code></td>
+</tr>
+</tbody></table>
+<h4 id="生成密码文件"><a href="#生成密码文件" class="headerlink" title="生成密码文件"></a>生成密码文件</h4><ul>
+<li>安装依赖包：httpd-tools</li>
+<li>生成文件：htpasswd -c file -b user pass 。-c生成一个新文件，不加-c为追加</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    server_name access.dookt.com.cn;</span><br><span class="line">    location / &#123;</span><br><span class="line">        satisfy any;</span><br><span class="line">        auth_basic "Test auth_basic";</span><br><span class="line">        auth_basic_user_file /usr/local/openresty/nginx/passwd.db;</span><br><span class="line">        deny all;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用elinks或者在浏览器中访问提示输入用户名、密码。必须有输入正确的用户名密码才能访问</p>
+<h3 id="access阶段：使用第三方做授权控制的auth-request模块"><a href="#access阶段：使用第三方做授权控制的auth-request模块" class="headerlink" title="access阶段：使用第三方做授权控制的auth_request模块"></a>access阶段：使用第三方做授权控制的auth_request模块</h3><ul>
+<li><p>功能</p>
+<ul>
+<li>向上游服务器转发请求，有上游服务返回响应码2xx，则继续执行；若返回401或403，则将响应发给客户端</li>
+</ul>
+</li>
+<li><p>原理</p>
+<ul>
+<li>收到请求后，生成子请求，通过反向代理技术把请求传递给上游服务</li>
+</ul>
+</li>
+<li><p>默认未编译进nginx，需要使用–with-http_auth_request_module</p>
+</li>
+<li><p>指令</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>auth_request uri | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>auth_request off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>auth_request_set $variable value;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 172.16.100.11:80</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name access.dookt.com.cn;</span><br><span class="line">    error_log logs/access-error.log debug;</span><br><span class="line">    location /auth_request &#123;</span><br><span class="line">        auth_request /test_auth;</span><br><span class="line">    &#125;</span><br><span class="line">    location = / &#123;</span><br><span class="line">        proxy_pass http://127.0.0.1:8090/auth_upstream;</span><br><span class="line">        proxy_pass_request_body off;</span><br><span class="line">        proxy_set_header Centenyt-Length "";</span><br><span class="line">        proxy_set_header X-Original-URI $request_uri;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 172.16.100.11:8090</span></span><br><span class="line">    server &#123;</span><br><span class="line">    listen 8090;</span><br><span class="line">    location /auth_upstream &#123;</span><br><span class="line">        return 403 'auth success!\n';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">此时访问172.16.100.16.11:80</span></span><br><span class="line">[root@openresty01 ~]# curl access.dookt.com.cn -I</span><br><span class="line">HTTP/1.1 403 Forbidden</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 06:07:47 GMT</span><br><span class="line">Content-Type: application/octet-stream</span><br><span class="line">Content-Length: 13</span><br><span class="line">Connection: keep-alive</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改172.16.100.11:8090 配置文件中<span class="built_in">return</span> 200 <span class="string">'auth success!\n'</span>;</span></span><br><span class="line">[root@openresty01 extra]# curl access.dookt.com.cn -I</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 06:08:25 GMT</span><br><span class="line">Content-Type: application/octet-stream</span><br><span class="line">Content-Length: 13</span><br><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
+
+<h3 id="access阶段：satisfy指令"><a href="#access阶段：satisfy指令" class="headerlink" title="access阶段：satisfy指令"></a>access阶段：satisfy指令</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>satisfy all | any;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>satisfy all;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<h4 id="执行顺序"><a href="#执行顺序" class="headerlink" title="执行顺序"></a>执行顺序</h4><ul>
+<li>执行一个access模块</li>
+<li>如果允许放行，判断satisfy开关<ul>
+<li>如果时候all，则执行下一个access模块</li>
+<li>如果是any，则access阶段放行</li>
+</ul>
+</li>
+<li>如果被拒绝，判断satisfy开关<ul>
+<li>如果是any，则执行下一个access模块</li>
+<li>如果是all，则执行拒绝请求</li>
+</ul>
+</li>
+</ul>
+<h4 id="Q-amp-A环节"><a href="#Q-amp-A环节" class="headerlink" title="Q&amp;A环节"></a>Q&amp;A环节</h4><p>Q：如果有return指令，access阶段会生效吗？</p>
+<p>A：肯定不会，因为return指令在server rewrite或者rewrite阶段，都在access阶段之前</p>
+<p>Q：多个access模块的顺序有影响吗？</p>
+<p>查看nginx_module.c</p>
+<ul>
+<li>&amp;ngx_http_auth_request_module,</li>
+<li>&amp;ngx_http_auth_basic_module,</li>
+<li>&amp;ngx_http_access_module,</li>
+</ul>
+<p>A：肯定是有影响的</p>
+<p>Q：输对密码，下面可以访问到文件吗？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">	satisfy any;</span><br><span class="line">	auth_basic &quot;test auth_basic&quot;</span><br><span class="line">	auth_basic_user_file /usr/local/openresty/nginx/passwd.db;</span><br><span class="line">	deny all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A：配置satisfy any，只要输对用户名密码就可以访问</p>
+<p>Q：如果把deny all提到auth_basic之前呢？</p>
+<p>A：还是可以访问的，因为和配置指令的顺序无关</p>
+<p>Q：如果改为allow all，有机会输入密码吗？</p>
+<p>A：改为allow all，则没有机会输入密码，因为allow all直接同意了</p>
+<h3 id="precontent阶段：按序访问资源的try-file模块"><a href="#precontent阶段：按序访问资源的try-file模块" class="headerlink" title="precontent阶段：按序访问资源的try_file模块"></a>precontent阶段：按序访问资源的try_file模块</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>try_files  file…uri; try_files file…=code;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>功能</li>
+<li>依次访问多个url对应的文件（由root或者alias指令指定），当文件存在是直接返回文件内容，如果所有文件都不存在，则按最后一个URL结果或者code返回</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    server_name tryfiles.dookt.com.cn;</span><br><span class="line">    error_log logs/tryfiles_error.log info;</span><br><span class="line">    root html;</span><br><span class="line">    default_type text/html;</span><br><span class="line"></span><br><span class="line">    location /first &#123;</span><br><span class="line">        try_files /system/maintenance.html</span><br><span class="line">            $uri $uri/index.html $uri.html</span><br><span class="line">            @lasturl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location @lasturl &#123;</span><br><span class="line">        return 200 'lasturl!\n';</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /second &#123;</span><br><span class="line">        try_files $uri/index.html $uri.html = 404;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl测试访问 /first 和 /second。结果如下与预期一致：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl tryfiles.dookt.com.cn/first</span><br><span class="line">lasturl!</span><br><span class="line">[root@openresty01 ~]# curl tryfiles.dookt.com.cn/second</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="precoppntent阶段：实时拷贝流量的mirror模块"><a href="#precoppntent阶段：实时拷贝流量的mirror模块" class="headerlink" title="precoppntent阶段：实时拷贝流量的mirror模块"></a>precoppntent阶段：实时拷贝流量的mirror模块</h3><p>处理请求时，生成子请求访问其他服务，对子请求的返回值不作处理</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>mirror uri | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>mirror off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>mirror_request_body on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>mirror_request_body on;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<h3 id="content阶段：root和alias指令"><a href="#content阶段：root和alias指令" class="headerlink" title="content阶段：root和alias指令"></a>content阶段：root和alias指令</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>root path</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>root html;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code>, <code>if in location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>alias path;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>location</code></td>
+</tr>
+</tbody></table>
+<h4 id="alias和root功能及差别："><a href="#alias和root功能及差别：" class="headerlink" title="alias和root功能及差别："></a>alias和root功能及差别：</h4><ul>
+<li>功能：两者都是将url映射为文件路径，以返回静态文件的内容</li>
+<li>差别：<ul>
+<li>root：会将完整的url映射进文件路径中</li>
+<li>alias：只会将location后的URL映射到文件路径</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen  8822;</span><br><span class="line">    server_name static.dookt.com.cn;</span><br><span class="line">    location /root &#123;</span><br><span class="line">        root html;</span><br><span class="line">    &#125;</span><br><span class="line">    location /alias &#123;</span><br><span class="line">        alias html;</span><br><span class="line">    &#125;</span><br><span class="line">    location ~ /root/(\w+\.txt) &#123;</span><br><span class="line">        root html/first/$1;</span><br><span class="line">    &#125;</span><br><span class="line">    location ~ /alias/(\w+\.txt) &#123;</span><br><span class="line">        alias html/first/$1;</span><br><span class="line">    &#125;</span><br><span class="line">    location /RealPath/ &#123;           #需要在html目录下做一个软链接，ln -sv first realpath</span><br><span class="line">        alias html/realpath/;</span><br><span class="line">        return 200 '$request_filename:$document_root:$realpath_root\n';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过curl访问 /root, /root/1.txt, /alias/, /alias/1.txt</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 访问/root</span></span><br><span class="line">[root@openresty01 ~]# curl alias_root.dookt.com.cn:8822/root</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问/root/1.txt</span></span><br><span class="line">[root@openresty01 ~]# curl alias_root.dookt.com.cn:8822/root/1.txt</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line">curl alias_root.dookt.com.cn:8822/root/</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问/<span class="built_in">alias</span>/</span></span><br><span class="line">[root@openresty01 ~]# curl alias_root.dookt.com.cn:8822/alias/</span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;title&gt;Welcome to OpenResty!&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h1&gt;Welcome to OpenResty!&lt;/h1&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 访问/<span class="built_in">alias</span>/1.txt</span></span><br><span class="line">[root@openresty01 ~]# curl alias_root.dookt.com.cn:8822/alias/1.txt</span><br><span class="line">test1</span><br></pre></td></tr></table></figure>
+
+<h3 id="static模块提供的3个变量"><a href="#static模块提供的3个变量" class="headerlink" title="static模块提供的3个变量"></a>static模块提供的3个变量</h3><p>Q：当我们访问 /RealPath/1.txt时，这三个变量的值各为多少？</p>
+<ul>
+<li>request_filename：待访问文件的完整路径</li>
+<li>document_root：由URI和root/alias规则生成的文件夹的路径</li>
+<li>realpath_root：将document_root中的软连接换成真实路径</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">使用curl访问RealPath/1.txt，其实是访问html/first/1.txt</span></span><br><span class="line">[root@openresty01 ~]# curl static.dookt.com.cn:8822/RealPath/1.txt</span><br><span class="line">/usr/local/openresty/nginx/html/realpath/1.txt:/usr/local/openresty/nginx/html/realpath/:/usr/local/openresty/nginx/html/first</span><br></pre></td></tr></table></figure>
+
+<h3 id="静态文件返回的content-type"><a href="#静态文件返回的content-type" class="headerlink" title="静态文件返回的content-type"></a>静态文件返回的content-type</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>types { … }</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>types { text/html  html; image/gif  gif; image/jpeg jpg; }</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>default_type mime-type;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>default_type text/plain;`</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>types_hash_bucket_size size;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>types_hash_bucket_size 64;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>types_hash_max_size size;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>types_hash_max_size 1024;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<h3 id="static模块url不以斜杆结尾却访问目录的做法"><a href="#static模块url不以斜杆结尾却访问目录的做法" class="headerlink" title="static模块url不以斜杆结尾却访问目录的做法"></a>static模块url不以斜杆结尾却访问目录的做法</h3><p>Q：访问目录时URL最后没有带 / ? static模块实现了root / alias 功能时，发现访问目标是目录，但是URL末尾加上 / 时，会返回301错误</p>
+<h4 id="重定向跳转的域名"><a href="#重定向跳转的域名" class="headerlink" title="重定向跳转的域名"></a>重定向跳转的域名</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>server_name_in_redirect on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>server_name_in_redirect off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>| Syntax:  | <code>port_in_redirect on | off;</code> |<br>| :——- | —————————- |<br>| Default: | <code>port_in_redirect on;</code>       |<br>| Context: | <code>http</code>, <code>server</code>, <code>location</code> |</p>
+<p>| Syntax:  | <code>absolute_redirect on | off;</code> |<br>| :——- | —————————– |<br>| Default: | <code>absolute_redirect on;</code>       |<br>| Context: | <code>http</code>, <code>server</code>, <code>location</code>  |</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置1，关闭主域名显示</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name return.dookt.com.cn dir.dookt.com.cn;</span><br><span class="line">    server_name_in_redirect on;     #显示重定向域名中的server_name还是host头部的主机名</span><br><span class="line">    listen 8081;</span><br><span class="line">    port_in_redirect on;       #打开访问时输入的重定向端口</span><br><span class="line">    absolute_redirect on;      #打开访问时输入的重定向域名</span><br><span class="line">    root html/;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash">配置2，关闭端口显示</span></span><br><span class="line">server &#123;</span><br><span class="line">        server_name return.dookt.com.cn dir.dookt.com.cn;</span><br><span class="line">        server_name_in_redirect off;</span><br><span class="line">        listen 8081;</span><br><span class="line">        port_in_redirect off;      #关闭访问时输入的重定向端口</span><br><span class="line">        absolute_redirect on;      #打开访问时输入的重定向域名</span><br><span class="line">        root html/;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash">配置3,开启显示重定向域名中的server_name为配置文件中的server_name</span></span><br><span class="line">server &#123;</span><br><span class="line">        server_name return.dookt.com.cn dir.dookt.com.cn;</span><br><span class="line">        server_name_in_redirect on;</span><br><span class="line">        listen 8081;</span><br><span class="line">        port_in_redirect off;</span><br><span class="line">        absolute_redirect on;</span><br><span class="line">        root html/;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash">配置4，关闭所有显示（域名+端口）</span></span><br><span class="line">server &#123;</span><br><span class="line">        server_name return.dookt.com.cn dir.dookt.com.cn;</span><br><span class="line">        server_name_in_redirect on;</span><br><span class="line">        listen 8081;</span><br><span class="line">        port_in_redirect on;</span><br><span class="line">        absolute_redirect off;        #关闭绝对重定向</span><br><span class="line">        root html/;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置1，运行结果</span></span><br><span class="line">[root@openresty01 ~]# curl static.dookt.com.cn:8081/first -I</span><br><span class="line">HTTP/1.1 301 Moved Permanently</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 09:48:25 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: 191</span><br><span class="line">Location: http://static.dookt.com.cn:8081/first/        #此时访问header头部有域名和端口号</span><br><span class="line">Connection: keep-alive</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">配置2,运行结果</span></span><br><span class="line">[root@openresty01 ~]# curl static.dookt.com.cn:8081/first -I</span><br><span class="line">HTTP/1.1 301 Moved Permanently</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 09:51:33 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: 191</span><br><span class="line">Location: http://static.dookt.com.cn/first/        #此时访问header头部只有域名，没有端口信息</span><br><span class="line">Connection: keep-alive</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">配置3，运行结果</span></span><br><span class="line">[root@openresty01 ~]# curl static.dookt.com.cn:8081/first -I</span><br><span class="line">HTTP/1.1 301 Moved Permanently</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 09:55:02 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: 191</span><br><span class="line">Location: http://return.dookt.com.cn/first/     #此时访问header头部修改为配置文件中定义的server_name</span><br><span class="line">Connection: keep-alive</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">配置4，运行结果</span></span><br><span class="line">[root@openresty01 ~]# curl static.dookt.com.cn:8081/first -I</span><br><span class="line">HTTP/1.1 301 Moved Permanently</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 09:57:43 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: 191</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Location: /first/                     #此时访问header头部只有/first/，没有域名模和端口</span><br></pre></td></tr></table></figure>
+
+<h3 id="content阶段的：index和autoindex模块"><a href="#content阶段的：index和autoindex模块" class="headerlink" title="content阶段的：index和autoindex模块"></a>content阶段的：index和autoindex模块</h3><ul>
+<li>index模块<ul>
+<li>功能：指定 / 访问时返回index文件的内容</li>
+<li>模块：ngx_http_index_module</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>index file …;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>index index.html;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>autoindex模块<ul>
+<li>功能：当URL以 / 结尾时，尝试以html/xml/json/jsonp等格式返回root/alias中指定目录的目录结构</li>
+<li>模块：ngx_http_autoindex_module，默认编译进nginx，使用–without-ngx_http_autoindex_module禁用该模块</li>
+<li>autoindex指令</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>autoindex on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>autoindex off;</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>autoindex_exact_size on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>autoindex_exact_size on;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>autoindex_format html | xml | json | jsonp;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>autoindex_format html;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>autoindex_localtime on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>autoindex_localtime off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置autoindex</span></span><br><span class="line">server &#123;</span><br><span class="line">        server_name  autoindex.dookt.com.cn;</span><br><span class="line">        listen 8999;</span><br><span class="line">        location / &#123;</span><br><span class="line">                alias html/;</span><br><span class="line">                autoindex on;</span><br><span class="line">                index a.html;</span><br><span class="line">                autoindex_exact_size off;</span><br><span class="line">                autoindex_format json;</span><br><span class="line">                autoindex_localtime on;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl autoindex.dookt.com.cn:8999</span><br><span class="line">[</span><br><span class="line">&#123; "name":"first", "type":"directory", "mtime":"Thu, 11 Jul 2019 22:29:53 GMT" &#125;,</span><br><span class="line">&#123; "name":"realpath", "type":"directory", "mtime":"Thu, 11 Jul 2019 22:29:53 GMT" &#125;,</span><br><span class="line">&#123; "name":"second", "type":"directory", "mtime":"Thu, 11 Jul 2019 22:30:02 GMT" &#125;,</span><br><span class="line">&#123; "name":"third", "type":"directory", "mtime":"Thu, 11 Jul 2019 22:30:11 GMT" &#125;,</span><br><span class="line">&#123; "name":"403.html", "type":"file", "mtime":"Thu, 11 Jul 2019 21:58:47 GMT", "size":245 &#125;,</span><br><span class="line">&#123; "name":"50x.html", "type":"file", "mtime":"Thu, 04 Jul 2019 07:43:58 GMT", "size":541 &#125;,</span><br><span class="line">&#123; "name":"index.html", "type":"file", "mtime":"Thu, 04 Jul 2019 07:43:58 GMT", "size":649 &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h3 id="content阶段：concat模块"><a href="#content阶段：concat模块" class="headerlink" title="content阶段：concat模块"></a>content阶段：concat模块</h3><ul>
+<li><p>功能：当需要访问多个小文件时，把他们的内容合并到一次http请求中返回，提升性能</p>
+</li>
+<li><p>模块：ngx_http_concat_module</p>
+<ul>
+<li>模块地址（<a href="https://github.com/alibaba/nginx-http-concat）" target="_blank" rel="noopener">https://github.com/alibaba/nginx-http-concat）</a>: –add-moudle=../nginx-http-concat/</li>
+</ul>
+</li>
+<li><p>使用：在URI后加上 ?? ，后通过多个 , 号分隔文件。如果还有参数，则在最后通过 ? 添加参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/alibaba/nginx-http-concat/archive/master.zip</span><br><span class="line">tar -xvf master.zip</span><br><span class="line">mv nginx-http-concat-master/ nginx-http-concat</span><br><span class="line">./configure --add-module=../nginx-http-concat/ </span><br><span class="line">gmake &amp;&amp; gmake install</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">concat:</th>
+<th><code>on</code>| off</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>concat off</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">concat_type:</th>
+<th>`MIME types</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>concat_types:text/css application/x-javascript</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">concat_unique:</th>
+<th><code>on</code>| off</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>conca_unique on</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">concat_max_files:</th>
+<th>`numberp</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>conca_max_files 10</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">concat_delimiter:</th>
+<th><code>string</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>NONE</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">concat_ignore_file_error:</th>
+<th><code>on</code>| off</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>off</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen 8998;</span><br><span class="line">    server_name concat.dookt.com.cn;</span><br><span class="line">    error_log logs/concat_error.log debug;</span><br><span class="line">    concat on;				# 开启concat</span><br><span class="line">    root html;        </span><br><span class="line"></span><br><span class="line">    location /concat &#123;</span><br><span class="line">        concat_max_files 20;    #对多合并多少个文件</span><br><span class="line">        concat_types text/plain;    #对文本文件进行合并</span><br><span class="line">        concat_unique on;    	 #对一种还是多种文件进行分隔</span><br><span class="line">        concat_delimiter ':::';    #设置文件内容分隔符</span><br><span class="line">        concat_ignore_file_error on;    #若文件不存在则返回其他文件的内容</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl命令访问，结果如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">结果输出1.txt和2.txt的内容，并以:::分隔文件内容</span></span><br><span class="line">[root@openresty01 ~]# curl concat.dookt.com.cn:8998/concat/??1.txt,2.txt</span><br><span class="line">This is 1.txt content</span><br><span class="line">:::This is 2.txt content</span><br></pre></td></tr></table></figure>
+
+<h3 id="log阶段：access日志的用法"><a href="#log阶段：access日志的用法" class="headerlink" title="log阶段：access日志的用法"></a>log阶段：access日志的用法</h3><ul>
+<li>功能：将HTTP请求信息记录到日志中</li>
+<li>模块：nginx_http_log_module，不能禁用该模块</li>
+</ul>
+<h4 id="log-format指令"><a href="#log-format指令" class="headerlink" title="log_format指令"></a>log_format指令</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>log_format name [escape=default|json|none] string …;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>log_format combined &quot;...&quot;;</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<h4 id="默认的日志格式"><a href="#默认的日志格式" class="headerlink" title="默认的日志格式"></a>默认的日志格式</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">log_format combined '$remote_addr - $remote_user [$time_local] '</span><br><span class="line">                    '"$request" $status $body_bytes_sent '</span><br><span class="line">                    '"$http_referer" "$http_user_agent"';</span><br></pre></td></tr></table></figure>
+
+<h4 id="日志文件格式"><a href="#日志文件格式" class="headerlink" title="日志文件格式"></a>日志文件格式</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>access_log path [format [buffer=size] [gzip[=level]] [flush=time] [if=condition]];<code></code>access_log off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>access_log logs/access.log combined;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td>http, server, location, if in location, limit_except</td>
+</tr>
+</tbody></table>
+<ul>
+<li>path 路径可以包含变量：不打开cache是每记录一条日志都需要打开、关闭日志文件</li>
+<li>if 通过变量值控制请求日志是否记录</li>
+<li>日志缓存<ul>
+<li>功能：批量将内存中的日志写入磁盘</li>
+<li>写入磁盘的条件<ul>
+<li>所有待写入磁盘的日志大小超出缓存大小</li>
+<li>达到flush指定的过期时间</li>
+<li>worker进程执行reopen命令，或者正在关闭</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>日志压缩<ul>
+<li>功能：批量压缩内存中的日志，在写入磁盘</li>
+<li>buffer大小默认为64KB</li>
+<li>压缩级别默认为1（1最快压缩率最低，9压缩最慢压缩率最高）</li>
+</ul>
+</li>
+</ul>
+<h4 id="日志文件名包含变量的优化"><a href="#日志文件名包含变量的优化" class="headerlink" title="日志文件名包含变量的优化"></a>日志文件名包含变量的优化</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>open_log_file_cache max=N [inactive=time] [min_uses=N] [valid=time];<code></code>open_log_file_cache off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>open_log_file_cache off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>max：缓存内的最大文件句柄数，超出后用LRU算法淘汰</li>
+<li>inactive：文件访问完后这段时间内不会关闭。默认10秒</li>
+<li>min_uses：在inactive时间内使用次数超过min_uses才会继续存在内存中，默认为1</li>
+<li>valid：超出valid时间后，将对缓存的日志文件检查是否存在。默认60秒</li>
+<li>off：关闭缓存功能</li>
+</ul>
+<h2 id="HTTP过滤模块的调用流程"><a href="#HTTP过滤模块的调用流程" class="headerlink" title="HTTP过滤模块的调用流程"></a>HTTP过滤模块的调用流程</h2><h3 id="HTTP过滤模块介绍"><a href="#HTTP过滤模块介绍" class="headerlink" title="HTTP过滤模块介绍"></a>HTTP过滤模块介绍</h3><p>log阶段之前，content阶段之后处理的</p>
+<ul>
+<li>copy_filter：复制包体的内容</li>
+<li>postpone_filter：处理子请求</li>
+<li>header_filter：构造响应头部</li>
+<li>write_filter：发送响应</li>
+</ul>
+<h3 id="HTTP过滤模块：替换修改响应内容的sub模块"><a href="#HTTP过滤模块：替换修改响应内容的sub模块" class="headerlink" title="HTTP过滤模块：替换修改响应内容的sub模块"></a>HTTP过滤模块：替换修改响应内容的sub模块</h3><ul>
+<li><p>功能：将响应中指定的字符串替换成新的字符串</p>
+</li>
+<li><p>模块：ngx_http_sub_module模块。默认为编译进nginx，使用 –with-http_sub_module启用该模块</p>
+</li>
+<li><p>指令：</p>
+<p>需要把返回给用户中响应中的匹配上的字符串替换成新的字符串</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>sub_filter <em>string</em> replacement;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>​    是否需要把上次修改字符串的时间显示出来</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>sub_filter_last_modified on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>sub_filter_last_modified off;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>​    是否只修改一次（on），或者全部修改(off)</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>sub_filter_once on | off;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>sub_filter_once on;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>​    只是针对什么样的响应才修改，可以设置为*，但是效率太低</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>sub_filter_types mime-type …;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>sub_filter_types text/html;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">若不使用sub模块显示的是openresty的默认欢迎主页，此时修改若匹配到openresty.com、openresty.org就替换为主机域名（配置文件中定义的）/nginx，</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name sub.dookt.com.cn;</span><br><span class="line">    error_log logs/sub-error.log info;</span><br><span class="line">    location / &#123;</span><br><span class="line">        sub_filter 'openresty.org' '$host/openresty';</span><br><span class="line">        sub_filter 'openresty.com' '$host/openresty';</span><br><span class="line">        sub_filter_once off;</span><br><span class="line">        sub_filter_last_modified on;      #开启在header头部添加上Last-Modified的时间</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">未添加sub配置的效果</span></span><br><span class="line">[root@openresty01 ~]# curl sub.dookt.com.cn </span><br><span class="line">&lt;h1&gt;Welcome to OpenResty!&lt;/h1&gt;</span><br><span class="line">&lt;p&gt;For online documentation and support please refer to</span><br><span class="line">&lt;a href="https://openresty.org/"&gt;openresty.org&lt;/a&gt;.&lt;br/&gt;</span><br><span class="line">Commercial support is available at</span><br><span class="line">&lt;a href="https://openresty.com/"&gt;openresty.com&lt;/a&gt;.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">添加sub配置的效果</span></span><br><span class="line">[root@openresty01 ~]# curl sub.dookt.com.cn </span><br><span class="line">&lt;h1&gt;Welcome to OpenResty!&lt;/h1&gt;</span><br><span class="line">&lt;p&gt;For online documentation and support please refer to</span><br><span class="line">&lt;a href="https://sub.dookt.com.cn/openresty/"&gt;openresty.org&lt;/a&gt;.&lt;br/&gt;</span><br><span class="line">Commercial support is available at</span><br><span class="line">&lt;a href="https://sub.dookt.com.cn/openresty/"&gt;openresty.com&lt;/a&gt;.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##可以发现添加sub配置后openresty.org、openresty.com都替换为了sub.dookt.com.cn/openresty</span></span></span><br><span class="line"></span><br><span class="line">[root@openresty01 ~]# curl sub.dookt.com.cn -I</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Server: openresty/1.13.6.2</span><br><span class="line">Date: Fri, 12 Jul 2019 13:23:15 GMT</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Last-Modified: Thu, 04 Jul 2019 07:43:58 GMT         #添加上替换的时间</span><br><span class="line">Connection: keep-alive</span><br><span class="line">ETag: W/"5d1dae3e-289"</span><br></pre></td></tr></table></figure>
+
+<h3 id="HTTP过滤模块：在响应前后添加内容的addition模块"><a href="#HTTP过滤模块：在响应前后添加内容的addition模块" class="headerlink" title="HTTP过滤模块：在响应前后添加内容的addition模块"></a>HTTP过滤模块：在响应前后添加内容的addition模块</h3><ul>
+<li><p>功能：在响应前或后正价内容，而增加内容的方式是通过新增子请求的响应完成</p>
+</li>
+<li><p>模块：ngx_http_addition_module，默认为编译进nginx，使用–with-http_addtion_module启用该模块</p>
+</li>
+<li><p>指令：</p>
+<p>在响应前添加内容，根据uri响应的内容，返回在子请求之前</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>add_before_body uri;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>​    在响应后添加内容，根据uri响应的内容，返回在子请求之后</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>add_after_body uri;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>​    允许添加的响应类型，可以使用*，但是效率太低</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>addition_types mime-type …;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>addition_types text/html;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    server_name addition.dookt.com.cn;</span><br><span class="line">    error_log logs/addition-error.log info;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        add_before_body /before_action;        #配置add_before_body</span><br><span class="line">        add_after_body /after_action;          #配置add_after_body</span><br><span class="line">        addition_types *;</span><br><span class="line">    &#125;</span><br><span class="line">    location /before_action &#123;               </span><br><span class="line">        return 200 'new content before!\n';      #访问/before_action，则返回"new content before!\n"</span><br><span class="line">    &#125;</span><br><span class="line">    location /after_action &#123;</span><br><span class="line">        return 200 'new content after!\n';       #访问/after_action，则返回"new content after!\n"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用curl测试结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">若没有配置addition（即注释add_before_body、add_after_body两个配置），结果如下：</span></span><br><span class="line">[root@openresty01 ~]# curl addition.dookt.com.cn/a.txt</span><br><span class="line">This is a.txt content!            #内容为html/a.txt文件的内容</span><br><span class="line"><span class="meta">#</span><span class="bash">添加addition配置后结果如下</span></span><br><span class="line">[root@openresty01 ~]# curl addition.dookt.com.cn/a.txt</span><br><span class="line">new content before!</span><br><span class="line">This is a.txt content!</span><br><span class="line">new content after!</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nginx变量"><a href="#Nginx变量" class="headerlink" title="Nginx变量"></a>Nginx变量</h2><h3 id="Nginx变量的运行原理"><a href="#Nginx变量的运行原理" class="headerlink" title="Nginx变量的运行原理"></a>Nginx变量的运行原理</h3><ul>
+<li><p>变量</p>
+<ul>
+<li>提供变量的模块（preconfiguration中定义新变量）—定义规则<ul>
+<li>变量名</li>
+<li>解析出变量的方法</li>
+</ul>
+</li>
+<li>使用变量的模块<ul>
+<li>解析nginx.conf是定义的变量使用方式</li>
+<li>处理请求</li>
+</ul>
+</li>
+</ul>
+<p>性求值：变量值可以时刻变化，其值为使用的那一刻的值</p>
+</li>
+</ul>
+<h3 id="存放变量的哈希表"><a href="#存放变量的哈希表" class="headerlink" title="存放变量的哈希表"></a>存放变量的哈希表</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>variables_hash_bucket_size <em>size</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>variables_hash_bucket_size 64;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>variables_hash_max_size <em>size</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>variables_hash_max_size 1024;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<h3 id="HTTP框架提供的变量"><a href="#HTTP框架提供的变量" class="headerlink" title="HTTP框架提供的变量"></a>HTTP框架提供的变量</h3><ul>
+<li>HTTP请求相关的变量<ul>
+<li>arg_参数名：URL中某个具体参数的值</li>
+<li>query_string：与args变量完全相同</li>
+<li>args：全部URL参数</li>
+<li>is_args：如果请求URL中有参数则返回？否则返回空</li>
+<li>content_length：HTTP请求标识包体长度的centent-length头部的值</li>
+<li>content_type：表示请求包体的content_type头部的值</li>
+<li>uri：请求的URI（不同于URL，不包括后面的参数）</li>
+<li>document_uri：与 uri 完全相同</li>
+<li>request_uri：请求的URL（包括URI以及完整的参数）</li>
+<li>scheme：协议名，例如HTTP或者HTTPS</li>
+<li>request_mothod：请求方法，例如GET或者POST</li>
+<li>request_length：请求内容的大小，包括请求行、头部、包体等</li>
+<li>remote_user：由HTTP Basic Authentication协议传入的用户名</li>
+<li>remote_body_file：临时存放请求包体的文件<ul>
+<li>如果包体非常小则不会存文件</li>
+<li>client_body_in_file_only强制所有包体存入文件，且可决定是否删除</li>
+</ul>
+</li>
+<li>request_body：请求的包体，这个变量当且仅当使用反向代理，且设定用内存暂存包体时才有效</li>
+<li>request：用户原始的url请求，含有方法与协议版本，例如GET/?a=1&amp;b=22 HTTP/1.1</li>
+<li>host：先从请求行中获取，若含有Host头部，则用其值替换掉请求行中的主机名，若前二者都没有，则使用匹配上的server_name</li>
+<li>http_头部名字：<ul>
+<li>通用：返回一个具体请求的头部的值（从用户请求的header中取）：</li>
+<li>特殊（特殊处理）：<ul>
+<li>http_host</li>
+<li>http_user_agent</li>
+<li>http_referer</li>
+<li>http_via</li>
+<li>http_x_forwarded_for</li>
+<li>http_cookie</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">变量值</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen 8098;</span><br><span class="line">    server_name var.dookt.com.cn;</span><br><span class="line">    error_log logs/var-error.log info;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        set $limit 10k;</span><br><span class="line">        return 200 '</span><br><span class="line">arg_a: $arg_a, arg_b: $arg_b, args: $args</span><br><span class="line">connection: $connection, connection_requests: $connection_requests</span><br><span class="line">cookie_a: $cookie_a</span><br><span class="line">uri: $uri, document_uri: $document_uri, request_uri: $request_uri</span><br><span class="line">request: $request</span><br><span class="line">request_id: $request_id</span><br><span class="line">server: $server_addr, $server_name, $server_port, $server_protocol</span><br><span class="line">tcpinfo:$tcpinfo_rtt, $tcpinfo_rttvar, $tcpinfo_snd_cwnd, $tcpinfo_rcv_space</span><br><span class="line">limit_rate: $limit_rate</span><br><span class="line">hostname: $hostname</span><br><span class="line">content_length: $content_length</span><br><span class="line">status: $status</span><br><span class="line">body_bytes_sent: $body_bytes_sent, bytes_sent: $bytes_sent</span><br><span class="line">time: $request_time. $msec, $time_iso8601, $time_local</span><br><span class="line">';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -H 'Content-Length: 0' -H 'Cookie: a=c1' 'var.dookt.com.cn:8098?a=1&amp;b=23'</span><br><span class="line"></span><br><span class="line">arg_a: 1, arg_b: 23, args: a=1&amp;b=23</span><br><span class="line">connection: 27, connection_requests: 1</span><br><span class="line">cookie_a: c1</span><br><span class="line">uri: /, document_uri: /, request_uri: /?a=1&amp;b=23</span><br><span class="line">request: GET /?a=1&amp;b=23 HTTP/1.1</span><br><span class="line">request_id: a3e628a8f23f54c90c1a1481e1814600</span><br><span class="line">server: 172.16.100.11, var.dookt.com.cn, 8098, HTTP/1.1</span><br><span class="line">tcpinfo:0, 0, 10, 43690</span><br><span class="line">limit_rate: 0</span><br><span class="line">hostname: openresty01</span><br><span class="line">content_length: 0</span><br><span class="line">status: 200</span><br><span class="line">body_bytes_sent: 0, bytes_sent: 0</span><br><span class="line">time: 0.000. 1562944594.627, 2019-07-12T23:16:34+08:00, 12/Jul/2019:23:16:34 +0800</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>TCP连接相关的变量<ul>
+<li>binary_remote_addr：客户端地址的整形格式，对于IPV4是4字节，IPv6是16字节</li>
+<li>connection：递增的连接序号</li>
+<li>connection_reqeuests：当前连接上执行过的请求数，对keepalived连接有意义</li>
+<li>remote_addr：客户端地址</li>
+<li>remote_port：客户端端口</li>
+<li>proxy_protocol_addr：若使用了proxy_protocol协议则返回协议中的地址，否则返回为空</li>
+<li>proxy_protocol_port：若使用了proxy_protocol协议则返回协议中的端口，否则返回为空</li>
+<li>server_addr：服务器的地址</li>
+<li>server_port：服务器的端口</li>
+<li>TCP_INFO：tcp内核蹭参数，包括$tcpinfo_rtt, $tcpinfo_rttvar, $tcpinfo_snd_cend, $tcpinfo_rcv_space</li>
+<li>server_protocol：服务器协议，例如HTTP/1.1</li>
+</ul>
+</li>
+<li>Nginx处理请求过程中产生的变量<ul>
+<li>request_time：请求处理到现在的耗时，单位是s，精确到ms</li>
+<li>server_name：匹配请求上的server_name值</li>
+<li>https：如果开启了TLS/SSL，则返回no，否则返回空</li>
+<li>request_completion：若请求处理完则返回OK，否则返回空</li>
+<li>request_id：以16进制输出的请求标识id，该id共含有16个字节，是随机的</li>
+<li>request_filename：待访问文件的完整路径</li>
+<li>document_root：由URI和root/alias规则生成的文件夹路径</li>
+<li>realpath_root：将document_root中的软连接换成真实的路径</li>
+<li>limit_rate：返回客户端响应时的速度上限，单位为每秒字节数。可以通过set指令修改</li>
+</ul>
+</li>
+<li>发送HTTP响应时相关的变量<ul>
+<li>body_bytes_sent：响应中body包体的长度</li>
+<li>byte_sent：全部http响应的长度</li>
+<li>status：http响应中的返回码</li>
+<li>sent_trailer_名字：把响应结尾内容里的值返回</li>
+<li>sent_http_头部名字：响应中某个具体头部的值<ul>
+<li>通用：返回什么头部就取什么头部的值</li>
+<li>特殊：需要特殊处理<ul>
+<li>sent_http_content_type</li>
+<li>sent_http_content_length</li>
+<li>sent_http_loction</li>
+<li>sent_http_last_modified</li>
+<li>sent_http_connection</li>
+<li>sent_http_keep_alive</li>
+<li>sent_http_transfer_encoding</li>
+<li>sent_http_cache-control</li>
+<li>sent_http_link</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Nginx系统变量<ul>
+<li>time_local：以本地标准输出的当前时间， 例如：12/Jul/2019:23:44:50 +0800</li>
+<li>time_iso8601：使用ISO8601标准输出的时间 ，例如：2019-07-12T23:44:50+08:00</li>
+<li>nginx_version：Nginx版本号</li>
+<li>pid：所属的worker进程id</li>
+<li>pipe：使用了管道则返回p，否则返回 .</li>
+<li>hostname：所在服务器的主机名，与hostname命令输出一致</li>
+<li>msec：1760年1月1日到现在的时间，单位为秒，小数点后精确到毫秒， 例如：1562946290.424s</li>
+</ul>
+</li>
+</ul>
+<h3 id="referer模块"><a href="#referer模块" class="headerlink" title="referer模块"></a>referer模块</h3><ul>
+<li>场景：当某个网站通过url引用你的页面，当用户在浏览器上点击url时，http请求的头部会通过referer头部。将该网站当前页面的url带上，告诉服务器本次请求是由这个页面发起的</li>
+<li>目的：拒绝非正常的网站访问我们的站点资源</li>
+<li>思路：通过referer模块，用invaild_referer变量根据判断referer头部是否合法</li>
+<li>refer模块：默认编译进nginx，使用–without-http_referer_module禁用该模块</li>
+<li>指令：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>valid_referers none | blocked | server_names | string …;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>referer_hash_bucket_size <em>size</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>referer_hash_bucket_size 64;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>referer_hash_max_size <em>size</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>referer_hash_max_size 2048;</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<h4 id="valid-referers指令"><a href="#valid-referers指令" class="headerlink" title="valid_referers指令"></a>valid_referers指令</h4><ul>
+<li>参数值：<ul>
+<li>none：允许缺失referer头部的请求访问</li>
+<li>block：允许referer头部没有对应的值的请求访问</li>
+<li>server_names：若referer中站点域名与server_name中本机域名某个匹配，则允许该请求访问</li>
+</ul>
+</li>
+<li>表示域名及URL的字符串，对应域名可在前缀或者后缀中含有*通配符<ul>
+<li>若referer头部的值匹配字符串后，则允许访问</li>
+</ul>
+</li>
+<li>正则表达式<ul>
+<li>若referer头部的值匹配正则表达式后，则允许访问</li>
+</ul>
+</li>
+<li>invalid_referers变量<ul>
+<li>允许访问时变量值为空</li>
+<li>不允许访问时的变量值为1</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    server_name referer.dookt.com.cn;</span><br><span class="line">    error_log logs/referer-error.log debug;</span><br><span class="line">    root html;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        valid_referers none blocked server_names</span><br><span class="line">            *.dookt.com.cn www.dookt.org/nginx/</span><br><span class="line">            ~\.google\.;</span><br><span class="line"></span><br><span class="line">        if ($invalid_referer) &#123;</span><br><span class="line">            return 403;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return 200 'valid!\n';</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -H 'referer: http://www.dookt.org/' referer.dookt.com.cn/</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;403 Forbidden&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;403 Forbidden&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line">[root@openresty01 ~]# curl -H 'referer: http://www.dookt.org/nginx' referer.dookt.com.cn/</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;403 Forbidden&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;403 Forbidden&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line">[root@openresty01 ~]# curl -H 'referer: http://www.dookt.org/nginx/' referer.dookt.com.cn/</span><br><span class="line">valid!</span><br><span class="line">[root@openresty01 ~]# curl -H 'referer: ' referer.dookt.com.cn/ </span><br><span class="line">valid!</span><br><span class="line">[root@openresty01 ~]# curl referer.dookt.com.cn/</span><br><span class="line">valid!</span><br><span class="line">[root@openresty01 ~]# curl -H 'referer: http://referer.dookt.com.cn' referer.dookt.com.cn/</span><br><span class="line">valid!</span><br><span class="line">[root@openresty01 ~]# curl -H 'referer: http://images.baidu.com/search/detail' referer.dookt.com.cn/</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;&lt;title&gt;403 Forbidden&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;body bgcolor="white"&gt;</span><br><span class="line">&lt;center&gt;&lt;h1&gt;403 Forbidden&lt;/h1&gt;&lt;/center&gt;</span><br><span class="line">&lt;hr&gt;&lt;center&gt;openresty/1.13.6.2&lt;/center&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line">[root@openresty01 ~]# curl -H 'referer: http://images.google.com/search/detail' referer.dookt.com.cn/</span><br><span class="line">valid!</span><br></pre></td></tr></table></figure>
+
+<h3 id="防盗链secure-link模块"><a href="#防盗链secure-link模块" class="headerlink" title="防盗链secure_link模块"></a>防盗链secure_link模块</h3><ul>
+<li>功能：通过验证URL中的哈希值的方式防盗链</li>
+<li>过程：<ul>
+<li>由某服务器（可以是nginx）生成加密后的安全链接url，返回给客户端</li>
+<li>客户端使用安全url访问nginx，由nginx的secure_link变量判断是否验证通过</li>
+</ul>
+</li>
+<li>变量：<ul>
+<li>sercure_link</li>
+<li>secure_link_expires</li>
+</ul>
+</li>
+<li>模块：默认没有编译进nginx，需要通过–with-http_secure_link_module添加该模块</li>
+<li>原理：<ul>
+<li>哈希算法是不可逆的</li>
+<li>客户端只能拿到执行过哈希算法的URL</li>
+<li>仅生成URL的服务器和验证URL是否安全的nginx，才保存执行哈希前的原始字符串</li>
+<li>原始字符串通常由以下部分有序组成：<ul>
+<li>资源位置：例如HTTP中指定资源的URI，防止拿到一个安全的URL后可以访问任意资源</li>
+<li>用户信息：例如用户的IP地址，限制其他用户盗用URL</li>
+<li>时间戳：使安全URL及时过期</li>
+<li>密钥：仅服务器端拥有，增加攻击者猜测出原始字符串的难度</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>secure_link expression;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>secure_link_md5 <em>expression</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>secure_link_secret <em>word</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>location</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>变量<ul>
+<li>secure_link<ul>
+<li>值为空：验证不通过</li>
+<li>值为0：URL过期</li>
+<li>值为1：验证通过</li>
+</ul>
+</li>
+<li>secure_link_rxpires<ul>
+<li>时间戳的值</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="变量值带过期时间的配置实例"><a href="#变量值带过期时间的配置实例" class="headerlink" title="变量值带过期时间的配置实例"></a>变量值带过期时间的配置实例</h4><h5 id="命令行生成安全链接"><a href="#命令行生成安全链接" class="headerlink" title="命令行生成安全链接"></a>命令行生成安全链接</h5><ul>
+<li>原请求：<ul>
+<li>/test1.txt?md6=md5生成值&amp;expires=时间戳（如2147483647）</li>
+</ul>
+</li>
+<li>生成md5<ul>
+<li>echo -n ‘时间戳URL客户端IP密钥’|openssl md5 -binary | openssl base64 | tr +/ - |tr -d = </li>
+</ul>
+</li>
+</ul>
+<h5 id="Nginx配置"><a href="#Nginx配置" class="headerlink" title="Nginx配置"></a>Nginx配置</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">secure_link $arg_md5,arg_expires;</span><br><span class="line">secure_link_mk5 "$secure_link_expires$uri$remote_addr secret";</span><br></pre></td></tr></table></figure>
+
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置文件</span></span><br><span class="line">server &#123;</span><br><span class="line">    server_name securelink.dookt.com.cn;</span><br><span class="line">    error_log logs/secure-error.log info;</span><br><span class="line">    default_type text/plain;</span><br><span class="line">    location / &#123;</span><br><span class="line">        secure_link $arg_md5,$arg_expires;</span><br><span class="line">        secure_link_md5 "$secure_link_expires$uri$remote_addr secret";</span><br><span class="line">        if ($secure_link = "") &#123;</span><br><span class="line">            return 403;</span><br><span class="line">        &#125;</span><br><span class="line">        if ($secure_link = "0" ) &#123;</span><br><span class="line">            return 410;</span><br><span class="line">        &#125;</span><br><span class="line">        return 200 '$secure_link:$secure_link_expires\n';</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">测试，结果如下 </span></span><br><span class="line">[root@openresty01 ~]# echo -n '2147483647/test1.txt172.16.100.11 secret'|openssl md5 -binary | openssl base64 | tr +/ - |tr -d =                #生成md5</span><br><span class="line">OpVufjJNnc5LIAT-jJZH7A</span><br><span class="line">[root@openresty01 ~]# curl 'securelink.dookt.com.cn/test1.txt?md5=OpVufjJNnc5LIAT-jJZH7A&amp;expires=2147483647' </span><br><span class="line">1:2147483647</span><br></pre></td></tr></table></figure>
+
+<h4 id="仅对URI进行哈希的简单办法"><a href="#仅对URI进行哈希的简单办法" class="headerlink" title="仅对URI进行哈希的简单办法"></a>仅对URI进行哈希的简单办法</h4><ul>
+<li>原理：<ul>
+<li>将请求的URI分为三个部分：/prefix/hash/link</li>
+<li>hash生成方式<ul>
+<li>对”link密钥”做md5哈希求值</li>
+</ul>
+</li>
+<li>用secure_link_secret secret; 配置密钥</li>
+</ul>
+</li>
+</ul>
+<h5 id="命令行生成安全链接-1"><a href="#命令行生成安全链接-1" class="headerlink" title="命令行生成安全链接"></a>命令行生成安全链接</h5><ul>
+<li>原请求：<ul>
+<li>link</li>
+</ul>
+</li>
+<li>生成的安全请求<ul>
+<li>/prefix/md5/link</li>
+</ul>
+</li>
+<li>生成md5<ul>
+<li>echo -n ‘linksecret’ | openssl md5 -hex</li>
+</ul>
+</li>
+</ul>
+<h5 id="Nginx配置-1"><a href="#Nginx配置-1" class="headerlink" title="Nginx配置"></a>Nginx配置</h5><ul>
+<li>secure_link_secret secret;</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]#  echo -n 'test1.txtmysecret2' | openssl md5 -hex          </span><br><span class="line">(stdin)= c3f9b32bf901b04c052ea9511e29a918</span><br><span class="line">[root@openresty01 extra]# curl 'securelink.dookt.com.cn/p/c3f9b32bf901b04c052ea9511e29a918/test1.txt'</span><br><span class="line">This is test1.txt content!</span><br></pre></td></tr></table></figure>
+
+<h3 id="为复杂业务生成新的变量：map模块"><a href="#为复杂业务生成新的变量：map模块" class="headerlink" title="为复杂业务生成新的变量：map模块"></a>为复杂业务生成新的变量：map模块</h3><ul>
+<li>功能：基于已有变量，使用类似switch {case:… default: …}的语法创建新变量，为其他基于变量值实功能的模块提供更能多可能性</li>
+<li>模块：默认编译进nginx，通过–without-http_map_module禁用该模块</li>
+</ul>
+<h4 id="map模块的指令"><a href="#map模块的指令" class="headerlink" title="map模块的指令"></a>map模块的指令</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>map string $variable { … }</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>map_hash_bucket_size <em>size</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>map_hash_bucket_size 32|64|128;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>map_hash_max_size size;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>map_hash_max_size 2048;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<h4 id="map模块：通过映射新变量提供更多可能性"><a href="#map模块：通过映射新变量提供更多可能性" class="headerlink" title="map模块：通过映射新变量提供更多可能性"></a>map模块：通过映射新变量提供更多可能性</h4><ul>
+<li><p>已有变量</p>
+<ul>
+<li>字符串</li>
+<li>一个或者多个变量</li>
+<li>字符与字符串的组合已有变量：</li>
+</ul>
+</li>
+<li><p>case规则</p>
+<ul>
+<li>字符串严格匹配</li>
+<li>使用hostname指令，可以对域名使用前缀 * 泛域名匹配</li>
+<li>使用hostname指令，可以对域名使用后缀 * 泛域名匹配</li>
+<li>~ 和 ~* 正则表达式匹配，后者忽略大小写</li>
+</ul>
+</li>
+<li><p>default规则</p>
+<ul>
+<li>没有匹配到任何规则时，使用default</li>
+<li>缺失default时，返回空字符串给新变量</li>
+</ul>
+</li>
+<li><p>其他</p>
+<ul>
+<li>使用include语法提升可读性</li>
+<li>使用volatile禁止变量值缓存</li>
+</ul>
+</li>
+</ul>
+<h4 id="Q-amp-A-环节演示实例"><a href="#Q-amp-A-环节演示实例" class="headerlink" title="Q &amp; A 环节演示实例"></a>Q &amp; A 环节演示实例</h4><p>Q：对以下配置，当以下请求发生时，name变量值是？</p>
+<ul>
+<li>‘Host: map.dookt.com.cn’</li>
+<li>‘Host: map.dook123.com.cn’</li>
+<li>‘Host: map.dookt.com.cn’</li>
+<li>‘Host: map.dookt.org’</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">注意ma指令生效范围http</span></span><br><span class="line">map $http_host $name &#123;</span><br><span class="line">        hostnames;</span><br><span class="line"></span><br><span class="line">        default 0;</span><br><span class="line">        ~map\.doo\w+\.com.cn 1;</span><br><span class="line">        *.dookt.com.cn 2;</span><br><span class="line">        map.dookt.com.cn 3;</span><br><span class="line">        map.dookt.* 4;</span><br><span class="line">    &#125;</span><br><span class="line">    map $http_user_agent $mobile &#123;</span><br><span class="line">        default 0;</span><br><span class="line">        "Opera Mini" 1;</span><br><span class="line">    &#125;</span><br><span class="line">    server &#123;</span><br><span class="line">        listen 10001;</span><br><span class="line">        default_type text/plain;</span><br><span class="line">        location / &#123;</span><br><span class="line">            return 200 '$name:$mobile\n';</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -H 'Host: www.dookt.com.com' 127.0.0.1:10001</span><br><span class="line">0:0</span><br><span class="line">[root@openresty01 ~]# curl -H 'Host: www.dookt.com.cn' 127.0.0.1:10001   </span><br><span class="line">2:0</span><br><span class="line">[root@openresty01 ~]# curl -H 'Host: map.dookt.com.cn' 127.0.0.1:10001    </span><br><span class="line">3:0</span><br><span class="line">[root@openresty01 ~]# curl -H 'Host: map.dook123.com.cn' 127.0.0.1:10001 </span><br><span class="line">1:0</span><br><span class="line">[root@openresty01 ~]# curl -H 'Host: map.dookt.com' 127.0.0.1:10001     </span><br><span class="line">4:0</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过变量指定少量用户实现AB测试：split-client"><a href="#通过变量指定少量用户实现AB测试：split-client" class="headerlink" title="通过变量指定少量用户实现AB测试：split_client"></a>通过变量指定少量用户实现AB测试：split_client</h3><ul>
+<li><p>功能：主要用于实现AB测试，产品不太确定的推出的功能用户是否接受，所以推出多个版本的功能，某个百分比的的用户去尝试某版本的功能，来看反馈，决定使用哪个版本</p>
+</li>
+<li><p>模块：ngx_http_split_clients_module，默认编译进nginx，通过–without-http_split_clients_module禁用该模块</p>
+</li>
+<li><p>规则：</p>
+<ul>
+<li>已有变量<ul>
+<li>字符串</li>
+<li>一个或多个变量</li>
+<li>变量与字符串组合</li>
+</ul>
+</li>
+<li>case规则<ul>
+<li>xx.xx%，支持小数点后2位，所有项的百分比相加不超过100%</li>
+<li>*，由它匹配剩余的百分比（100%减去以上项相加的百分比）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>基于已有变量创建新变量，为其他AB变量测试提供更能多可能性</p>
+<ul>
+<li>对已有变量的值执行MurmurHash2算法得到32位整形哈希数字，记为hash</li>
+<li>32位无符号整形的最大数字2^32 -1，记为max</li>
+<li>哈希数字与最大数字相除hash/max，可以得到百分比percent</li>
+<li>配指令中指示了各项百分比构成的范围，如0-1%，1-5%等，及范围对应的值就当percent落在那个范围里，新变量的值就对应其后的参数</li>
+</ul>
+</li>
+</ul>
+<h4 id="split-client模块的指令"><a href="#split-client模块的指令" class="headerlink" title="split_client模块的指令"></a>split_client模块的指令</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>split_clients <em>string</em> $variable { … }</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<p>Q：以下配置是否有问题？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">split_clients "$&#123;http_testcli&#125;AAA" $variant &#123;</span><br><span class="line">               0.51%               .one;</span><br><span class="line">               20.0%               .two;</span><br><span class="line">               50.5%               .three;</span><br><span class="line">               40.0%               .four;</span><br><span class="line">               *                  "";</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A：该配置是有问题的，百分比总和超过100%</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">split_clients "$&#123;http_testcli&#125;" $variant &#123;  #从头部取值，如果用户头部传了testcli，就取http_testcli的值</span><br><span class="line">        0.51%   .one;</span><br><span class="line">        20.0%   .two;</span><br><span class="line">        50.5%   .three;</span><br><span class="line">        #40%        .four;</span><br><span class="line">        *       "";</span><br><span class="line">    &#125;</span><br><span class="line">    server &#123;</span><br><span class="line">        server_name split_client.dookt.com.cn;</span><br><span class="line">        error_log log/split_client-error.log debug;</span><br><span class="line">        default_type text/plain;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">            return 200 'ABtestfile$variant\n';</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">此处使用curl -H传入testcli到header中，通过修改不同的哈希值，来实现测试</span></span><br><span class="line">[root@openresty01 ~]# curl -H 'testcli:4895768sdfasdgaga907567*&amp;*&amp;*&amp;48546456734579' split_clients.dookt.com.cn:10002/</span><br><span class="line">ABtestfile.three</span><br><span class="line">[root@openresty01 ~]# curl -H 'testcli:4895768sdfasdgagasdf9sdfsdsf' split_clients.dookt.com.cn:10002/               </span><br><span class="line">ABtestfile.two</span><br></pre></td></tr></table></figure>
+
+<h3 id="根据IP地址范围的匹配生成新的变量：geo模块"><a href="#根据IP地址范围的匹配生成新的变量：geo模块" class="headerlink" title="根据IP地址范围的匹配生成新的变量：geo模块"></a>根据IP地址范围的匹配生成新的变量：geo模块</h3><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>geo [<em>$address</em>] $variable { … }</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>功能：根据IP地址创建新的变量</p>
+</li>
+<li><p>模块：ngx_http_geo_module，默认编译进nginx，使用–without-http_geo_module禁用该模块</p>
+</li>
+<li><p>规则：</p>
+<ul>
+<li>如果geo指令后不输入$address，那么默认使用$remote_addr变量地址作为IP地址</li>
+<li>{} 内指令匹配：优先最长匹配<ul>
+<li>通过IP地址及子网掩码的方式，定义IP范围，当IP地址在范围内时新变量使用其后的参数值</li>
+<li>default指定了当以上范围都未匹配上时。新变量的默认值。</li>
+<li>通过proxy指令指定可信地址（realip模块），此时remote_addr为X-Forwarded-For头部值中最后一个IP地址</li>
+<li>proxy_recursive允许循环地址搜索</li>
+<li>include，优化可读性</li>
+<li>delete删除指定网络</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="Q-amp-A-环节及实例"><a href="#Q-amp-A-环节及实例" class="headerlink" title="Q &amp; A 环节及实例"></a>Q &amp; A 环节及实例</h4><p>Q：以下命令执行时，变量country的值各为多少（proxy为客户端地址）？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -H 'X-Forwarded-For: 10.1.0.0, 127.0.0.2' geo.dookt.com.cn</span><br><span class="line">curl -H 'X-Forwarded-For: 10.1.0.0, 127.0.0.1' geo.dookt.com.cn</span><br><span class="line">curl -H 'X-Forwarded-For: 10.1.0.0, 127.0.0.2,,1.2.3.4' geo.dookt.com.cn</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">配置文件</span></span><br><span class="line">geo $country &#123;</span><br><span class="line">        default ZZ;</span><br><span class="line">        proxy 172.16.100.11;          #定义了$address,不使用$remote_addr变量地址作为IP地址</span><br><span class="line">        127.0.0.0/24 US;</span><br><span class="line">        127.0.0.1/32 RU;</span><br><span class="line">        10.1.0.0/16 RU;</span><br><span class="line">        172.16.1.0/24 UK;</span><br><span class="line">    &#125;</span><br><span class="line">    server &#123;</span><br><span class="line">        listen 10003;</span><br><span class="line">        server_name geo.dookt.com.cn;</span><br><span class="line">        location / &#123;</span><br><span class="line">                return 200 '$country\n';</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@openresty01 ~]# curl -H 'X-Forwarded-For: 10.1.0.0,127.0.0.1,172.16.1.123' geo.dookt.com.cn:10003</span><br><span class="line">UK</span><br><span class="line">[root@openresty01 ~]# curl -H 'X-Forwarded-For: 10.1.0.0' geo.dookt.com.cn:10003       </span><br><span class="line">RU</span><br><span class="line">[root@openresty01 ~]# curl -H 'X-Forwarded-For: 10.1.0.0,127.0.0.1' geo.dookt.com.cn:10003</span><br><span class="line">RU</span><br><span class="line">[root@openresty01 ~]# curl -H 'X-Forwarded-For: 10.1.0.0,127.0.0.1,1.2.3.4' geo.dookt.com.cn:10003</span><br><span class="line">ZZ</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用变量获取用户的地理位置：geoip模块"><a href="#使用变量获取用户的地理位置：geoip模块" class="headerlink" title="使用变量获取用户的地理位置：geoip模块"></a>使用变量获取用户的地理位置：geoip模块</h3><p>基于MaxMind数据库从客户端地址获取变量</p>
+<ul>
+<li>功能：根据IP地址创建新变量</li>
+<li>模块：ngx_http_geoip_module，默认未编译进nginx，通过–with-http_geoip_module禁用该模块</li>
+<li>流程：<ul>
+<li>安装Maxmind里的geoip的C开发库（<a href="https://dev.maxmind.com/geoip/legacy/downloadable/）" target="_blank" rel="noopener">https://dev.maxmind.com/geoip/legacy/downloadable/）</a></li>
+<li>编译时nginx要带上–with-http_geoip_module参数</li>
+<li>下载geoip_country或者geoip_city指令配置好nginx.conf</li>
+<li>运行（升级Nginx）</li>
+</ul>
+</li>
+</ul>
+<h4 id="geoip-country指令提供的变量"><a href="#geoip-country指令提供的变量" class="headerlink" title="geoip_country指令提供的变量"></a>geoip_country指令提供的变量</h4><ul>
+<li>变量<ul>
+<li>$geoip_country_code：两个字母的国家代码，如CN或US</li>
+<li>$geoip_country_code3：三个字母的国家代码。如CHN或USA</li>
+<li>$geoip_country_name：国家名称，如’China’，’United Stated’</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>geoip_country file;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>geoip_proxy address | <em>CIDR</em>;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<h4 id="geoip-city指令提供的变量"><a href="#geoip-city指令提供的变量" class="headerlink" title="geoip_city指令提供的变量"></a>geoip_city指令提供的变量</h4><ul>
+<li>变量<ul>
+<li>$geoip_latitude：纬度</li>
+<li>$geoip_longitide：经度</li>
+<li>$geoip_city_continent_code：属于全球哪个州，如EU或AS</li>
+<li>与geoip_country指令生成的变量重叠<ul>
+<li>$geoip_city_country_code：两个字的国家代码，如CN或US</li>
+<li>$geoip_city_country_code2：三个字的国家代码，如CHN或USA</li>
+<li>$geoip_city_country_name：两个字的国家代码，如 China或 United States</li>
+</ul>
+</li>
+<li>$geoip_region：洲或省的编码。如02</li>
+<li>$geoip_region_name：洲或省名称，如Zhejiang或Saint Pertersburg</li>
+<li>$geoip_city：城市名</li>
+<li>$geoip_postal_code：邮编号</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>geoip_city file;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code></td>
+</tr>
+</tbody></table>
+<h3 id="Nginx对客户端使用keepalived特性提升连接效率"><a href="#Nginx对客户端使用keepalived特性提升连接效率" class="headerlink" title="Nginx对客户端使用keepalived特性提升连接效率"></a>Nginx对客户端使用keepalived特性提升连接效率</h3><ul>
+<li>功能：多个HTTP请求通过复用TPC连接实现一下功能：<ul>
+<li>减少握手次数</li>
+<li>减少通过并发连接数减少了服务器资源的消耗</li>
+<li>降低TCP拥塞控制的影响</li>
+</ul>
+</li>
+<li>协议：<ul>
+<li>connection头部：取值为close或者keepalive，前者表示请求处理完即关闭连接，后者表示复用连接处理的下一条请求</li>
+<li>Keep-Alive头部：其值为timeout=n，后面的数字n单位是秒，告诉客户端连接至少保留n秒</li>
+</ul>
+</li>
+</ul>
+<h4 id="keepalive行为控制的指令"><a href="#keepalive行为控制的指令" class="headerlink" title="keepalive行为控制的指令"></a>keepalive行为控制的指令</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>keepalive_disable none | browser …;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>keepalive_disable msie6;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>keepalive_requests number;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>keepalive_requests 100;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th>keepalive_timeout <em>timeout</em> [header_timeout];</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>keepalive_timeout 75s;</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+</div><div class="post-copyright"><blockquote><p>原文作者: Mr.Chen</p><p>原文链接: <a href="http://www.dookt.com/post/Nginx-HTTP模块详解.html">http://www.dookt.com/post/Nginx-HTTP模块详解.html</a></p><p>版权声明: 转载请注明出处(必须保留原文作者署名原文链接)</p></blockquote></div><div class="tags"><a href="/tags/运维基本功/">运维基本功</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/post/Python递归.html" class="pre">Python递归</a><a href="/post/Nginx-架构基础.html" class="next">Nginx-架构基础</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#openresty使用content-by-lua打印出用户浏览器信息"><span class="toc-text">openresty使用content_by_lua打印出用户浏览器信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx-HTTP模块详解"><span class="toc-text">Nginx HTTP模块详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置块的嵌套"><span class="toc-text">配置块的嵌套</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指令的context"><span class="toc-text">指令的context</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指令的合并"><span class="toc-text">指令的合并</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#需要理解的问题"><span class="toc-text">需要理解的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#listen指令"><span class="toc-text">listen指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx正则表达式"><span class="toc-text">Nginx正则表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#server-name指令块"><span class="toc-text">server_name指令块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用正则表达式创建变量"><span class="toc-text">用正则表达式创建变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他用法"><span class="toc-text">其他用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#server-name匹配顺序"><span class="toc-text">server_name匹配顺序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP请求的11个阶段"><span class="toc-text">HTTP请求的11个阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#postread阶段—realip模块"><span class="toc-text">postread阶段—realip模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#如何拿到用户的真实IP地址？"><span class="toc-text">如何拿到用户的真实IP地址？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#拿到用户真实IP地址如何使用"><span class="toc-text">拿到用户真实IP地址如何使用?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#realip模块的指令"><span class="toc-text">realip模块的指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：return指令"><span class="toc-text">Rewrite模块：return指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Nginx返回状态码"><span class="toc-text">Nginx返回状态码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：return指令和error-page"><span class="toc-text">Rewrite模块：return指令和error_page</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#return指令和error-page例子"><span class="toc-text">return指令和error_page例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：重写URL"><span class="toc-text">Rewrite模块：重写URL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rewrite功能"><span class="toc-text">rewrite功能</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：条件判断if"><span class="toc-text">Rewrite模块：条件判断if</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#if指令的条件表达式"><span class="toc-text">if指令的条件表达式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#find-config阶段：找到处理请求的location指令块"><span class="toc-text">find_config阶段：找到处理请求的location指令块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#location匹配规则：仅匹配URI-忽略参数"><span class="toc-text">location匹配规则：仅匹配URI,忽略参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#location匹配顺序"><span class="toc-text">location匹配顺序</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#preaccess阶段：对连接做限制的limit-conn模块"><span class="toc-text">preaccess阶段：对连接做限制的limit_conn模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#limit-conn指令"><span class="toc-text">limit_conn指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#preaccess阶段对连接做限制的limit-req模块"><span class="toc-text">preaccess阶段对连接做限制的limit_req模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段的模块"><span class="toc-text">access阶段的模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：对IP做限制的access模块"><span class="toc-text">access阶段：对IP做限制的access模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：对用户名和密码做限制的auth-basic模块"><span class="toc-text">access阶段：对用户名和密码做限制的auth_basic模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#auth-basic模块的功能"><span class="toc-text">auth_basic模块的功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#auth-basic模块指令"><span class="toc-text">auth_basic模块指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#生成密码文件"><span class="toc-text">生成密码文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：使用第三方做授权控制的auth-request模块"><span class="toc-text">access阶段：使用第三方做授权控制的auth_request模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：satisfy指令"><span class="toc-text">access阶段：satisfy指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#执行顺序"><span class="toc-text">执行顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-amp-A环节"><span class="toc-text">Q&amp;A环节</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#precontent阶段：按序访问资源的try-file模块"><span class="toc-text">precontent阶段：按序访问资源的try_file模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#precoppntent阶段：实时拷贝流量的mirror模块"><span class="toc-text">precoppntent阶段：实时拷贝流量的mirror模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content阶段：root和alias指令"><span class="toc-text">content阶段：root和alias指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#alias和root功能及差别："><span class="toc-text">alias和root功能及差别：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#static模块提供的3个变量"><span class="toc-text">static模块提供的3个变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态文件返回的content-type"><span class="toc-text">静态文件返回的content-type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#static模块url不以斜杆结尾却访问目录的做法"><span class="toc-text">static模块url不以斜杆结尾却访问目录的做法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#重定向跳转的域名"><span class="toc-text">重定向跳转的域名</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content阶段的：index和autoindex模块"><span class="toc-text">content阶段的：index和autoindex模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content阶段：concat模块"><span class="toc-text">content阶段：concat模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log阶段：access日志的用法"><span class="toc-text">log阶段：access日志的用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#log-format指令"><span class="toc-text">log_format指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#默认的日志格式"><span class="toc-text">默认的日志格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#日志文件格式"><span class="toc-text">日志文件格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#日志文件名包含变量的优化"><span class="toc-text">日志文件名包含变量的优化</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP过滤模块的调用流程"><span class="toc-text">HTTP过滤模块的调用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP过滤模块介绍"><span class="toc-text">HTTP过滤模块介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP过滤模块：替换修改响应内容的sub模块"><span class="toc-text">HTTP过滤模块：替换修改响应内容的sub模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP过滤模块：在响应前后添加内容的addition模块"><span class="toc-text">HTTP过滤模块：在响应前后添加内容的addition模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx变量"><span class="toc-text">Nginx变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx变量的运行原理"><span class="toc-text">Nginx变量的运行原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#存放变量的哈希表"><span class="toc-text">存放变量的哈希表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP框架提供的变量"><span class="toc-text">HTTP框架提供的变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#referer模块"><span class="toc-text">referer模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#valid-referers指令"><span class="toc-text">valid_referers指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防盗链secure-link模块"><span class="toc-text">防盗链secure_link模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#变量值带过期时间的配置实例"><span class="toc-text">变量值带过期时间的配置实例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#命令行生成安全链接"><span class="toc-text">命令行生成安全链接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Nginx配置"><span class="toc-text">Nginx配置</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#仅对URI进行哈希的简单办法"><span class="toc-text">仅对URI进行哈希的简单办法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#命令行生成安全链接-1"><span class="toc-text">命令行生成安全链接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Nginx配置-1"><span class="toc-text">Nginx配置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为复杂业务生成新的变量：map模块"><span class="toc-text">为复杂业务生成新的变量：map模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#map模块的指令"><span class="toc-text">map模块的指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#map模块：通过映射新变量提供更多可能性"><span class="toc-text">map模块：通过映射新变量提供更多可能性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-amp-A-环节演示实例"><span class="toc-text">Q &amp; A 环节演示实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过变量指定少量用户实现AB测试：split-client"><span class="toc-text">通过变量指定少量用户实现AB测试：split_client</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#split-client模块的指令"><span class="toc-text">split_client模块的指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#根据IP地址范围的匹配生成新的变量：geo模块"><span class="toc-text">根据IP地址范围的匹配生成新的变量：geo模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-amp-A-环节及实例"><span class="toc-text">Q &amp; A 环节及实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用变量获取用户的地理位置：geoip模块"><span class="toc-text">使用变量获取用户的地理位置：geoip模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#geoip-country指令提供的变量"><span class="toc-text">geoip_country指令提供的变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#geoip-city指令提供的变量"><span class="toc-text">geoip_city指令提供的变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx对客户端使用keepalived特性提升连接效率"><span class="toc-text">Nginx对客户端使用keepalived特性提升连接效率</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#keepalive行为控制的指令"><span class="toc-text">keepalive行为控制的指令</span></a></li></ol></li></ol></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/hello-world.html">Hello World</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Mysql设置权限.html">Mysql设置权限</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Docker实战.html">Docker实战</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Mycat-MySQL读写分离.html">Mycat+MySQL读写分离</a></li><li class="post-list-item"><a class="post-list-link" href="/post/RAID简介.html">RAID简介</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Linux性能优化企业实战.html">Linux性能优化企业实战</a></li><li class="post-list-item"><a class="post-list-link" href="/post/pyenv安装.html">pyenv安装</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Linux硬盘故障修复.html">Linux硬盘故障修复</a></li><li class="post-list-item"><a class="post-list-link" href="/post/MYSQL最常见的报错信息.html">MYSQL最常见的报错信息</a></li><li class="post-list-item"><a class="post-list-link" href="/post/使用expect实现无交互操作远程主机.html">使用expect实现无交互操作远程主机</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">29</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a><span class="category-list-count">9</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/Web服务器/" style="font-size: 15px;">Web服务器</a> <a href="/tags/文件服务器/" style="font-size: 15px;">文件服务器</a> <a href="/tags/系统管理/" style="font-size: 15px;">系统管理</a> <a href="/tags/运维基本功/" style="font-size: 15px;">运维基本功</a> <a href="/tags/高可用/" style="font-size: 15px;">高可用</a> <a href="/tags/虚拟化/" style="font-size: 15px;">虚拟化</a> <a href="/tags/Python基础/" style="font-size: 15px;">Python基础</a> <a href="/tags/小工具/" style="font-size: 15px;">小工具</a> <a href="/tags/小技巧/" style="font-size: 15px;">小技巧</a> <a href="/tags/磁盘管理/" style="font-size: 15px;">磁盘管理</a> <a href="/tags/系统命令/" style="font-size: 15px;">系统命令</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">Mr.Chen.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

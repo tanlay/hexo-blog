@@ -1,0 +1,327 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="个人博客系统"><meta name="keywords" content="Nginx, Zabbix, Shell, Python, OPS, HA"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><title>Mycat+MySQL读写分离 | MINT | BLOG</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Mycat+MySQL读写分离</h1><a id="logo" href="/.">MINT | BLOG</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">Mycat+MySQL读写分离</h1><div class="post-meta"><a href="/post/Mycat-MySQL读写分离.html#comments" class="comment-count"></a><p><span class="date">Jul 26, 2019</span><span><a href="/categories/MySQL/" class="category">MySQL</a></span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>随着互联网时代的发展，传统的数据库技术日趋成熟、计算机网络技术的飞速发展和应用范围的扩充，数据库应用已经普遍建立于计算机网络之上。此时集中式数据库系统表现出它的不足：</p>
+<ul>
+<li>集中式处理，势必造成性能瓶颈；</li>
+<li>应用程序集中在一台计算机上运行，一旦该计算机发生故障，则整个系统受到影响，可靠性不高；</li>
+<li>集中式处理引起系统的规模和配置都不够灵活，系统的可扩充性差。</li>
+</ul>
+<p>在这种形势下，集中式数据库将向分布式数据库发展。</p>
+<h3 id="MyCAT发展历程"><a href="#MyCAT发展历程" class="headerlink" title="MyCAT发展历程"></a>MyCAT发展历程</h3><hr>
+<p>MyCAT的诞生，要从其前身Amoeba和Cobar说起，Amoeba（变形虫）项目，该开源框架于2008年开始发布一款 Amoeba for Mysql软件。这个软件致力于MySQL的分布式数据库前端代理层，它主要在应用层访问MySQL的时候充当SQL路由功能，专注于分布式数据库代理层（Database Proxy）开发。</p>
+<p>座落与 Client、DB Server(s)之间，对客户端透明。具有负载均衡、高可用性、SQL过滤、读写分离、可路由相关的到目标数据库、可并发请求多台数据库合并结果。 通过Amoeba你能够完成多数据源的高可用、负载均衡、数据切片的功能，目前Amoeba已在很多企业的生产线上面使用。</p>
+<p>阿里巴巴于2012年6月19日，正式对外开源的数据库中间件Cobar，前身是早已经开源的Amoeba，不过其作者陈思儒离职去盛大之后，阿里巴巴内部考虑到Amoeba的稳定性、性能和功能支持，以及其他因素，重新设立了一个项目组并且更换名称为Cobar。[Cobar](<a href="https://github.com/alibaba/cobar&quot;" target="_blank" rel="noopener">https://github.com/alibaba/cobar&quot;</a> \t “_blank) 是由 Alibaba 开源的 MySQL 分布式处理中间件，它可以在分布式的环境下看上去像传统数据库一样提供海量数据服务。</p>
+<p>Cobar自诞生之日起， 就受到广大程序员的追捧，但是自2013年后，几乎没有后续更新。在此情况下，MyCAT应运而生，它基于阿里开源的Cobar产品而研发，Cobar的稳定性、可靠性、优秀的架构和性能，以及众多成熟的使用案例使得MyCAT一开始就拥有一个很好的起点，站在巨人的肩膀上，MyCAT能看到更远。目前MyCAT的最新发布版本为1.6版本。</p>
+<p>从定义和分类来看，MyCAT是一个开源的分布式数据库系统，是一个实现了MySQL协议的Server，前端用户可以把它看做是一个数据库代理中间件，基于MySQL客户端工具和命令行访问，其后端可以用MySQL原生（Native）协议与多个MySQL服务器通信，也可以用JDBC协议与大多数主流数据库服务器通信，其核心功能是分库分表，即将一个大表水平分割为N个小表，存储在后端MySQL服务器里或者其他数据库里。</p>
+<p>Mycat发展到目前版本，已经不在是一个单纯的MySQL代理，它的后端可以支持MySQL、SQL Server、Oracle、DB2、PostgreSQL等主流数据库，也支持MongoDB这种新型NOSQL方式的存储，未来还会支持更多类型的存储。</p>
+<p>最终用户看来，无论是那种存储方式，在Mycat里，都是一个传统的数据库表，支持标准的SQL语句进行数据的操作，对前端业务系统来说，可以大幅度降低开发难度，提升开发速度，在测试阶段，可以将一表定义为任何一种Mycat支持的存储方式，比如MySQL的MyASM表、内存表、或者MongoDB、LeveIDB以及号称是世界上最快的内存数据库MemSQL上。</p>
+<h4 id="DBA眼中的MyCAT"><a href="#DBA眼中的MyCAT" class="headerlink" title="DBA眼中的MyCAT"></a><strong>DBA眼中的MyCAT</strong></h4><p>Mycat就是MySQL Server，而Mycat后面连接的MySQL Server，就好象是MySQL的存储引擎,如InnoDB，MyISAM等，因此，Mycat本身并不存储数据，数据是在后端的MySQL上存储的，因此数据可靠性以及事务等都是MySQL保证的，简单的说，Mycat就是MySQL最佳伴侣，它在一定程度上让MySQL拥有了能跟Oracle PK的能力。</p>
+<h4 id="软件工程师眼中的MyCAT"><a href="#软件工程师眼中的MyCAT" class="headerlink" title="软件工程师眼中的MyCAT"></a><strong>软件工程师眼中的MyCAT</strong></h4><p>Mycat就是一个近似等于MySQL的数据库服务器，你可以用连接MySQL的方式去连接Mycat（除了端口不同，默认的Mycat端口是8066而非MySQL的3306，因此需要在连接字符串上增加端口信息），大多数情况下，可以用你熟悉的对象映射框架使用Mycat，但建议对于分片表，尽量使用基础的SQL语句，因为这样能达到最佳性能，特别是几千万甚至几百亿条记录的情况下。</p>
+<h4 id="架构师眼中的MyCAT"><a href="#架构师眼中的MyCAT" class="headerlink" title="架构师眼中的MyCAT"></a><strong>架构师眼中的MyCAT</strong></h4><p>Mycat是一个强大的数据库中间件，不仅仅可以用作读写分离、以及分表分库、容灾备份，而且可以用于多租户应用开发、云平台基础设施、让你的架构具备很强的适应性和灵活性，借助于即将发布的Mycat智能优化模块，系统的数据访问瓶颈和热点一目了然，根据这些统计分析数据，你可以自动或手工调整后端存储，将不同的表映射到不同存储引擎上，而整个应用的代码一行也不用改变。</p>
+<h3 id="MyCAT中间件原理"><a href="#MyCAT中间件原理" class="headerlink" title="MyCAT中间件原理"></a>MyCAT中间件原理</h3><hr>
+<p>Mycat的原理中最重要的一个动词是“拦截”，它拦截了用户发送过来的SQL语句，首先对SQL语句做了一些特定的分析：如分片分析、路由分析、读写分离分析、缓存分析等，然后将此SQL发往后端的真实数据库，并将返回的结果做适当的处理，最终再返回给用户。</p>
+<p>Orders表被分为三个分片datanode（简称dn)，这三个分片是分布在两台MySQL Server上(DataHost)，即datanode=database@datahost方式，因此你可以用一台到N台服务器来分片，分片规则为（sharding rule)典型的字符串枚举分片规则，一个规则的定义是分片字段（sharding column)+分片函数(rule function)，这里的分片字段为rov而分片函数为字符串枚举方式。</p>
+<p>当Mycat收到一个SQL时，会先解析这个SQL，查找涉及到的表，然后看此表的定义，如果有分片规则，则获取到SQL里分片字段的值，并匹配分片函数，得到该QL对应的分片列表，然后将SQL发往这些分片去执行，最后收集和处理所有分片返回的结果数据，并输出到客户端。</p>
+<p>以select * from Orders where prov=?语句为例，查到prov=wuhan，按照分片函数，wuhan返回dn1，于是SQL就发给了MySQL1，去取DB1上的查询结果，并返回给用户。</p>
+<p>如果上述SQL改为elect * from Orders where prov in (‘wuhan’,‘beijing’)，那么，SQL就会发给ySQL1与MySQL2去执行，然后结果集合并后输出给用户。</p>
+<p>通常业务中我们的SQL会有Order By 以及Limit翻页语法，此时就涉及到结果集在Mycat端的二次处理，这部分的代码也比较复杂，而最复杂的则属两个表的Jion问题，为此，Mycat提出了创新性的ER分片、全局表、HBT（Human Brain Tech)人工智能的Catlet、以及结合Storm/Spark引擎等十八般武艺的解决办法，从而成为目前业界最强大的方案，这就是开源的力量。</p>
+<h3 id="MyCAT应用场景"><a href="#MyCAT应用场景" class="headerlink" title="MyCAT应用场景"></a>MyCAT应用场景</h3><hr>
+<p>Mycat发展到现在，适用的场景已经很丰富，而且不断有新用户给出新的创新性的方案，以下是几个典型的应用场景：</p>
+<ul>
+<li>单纯的读写分离，此时配置最为简单，支持读写分离，主从切换；</li>
+<li>分表分库，对于超过1000万的表进行分片，最大支持1000亿的单表分片；</li>
+<li>多租户应用，每个应用一个库，但应用程序只连接Mycat,从而不改造程序本身，实现多租户化；</li>
+<li>报表系统，借助于Mycat的分表能力，处理大规模报表的统计；</li>
+<li>代替Hbase,分析大数据；</li>
+<li>作为海量数据实时查询的一种简单有效方案，比如 1〇〇亿条频繁查询的记录需要在3秒内查询出来结果，除了基于主键的查询，还可能存在范围查询或其他属性查询，此时Mycat可能是最简单有效的选择；</li>
+<li>单纯的MyCAT读写分离，配置最为简单，支持读写分离，主从切换分表分库，对于超过1000万的表进行分片，最大支持1000亿的单表分片；</li>
+<li>多租户应用，每个应用一个库，但应用程序只连接Mycat，从而不改造程序本身，实现多租户化；</li>
+<li>报表系统，借助于Mycat的分表能力，处理大规模报表的统计替代Hbase，分析大数据，作为海量数据实时查询的一种简单有效方案，比如100亿条频繁查询的记录需要在3秒内查询出来结果，除了基于主键的查询，还可能存在范围查询或其他属性查询，此时Mycat可能是最简单有效的选择  。</li>
+</ul>
+<h2 id="Mycat概念详解"><a href="#Mycat概念详解" class="headerlink" title="Mycat概念详解"></a>Mycat概念详解</h2><p>Mycat是一个开源的分布式数据库系统，但是由于真正的数据库需要存储引擎，而Mycat并没有存储引擎，所以并不是完全意义的分布式数据库系统。</p>
+<h4 id="MyCAT数据库中间件"><a href="#MyCAT数据库中间件" class="headerlink" title="MyCAT数据库中间件"></a>MyCAT数据库中间件</h4><p>那么Mycat是什么？Mycat是数据库中间件，就是介于数据库与应用之间，进行数据处理与交互的中间服务。对数据进行分片处理之后，从原有的一个库，被切分为多个分片数据库，所有的分片数据库集群构成了整个完整的数据库存储。</p>
+<p>数据被分到多个分片数据库后，应用如果需要读取数据，就要需要处理多个数据源的数据。如果没有数据库中间件，那么应用将直接面对分片集群，数据源切换、事务处理、数据聚合都需要应用直接处理，原本该是专注于业务的应用，将会花大量的工作来处理分片后的问题，最重要的是每个应用处理将是完全的重复造轮子。</p>
+<p>加入数据库中间件之后，应用只需要集中与业务处理，大量的通用的数据聚合，事务，数据源切换都由中间件来处理，中间件的性能与处理能力将直接决定应用的读写性能，所以一款好的数据库中间件至关重要。</p>
+<h4 id="MyCAT逻辑库-schema"><a href="#MyCAT逻辑库-schema" class="headerlink" title="MyCAT逻辑库(schema)"></a>MyCAT逻辑库(schema)</h4><p>通常对实际应用来说，并不需要知道中间件的存在，开发人员只需要知道数据库的概念，所以数据库中间件可以被看做是一个或多个数据库集群构成的逻辑库。</p>
+<p>在云计算时代，数据库中间件可以以多租户的形式给一个或多个应用提供服务，每个应用访问的可能是一个独立或者是共享的物理库，常见的如阿里云数据库服务器RDS。</p>
+<h4 id="MyCAT逻辑表（Table"><a href="#MyCAT逻辑表（Table" class="headerlink" title="MyCAT逻辑表（Table)"></a>MyCAT逻辑表（Table)</h4><p>MyCAT既然有逻辑库，那么就会有逻辑表，分布式数据库中，对应用来说，读写数据的表就是逻辑表。逻辑表，可 以是数据切分后，分布在一个或多个分片库中，也可以不做数据切分，不分片，只有一个表构成。</p>
+<h4 id="MyCAT分片表"><a href="#MyCAT分片表" class="headerlink" title="MyCAT分片表"></a>MyCAT分片表</h4><p>MyCAT分片表，是指那些原有的很大数据的表，需要切分到多个数据库的表，这样，每个分片都有一部分数据，所有分片构成了完整的数据；</p>
+<p>例如在Mycat配置中的t_node就属于分片表，数据按照规则被分到dn1,dn2两个分片节点(dataNode) 上。</p>
+<h4 id="MyCAT非分片表"><a href="#MyCAT非分片表" class="headerlink" title="MyCAT非分片表"></a>MyCAT非分片表</h4><p>如果一个数据库中并不是所有的表都很大，某些表是可以不用进行切分的，非分片是相对分片表来说的，就是那些不需要进行数据切分的表。如下配置中t_node ,只存在于分片节点（dataNode ) dn1上。</p>
+<h4 id="MyCAT-ER表"><a href="#MyCAT-ER表" class="headerlink" title="MyCAT ER表"></a>MyCAT ER表</h4><p>关系型数据库是基于实体关系模型（Entity-Relationship Model)之上，通过其描述了真实世界中事物与关 系，Mycat中的ER表即是来源于此，根据这一思路，提出了基于E-R关系的数捤分片策略，子表的记录与所关 联的父表记录存放在同一个数据分片上，即子表依赖于父表，通过表分组（Table Group )保证数据Join不会跨库操作。</p>
+<p>表分组（Table Group )是解决跨分片数据join的一种很好的思路，也是数据切分规划的重要一条规则。</p>
+<h4 id="MyCAT全局表"><a href="#MyCAT全局表" class="headerlink" title="MyCAT全局表"></a>MyCAT全局表</h4><p>一个真实的业务系统中，往往存在大量的类似字典表的表，这些表基本上很少变动，字典表具有以下几个特性：</p>
+<ul>
+<li>变动不频繁；</li>
+<li>数据量总体变化不大；</li>
+<li>数据规模不大，很少有超过数十万条记录；</li>
+</ul>
+<h4 id="分片节点-dataNode"><a href="#分片节点-dataNode" class="headerlink" title="分片节点(dataNode)"></a>分片节点(dataNode)</h4><p>MyCAT数据切分后，一个大表被分到不同的分片数据库上面，每个表分片所在的数据库就是分片节点 (dataNode )。</p>
+<h4 id="节点主机-dataHost"><a href="#节点主机-dataHost" class="headerlink" title="节点主机(dataHost)"></a>节点主机(dataHost)</h4><p>MyCAT数据切分后，每个分片节点（dataNode )不一定都会独占一台机器，同一机器上面可以有多个分片数据库， 这样一个或多个分片节点（dataNode )所在的机器就是节点主机（dataHost),为了规避单节点主机并发数限 制，尽量将读写压力高的分片节点（dataNode )均衡的放在不同的节点主机（dataHost )。</p>
+<h4 id="分片规则-rule"><a href="#分片规则-rule" class="headerlink" title="分片规则(rule)"></a>分片规则(rule)</h4><p>MyCAT数据切分，1个大表被分成若干个分片表，就需要一定的规则，这样按照某种业务规则把数据分到 某个分片的规则就是分片规则，数据切分选择合适的分片规则非常重要，将极大的避免后续数据处理的难度。</p>
+<h4 id="MyCAT多租户"><a href="#MyCAT多租户" class="headerlink" title="MyCAT多租户"></a>MyCAT多租户</h4><p>多租户技术或称多重租赁技术，是一种软件架构技术，它是在探讨与实现如何于多用户的环境下共用相同的系统或程序组件，并且仍可确保各用户间数据的隔离性。</p>
+<p>在云计算时代，多租户技术在共用的数据中心以单一系统架构与服务提供多数客户端相同甚至可定制化的服务，并且仍然可以保障客户的数据隔离。</p>
+<p>目前各种各样的云计算服务就是这类技术范畴，例如阿里云数据库服务（RDS )、阿里云服务器(ECS)等等。</p>
+<h2 id="数据多租户方案"><a href="#数据多租户方案" class="headerlink" title="数据多租户方案"></a>数据多租户方案</h2><p>目前互联网多租户在数据存储上存在三种主要的方案，独立数据库、共享数据库及共享数据库共享架构；</p>
+<h4 id="独立数据库"><a href="#独立数据库" class="headerlink" title="独立数据库"></a>独立数据库</h4><p>多租户第一种方案，即一个租户一个数据库，这种方案的用户数据隔离级别最高，安全性最好，但成本也高。</p>
+<ul>
+<li>该方案优点：<ul>
+<li>为不同的租户提供独立的数据库，有助于简化数据模型的扩展设计，满足不同租户的独特需求；</li>
+<li>如果出现故障，恢复数据比较简单。-</li>
+</ul>
+</li>
+<li>该方案缺点：<ul>
+<li>增大了数据库的安装数量；</li>
+<li>数据库维护成本和购置成本的增加。</li>
+</ul>
+</li>
+</ul>
+<p>这种方案与传统的一个客户、一套数据、一套部署类似，差别只在于软件统一部署在运营商那里。如果面对的是银行、医院等需要非常高数据隔离级别的租户，可以选择这种模式，提高租用的定价。如果定价较低，产品 走低价路线，这种方案一般对运营商来说是无法承受的。</p>
+<h4 id="共享数据库，隔离数据架构"><a href="#共享数据库，隔离数据架构" class="headerlink" title="共享数据库，隔离数据架构"></a>共享数据库，隔离数据架构</h4><p>多租户第二种方案，即多个或所有租户共享Database，但是每个租户一个Schema。</p>
+<ul>
+<li>该方案优点：<ul>
+<li>为安全性要求较高的租户提供了一定程度的逻辑数据隔离，并不是完全隔离；</li>
+<li>每个数据库可以支持更多的租户数量。</li>
+</ul>
+</li>
+<li>该方案缺点：<ul>
+<li>如果出现故障，数据恢复比较困难，因为恢复数据库将牵扯到其它租户的数据；</li>
+<li>如果需要跨租户统计数据，存在一定困难。</li>
+</ul>
+</li>
+</ul>
+<h4 id="共享数据库，共享数据架构"><a href="#共享数据库，共享数据架构" class="headerlink" title="共享数据库，共享数据架构"></a>共享数据库，共享数据架构</h4><p>多租户第三种方案，即租户共享同一个Database、同一个Schema，但在表中通过TenantID区分租户的数据，这是共享程度最高、隔离级别最低的模式。</p>
+<ul>
+<li><p>该方案优点：</p>
+<ul>
+<li>三种方案比较，第三种方案的维护和购置成本最低；</li>
+<li>允许每个数据库支持的租户数量最多。</li>
+</ul>
+</li>
+<li><p>该方案缺点：</p>
+<ul>
+<li>隔离级别最低，安全性最低，需要在设计开发时加大对安全的开发量；</li>
+<li>数据备份和恢复最困难，需要逐表逐条备份和还原。</li>
+<li>如果希望以最少的服务器为最多的租户提供服务，并且租户接受以牺牲隔离级别换取降低成本，这种方案最适合；</li>
+</ul>
+</li>
+</ul>
+<h2 id="MyCAT数据切分"><a href="#MyCAT数据切分" class="headerlink" title="MyCAT数据切分"></a>MyCAT数据切分</h2><p>简单来说，就是指通过某种特定的条件，将我们存放在同一个数据库中的数据分散存放到多个数据库（主 机）上面，以达到分散单台设备负载的效果。数据的切分(Sharding )根据其切分规则的类型，可以分为两种切分模式：</p>
+<ul>
+<li><p>按照不同的表（或者 Schema )来切分到不同的数据库(主机）之上，这种切可以称之为数据的垂直（纵向）切分；</p>
+</li>
+<li><p>根据表中的数据的逻辑关系，将同一个表中的数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分。</p>
+</li>
+<li><p><strong>垂直切分</strong>的最大特点就是规则简单，实施也更为方便，尤其适合各业务之间的耦合度非常低，相互影响很小，业务逻辑非常清晰的系统。在这种系统中，可以很容易做到将不同业务模块所使用的表分拆到不同的数据库中。根据不同的表来进行拆分，对应用程序的影响也更小，拆分规则也会比较简单清晰。</p>
+</li>
+<li><p><strong>水平切分</strong>于垂直切分相比，相对来说稍微复杂一些。因为要将同一个表中的不同数据拆分到不同的据库中，对于应用程序来说，拆分规则本身就较根据表名来拆分更为复杂，后期的数据维护也会更为复杂一些。</p>
+</li>
+</ul>
+<h4 id="垂直切分"><a href="#垂直切分" class="headerlink" title="垂直切分"></a>垂直切分</h4><p>数据库由很多表的构成，每个表对应着不同的业务，垂直切分是指按照业务将表进行分类，分布到不同 的数据库上面，这样也就将数据或者说压力分担到不同的库上面，</p>
+<p>一个架构设计较好的应用系统，其总体功能肯定是由很多个功能模块所组成的，而每一个功能模块所需要的 数据对应到数据库中就是一个或者多个表。而在架构设计中，各个功能模块相互之间的交互点越统一越少，系统 的耦合度就越低，系统各个模块的维护性以及扩展性也就越好。这样的系统，实现数据的垂直切分也就越容易。</p>
+<p>往往系统之有些表难以做到完全的独立，存在这扩库join的情况，对于这类的表，就需要去做平衡，是数据库让步业务，共用一个数据源，还是分成多个库，业务之间通过接口来做调用。在系统初期，数据量比较少，或者资源有限的情况下，会选择共用数据源，但是当数据发展到了一定的规模，负载很大的情况，就需要必须去做分割。</p>
+<p>一般来讲业务存在着复杂join的场景是难以切分的，往往业务独立的易于切分。如何切分，切分到何种 程度是考验技术架构的一个难题。</p>
+<ul>
+<li>垂直切分的优点：<ul>
+<li>拆分后业务清晰，拆分规则明确；</li>
+<li>系统之间整合或扩展容易；</li>
+<li>数据维护简单。</li>
+</ul>
+</li>
+<li>垂直切分的缺点：<ul>
+<li>部分业务表无法join ,只能通过接口方式解决，提高了系统复杂度；</li>
+<li>受每种业务不同的限制存在单库性能瓶颈，不易扩展跟性能提高。</li>
+<li>事务处理复杂。由于垂直切分是按照业务的分类将表分散到不同的库，所以有些业务表会过于庞大，存在单库读写与存储瓶颈，所以就需要水平拆分来做解决。</li>
+</ul>
+</li>
+</ul>
+<h4 id="水平切分"><a href="#水平切分" class="headerlink" title="水平切分"></a>水平切分</h4><p>相对于垂直拆分，水平拆分不是将表做分类，而是按照某个字段的某种规则来分散到多个库之中，每个表中包含一部分数据。简单来说，我们可以将数据的水平切分理解为是按照数据行的切分，就是将表中的某些行切分 到一个数据库，而另外的某些行又切分到其他的数据库中，如图：</p>
+<p>拆分数据就需要定义分片规则。关系型数据库是行列的二维模型，拆分的第一原则是找到拆分维度。比如: 从会员的角度来分析，商户订单交易类系统中查询会员某天期某个订单，那么就需要按照会员结合日期来拆分，不同的数据按照会员ID做分组，这样所有的数据查询join都会在单库内解决；</p>
+<p>如果从商户的角度来讲，要查询某个商家某天所有的订单数，就需要按照商户ID做拆分；但是如果系统既想按会员拆分，又想按商家数据，则会有一定的困难。如何找到合适的分片规则需要综合考虑衡量。</p>
+<h4 id="典型的分片规则"><a href="#典型的分片规则" class="headerlink" title="典型的分片规则"></a>典型的分片规则</h4><ul>
+<li>按照用户ID求模，将数据分散到不同的数据库，具有相同数据用户的数据都被分散一个库中；</li>
+<li>按照日期，将不同月甚至日的数据分散到不同的库中；</li>
+<li>按照某个特定的字段求模，或者根据特定范围段分散到不同的库中。</li>
+</ul>
+<p>如图，切分原则都是根据业务找到适合的切分规则分散到不同的库，下面用用户 ID 求模举例：</p>
+<p>既然数据做了拆分有优点也就优缺点。</p>
+<ul>
+<li><p>数据库拆分优点：</p>
+<ul>
+<li>拆分规则抽象好，join 操作基本可以数据库做；</li>
+<li>不存在单库大数据，高并发的性能瓶颈；</li>
+<li>应用端改造较少；</li>
+<li>提高了系统的稳定性跟负载能力。</li>
+</ul>
+</li>
+<li><p>数据库拆分缺点：</p>
+<ul>
+<li>拆分规则难以抽象；</li>
+<li>分片亊务一致性难以解决；</li>
+<li>数捤多次扩展难度跟维护量极大；</li>
+<li>跨库 join 性能较差。</li>
+</ul>
+</li>
+<li><p>垂直切分、水平切分共同的缺点：</p>
+<ul>
+<li>引入分布式亊务的问题；</li>
+<li>跨节点 Join 的问题；</li>
+<li>跨节点合并排序分页问题；</li>
+<li>多数据源管理问题；</li>
+</ul>
+</li>
+</ul>
+<h4 id="针对数据源管理，目前主要有两种思路："><a href="#针对数据源管理，目前主要有两种思路：" class="headerlink" title="针对数据源管理，目前主要有两种思路："></a>针对数据源管理，目前主要有两种思路：</h4><ul>
+<li>客户端模式，在每个应用程序模块中配置管理自己需要的一个（或者多个）数据源，直接访问各个数据库，在模块内完成数据的整合；</li>
+<li>通过中间代理层来统一管理所有的数据源，后端数据库集群对前端应用程序透明，可能 90%以上的人在面对上面这两种解决思路的时候都会倾向于选择第二种，尤其是系统不断变得庞大复杂的时候。确实，这是一个非常正确的选择，虽然短期内需要付出的成本可能会相对更大一些，但是对整个系统的扩展性来讲，是非常有帮助的数据切分的原则：</li>
+</ul>
+<h4 id="数据切分的原则："><a href="#数据切分的原则：" class="headerlink" title="数据切分的原则："></a>数据切分的原则：</h4><ul>
+<li>能不切分尽量不要切分；</li>
+<li>如果要切分一定要选择合适的切分规则，提前规划好；  </li>
+<li>数据切分尽量通过数据冗余或者表分组（Table Group）来降低跨库 Join 的可能；</li>
+<li>由于数据库中间件对数据 Join 实现的优劣难以把握，而且实现高性能难度极大，业务读取尽量少使用多表 Join。</li>
+</ul>
+<h3 id="MyCAT安装配置"><a href="#MyCAT安装配置" class="headerlink" title="MyCAT安装配置"></a>MyCAT安装配置</h3><hr>
+<h4 id="MyCAT系统安装环境："><a href="#MyCAT系统安装环境：" class="headerlink" title="MyCAT系统安装环境："></a>MyCAT系统安装环境：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.149.128 MyCAT</span><br><span class="line">192.168.149.129 MYSQL-MASTER</span><br><span class="line">192.168.149.130 MYSQL-SLAVE</span><br></pre></td></tr></table></figure>
+
+<p>MyCAT安装之前，需要先安装jdk (Java Development Kit) ，JDK是 Java 语言的软件开发工具包(SDK)），本文安装版本为：jdk1.7.0_75.tar.gz</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -xzf jdk1.7.0_75.tar.gz</span><br><span class="line">mkdir -p /usr/java/</span><br><span class="line">mv jdk1.7.0_75 /usr/java/</span><br></pre></td></tr></table></figure>
+
+<p>配置java环境变量，vi /etc/profile 添加如下语句：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">export JAVA\_HOME=/usr/java/jdk1.7.0\_75</span><br><span class="line">export CLASSPATH=$CLASSPATH:$JAVA\_HOME/lib:$JAVA\_HOME/jre/lib</span><br><span class="line">export PATH=$JAVA\_HOME/bin:$JAVA\_HOME/jre/bin:$PATH:$HOMR/bin</span><br><span class="line">source /etc/profile //使环境变量立刻生效。</span><br><span class="line">java -version //查看java版本，显示版本为1.7.0_75，证明安装成功。</span><br></pre></td></tr></table></figure>
+
+<p>官网下载MyCAT最新稳定版本1.6：<a href="http://www.mycat.io" target="_blank" rel="noopener">http://www.mycat.io</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://dl.mycat.io/1.6-RELEASE/Mycat-server-1.6-RELEASE-20161028204710-linux.tar.gz</span><br><span class="line">tar xzf Mycat-server-1.6-RELEASE-20161028204710-linux.tar.gz</span><br><span class="line">mv mycat/ /usr/local/</span><br></pre></td></tr></table></figure>
+
+<p>进入MyCAT主目录，如图所示：</p>
+<p>MyCAT配置目录详解如下：</p>
+<ul>
+<li>bin程序目录，存放了 window版本和linux版本启动脚本，除了提供封装服务的版本之外，也提供了 nowrap的 shell脚本命令，方便大家选择和修改，进入到bin目录：</li>
+<li>Linux 下运行：./mycat console,首先要 chmod +x *</li>
+<li>mycat 支持的命令{ console | start | stop | restart | status | dump }</li>
+<li>conf目录下存放配置文件，其中：</li>
+<li>server.xm 丨Mycat服务器参数调整和用户授权的配置文件；</li>
+<li>schema.xm丨逻辑库定义和表及分片定义的配置文件；</li>
+<li>rule.xml |分片规则的配置文件，分片规则的具体一些参数信息单独存放为文件，也在这个目录下，配置文件修改，需要重启Mycat或者通过9066端口 reload；</li>
+<li>lib目录下主要存放mycat依赖的一些jar文件；</li>
+<li>日志存放在logs/mycat.log中，每天一个文件，日志的配置是在conf/log4j.xml中，根据自己的需要，可以调整输出级别为debug , debug级别下；</li>
+<li>Catlet |支持跨分片复杂SQL实现以及存储过程支持。</li>
+</ul>
+<p>本文基于MyCAT实现读写分离，只需要涉及到两个MyCAT配置文件，分别是：server.xml和schema.xml文件：<br>其中Server.xml文件主要配置段内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">user</span> <span class="attr">name</span>=<span class="string">"jfedu1"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span>&gt;</span>jfedu1<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"schemas"</span>&gt;</span>testdb<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span> <span class="attr">name</span>=<span class="string">"jfedu2"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span>&gt;</span>jfedu2<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"schemas"</span>&gt;</span>testdb<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"readOnly"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建jfedu1、jfedu2两个用户用于连接MyCAT中间件：</li>
+<li>用户名jfedu1、密码jfedu1，对逻辑数据库testdb具有增删改查的权限，也即WEB连接MyCAT的用户名和密码；</li>
+<li>用户名jfedu2，密码jfedu2，该用户对逻辑数据库testdb只读的权限；</li>
+</ul>
+<p>其中Schema.xml文件主要配置内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE mycat:schema SYSTEM "schema.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mycat:schema</span> <span class="attr">xmlns:mycat</span>=<span class="string">"http://io.mycat/"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">schema</span> <span class="attr">name</span>=<span class="string">"testdb"</span> <span class="attr">checkSQLschema</span>=<span class="string">"false"</span> <span class="attr">sqlMaxLimit</span>=<span class="string">"1000"</span> <span class="attr">dataNode</span>=<span class="string">"dn1"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">schema</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dataNode</span> <span class="attr">name</span>=<span class="string">"dn1"</span> <span class="attr">dataHost</span>=<span class="string">"localhost1"</span> <span class="attr">database</span>=<span class="string">"discuz"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dataHost</span> <span class="attr">name</span>=<span class="string">"localhost1"</span> <span class="attr">maxCon</span>=<span class="string">"2000"</span> <span class="attr">minCon</span>=<span class="string">"1"</span> <span class="attr">balance</span>=<span class="string">"0"</span> <span class="attr">writeType</span>=<span class="string">"1"</span> <span class="attr">dbType</span>=<span class="string">"mysql"</span> <span class="attr">dbDriver</span>=<span class="string">"native"</span> <span class="attr">switchType</span>=<span class="string">"1"</span> <span class="attr">slaveThreshold</span>=<span class="string">"100"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">heartbeat</span>&gt;</span>select user()<span class="tag">&lt;/<span class="name">heartbeat</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">writeHost</span> <span class="attr">host</span>=<span class="string">"hostM1"</span> <span class="attr">url</span>=<span class="string">"192.168.149.129:3306"</span> <span class="attr">user</span>=<span class="string">"root"</span> <span class="attr">password</span>=<span class="string">"123456"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">readHost</span> <span class="attr">host</span>=<span class="string">"hostS1"</span> <span class="attr">url</span>=<span class="string">"192.168.149.130:3306"</span> <span class="attr">user</span>=<span class="string">"root"</span> <span class="attr">password</span>=<span class="string">"123456"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">writeHost</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dataHost</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mycat:schema</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>如上配置逻辑数据库testdb必须和server.xml中的用户指定的testdb数据库名称一致，否则会报错！如下为配置文件详解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0"?&gt;</span><br><span class="line">xml文件格式；</span><br><span class="line">&lt;!DOCTYPE mycat:schema SYSTEM "schema.dtd"&gt;</span><br><span class="line">文件标签属性；</span><br><span class="line">&lt;mycat:schema xmlns:mycat="http://io.mycat/"&gt;</span><br><span class="line">Mycat起始标签</span><br><span class="line">&lt;schema name="testdb" checkSQLschema="false" sqlMaxLimit="1000" dataNode="dn1"&gt;</span><br><span class="line">&lt;/schema&gt;</span><br></pre></td></tr></table></figure>
+
+<p>配置逻辑库，与server.xml指定库名保持一致，绑定数据节点dn1;</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dataNode</span> <span class="attr">name</span>=<span class="string">"dn1"</span> <span class="attr">dataHost</span>=<span class="string">"localhost1"</span> <span class="attr">database</span>=<span class="string">"discuz"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>添加数据节点dn1，设置数据节点host名称，同时设置数据节点真实database为discuz；</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dataHost</span> <span class="attr">name</span>=<span class="string">"localhost1"</span> <span class="attr">maxCon</span>=<span class="string">"2000"</span> <span class="attr">minCon</span>=<span class="string">"1"</span> <span class="attr">balance</span>=<span class="string">"0"</span> <span class="attr">writeType</span>=<span class="string">"1"</span> <span class="attr">dbType</span>=<span class="string">"mysql"</span> <span class="attr">dbDriver</span>=<span class="string">"native"</span> <span class="attr">switchType</span>=<span class="string">"1"</span> <span class="attr">slaveThreshold</span>=<span class="string">"100"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>数据节点主机，绑定数据节点，设置连接数及均衡方式、切换方法、驱动程序、连接方法；</p>
+<p><strong>Balance均衡策略设置：</strong></p>
+<ol>
+<li>balance=0  不开启读写分离机制，所有读操作都发送到当前可用的writehost；</li>
+<li>balance=1  全部的readHost与stand by writeHost参与select语句的负载均衡，简单的说，当双主双从模式(M1-&gt;S1，M2-&gt;S2，并且M1与 M2互为主备)，正常情况下，M2,S1,S2都参与select语句的负载均衡。</li>
+<li>balance=2  所有读操作都随机的在readhost和writehost上分发；</li>
+<li>balance=3 所有读请求随机的分发到wiriterHost对应的readhost执行，writerHost不负担读压力。</li>
+</ol>
+<ul>
+<li><p><strong>writeType 写入策略设置</strong></p>
+<ul>
+<li>writeType=0， 所有写操作发送到配置的第一个writeHost；</li>
+<li>writeType=1，所有写操作都随机的发送到配置的writeHost；</li>
+<li>writeType=2，不执行写操作</li>
+</ul>
+</li>
+<li><p><strong>switchType 策略设置</strong></p>
+<ul>
+<li>switchType=-1，表示不自动切换；</li>
+<li>switchType=1，默认值，自动切换；</li>
+<li>switchType=2，基于MySQL 主从同步的状态决定是否切换；</li>
+<li>switchType=3，基于MySQL galary cluster的切换机制（适合集群）（1.4.1），心跳语句为 show status like ‘wsrep%’。</li>
+</ul>
+</li>
+</ul>
+<p><heartbeat>select user()</heartbeat><br>检测后端MYSQL实例，SQL语句；</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">writeHost</span> <span class="attr">host</span>=<span class="string">"hostM1"</span> <span class="attr">url</span>=<span class="string">"192.168.149.129:3306"</span> <span class="attr">user</span>=<span class="string">"root"</span> <span class="attr">password</span>=<span class="string">"123456"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">readHost</span> <span class="attr">host</span>=<span class="string">"hostS1"</span> <span class="attr">url</span>=<span class="string">"192.168.149.130:3306"</span> <span class="attr">user</span>=<span class="string">"root"</span> <span class="attr">password</span>=<span class="string">"123456"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">writeHost</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>指定读写请求，同时转发至后端MYSQL真实服务器，配置连接后端MYSQL用户名和密码（该用户名和密码为MYSQL数据库用户名和密码）；</p>
+<p> 数据主机标签；</p>
+<p> mycat结束标签；</p>
+<h2 id="MyCAT读写分离测试"><a href="#MyCAT读写分离测试" class="headerlink" title="MyCAT读写分离测试"></a>MyCAT读写分离测试</h2><p>MyCAT配置完毕，直接启动即可；/usr/local/mycat/bin/mycat start即可，<br>查看8066和9066端口是否启动，其中8066用于WEB连接Mycat，9066用于SA|DBA管理端口；</p>
+<p>netstat -ntl|grep -E –color “8066|9066”</p>
+<p>进入MyCAT命令行界面：</p>
+<p>mysql -h192.168.149.128 -ujfedu1 -pjfedu1 -P8066</p>
+<p>插入数据，以9066端口登录。</p>
+<h4 id="MyCAT管理命令"><a href="#MyCAT管理命令" class="headerlink" title="MyCAT管理命令"></a>MyCAT管理命令</h4><hr>
+<p>MyCAT 自身有类似其他数据库的管理监控方式，可以通过 Mysql 命令行,登录管理端口(9066)执行相应 的 SQL 进行管理,也可以通过 jdbc 的方式进行远程连接管理,本小节主要讲解命令行的管理操作。</p>
+<p>其中8066 数据端口，9066 管理端口，命令行的登陆是通过9066 管理端口来操作，登录方式类似于 mysql 的服务端登陆。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql -h192.168.149.128 -ujfedu1 –pjfedu1 -P8066</span><br><span class="line">mysql -h192.168.149.128 -ujfedu1 –pjfedu1 -P9066</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>-h 后面是主机，即当前 mycat 按照的主机地址；</li>
+<li>-u Mycat server.xml 中配置的逻辑库用户；</li>
+<li>-p Mycat server.xml 中配置的逻辑库密码；</li>
+<li>-P 后面是端口 默认 9066,注意 P 是大写；</li>
+</ul>
+<p>数据端口与管理端口的配置端口修改，数据端口默认 8066,管理端口默认 9066 ,如果需要修改需要配置 server.xml，加入如下代码，例如将数据库端口改成3306:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"serverPort"</span>&gt;</span>3306<span class="tag">&lt;/<span class="name">property</span>&gt;</span> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"managerPort"</span>&gt;</span>9066<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>9066 管理端口登陆后，执行show @@help可以查看到所有命令：</p>
+<p>常见管理命令如下：<br>查看当前的库<br>show @@database;</p>
+<p>+———-+</p>
+<p>| DATABASE |</p>
+<p>+———-+</p>
+<p>| testdb |</p>
+<p>+———-+</p>
+<p>1 row in set (0.00 sec)</p>
+<ol>
+<li>查看MyCAT数据节点的列表,dataNode节点：</li>
+</ol>
+<p>mysql&gt; show @@datanode;</p>
+<p>其中,“NAME”表示 dataNode 的名称;“dataHost”表示对应 dataHost 属性的值,即数据主机; “ACTIVE”表示活跃连接数;“IDLE”表示闲置连接数;“SIZE”对应总连接数量。</p>
+<p>有1个空闲连接，那我们去主从节点用 netstat -ntp 命令看看建立的连接情况：</p>
+<ol>
+<li>查看心跳报告：</li>
+</ol>
+<p>mysql&gt; show @@heartbeat;</p>
+<p>该命令用于报告心跳状态</p>
+<ol>
+<li>查看Mycat的前端连接状态，即应用与mycat的连接：<br>mysql&gt; show @@connection\G<br>从上面获取到的连接 ID 属性，可以手动杀掉某个连接。<br>kill @@connection id,id,id</li>
+<li>显示后端连接状态：<br>mysql&gt; show @@backend\G</li>
+<li>显示数据源：<br>mysql&gt; show @@datasource;</li>
+</ol>
+<p>可以看到主从信息，同时可以看到读、写的次数；</p>
+<h4 id="MyCAT状态监控"><a href="#MyCAT状态监控" class="headerlink" title="MyCAT状态监控"></a>MyCAT状态监控</h4><hr>
+<p>MyCAT-WEB是基于mycat的一个性能监控工具，可以更有效的使用mycat管理mycat监控Mycat，让Mycat工作更加高效。Mycat-web的运行依赖 zookpeer ，需要提前安装Zookeeper服务，Zookeeper作为配置中心；</p>
+<p>MyCAT监控 支持如下特点：</p>
+<ul>
+<li>支持对Mycat、Mysql性能监控 ；</li>
+<li>支持对Mycat的JVM内存提供监控服务 ；</li>
+<li>支持对线程的监控 ；</li>
+<li>支持对操作系统的CPU、内存、磁盘、网络的监控 ；</li>
+</ul>
+<p>Zookeeper安装配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget http://apache.opencas.org/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz</span><br><span class="line">tar -zxvf zookeeper-3.4.6.tar.gz -C /usr/local/</span><br><span class="line">cd /usr/local/zookeeper-3.4.6/</span><br><span class="line">cd conf</span><br><span class="line">cp zoo_sample.cfg zoo.cfg</span><br><span class="line">cd /usr/local/zookeeper-3.4.6/bin/</span><br><span class="line">./zkServer.sh start</span><br></pre></td></tr></table></figure>
+
+<p>安装配置MyCAT-WEB：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http://dl.mycat.io/mycat-web-1.0/Mycat-web-1.0-SNAPSHOT-20170102153329-linux.tar.gz</span><br><span class="line">tar -xvf Mycat-web-1.0-SNAPSHOT-20170102153329-linux.tar.gz -C /usr/local/</span><br></pre></td></tr></table></figure>
+
+<p>#修改zookeeper注册中心地址：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/mycat-web/mycat-web/WEB-INF/classes</span><br><span class="line">vim mycat.properties</span><br><span class="line">zookeeper=127.0.0.1:2181</span><br></pre></td></tr></table></figure>
+
+<p>#启动MyCAT-WEB服务即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/mycat-web/</span><br><span class="line">./start.sh &amp;</span><br></pre></td></tr></table></figure>
+
+<p>#通过浏览器访问如图所示:</p>
+<p>访问地址是：<a href="http://192.168.149.128:8082/mycat/" target="_blank" rel="noopener">http://192.168.149.128:8082/mycat/</a></p>
+<p>连接MyCAT服务器，填写如下配置即可：</p>
+</div><div class="post-copyright"><blockquote><p>原文作者: Mr.Chen</p><p>原文链接: <a href="http://www.dookt.com/post/Mycat-MySQL读写分离.html">http://www.dookt.com/post/Mycat-MySQL读写分离.html</a></p><p>版权声明: 转载请注明出处(必须保留原文作者署名原文链接)</p></blockquote></div><div class="tags"><a href="/tags/运维基本功/">运维基本功</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/post/Docker实战.html" class="pre">Docker实战</a><a href="/post/RAID简介.html" class="next">RAID简介</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#MyCAT发展历程"><span class="toc-text">MyCAT发展历程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DBA眼中的MyCAT"><span class="toc-text">DBA眼中的MyCAT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#软件工程师眼中的MyCAT"><span class="toc-text">软件工程师眼中的MyCAT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#架构师眼中的MyCAT"><span class="toc-text">架构师眼中的MyCAT</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MyCAT中间件原理"><span class="toc-text">MyCAT中间件原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MyCAT应用场景"><span class="toc-text">MyCAT应用场景</span></a></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#Mycat概念详解"><span class="toc-text">Mycat概念详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT数据库中间件"><span class="toc-text">MyCAT数据库中间件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT逻辑库-schema"><span class="toc-text">MyCAT逻辑库(schema)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT逻辑表（Table"><span class="toc-text">MyCAT逻辑表（Table)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT分片表"><span class="toc-text">MyCAT分片表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT非分片表"><span class="toc-text">MyCAT非分片表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT-ER表"><span class="toc-text">MyCAT ER表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT全局表"><span class="toc-text">MyCAT全局表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分片节点-dataNode"><span class="toc-text">分片节点(dataNode)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#节点主机-dataHost"><span class="toc-text">节点主机(dataHost)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分片规则-rule"><span class="toc-text">分片规则(rule)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT多租户"><span class="toc-text">MyCAT多租户</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据多租户方案"><span class="toc-text">数据多租户方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#独立数据库"><span class="toc-text">独立数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#共享数据库，隔离数据架构"><span class="toc-text">共享数据库，隔离数据架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#共享数据库，共享数据架构"><span class="toc-text">共享数据库，共享数据架构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MyCAT数据切分"><span class="toc-text">MyCAT数据切分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#垂直切分"><span class="toc-text">垂直切分</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#水平切分"><span class="toc-text">水平切分</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#典型的分片规则"><span class="toc-text">典型的分片规则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#针对数据源管理，目前主要有两种思路："><span class="toc-text">针对数据源管理，目前主要有两种思路：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据切分的原则："><span class="toc-text">数据切分的原则：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MyCAT安装配置"><span class="toc-text">MyCAT安装配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT系统安装环境："><span class="toc-text">MyCAT系统安装环境：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MyCAT读写分离测试"><span class="toc-text">MyCAT读写分离测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT管理命令"><span class="toc-text">MyCAT管理命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyCAT状态监控"><span class="toc-text">MyCAT状态监控</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/hello-world.html">Hello World</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Mysql设置权限.html">Mysql设置权限</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Docker实战.html">Docker实战</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Mycat-MySQL读写分离.html">Mycat+MySQL读写分离</a></li><li class="post-list-item"><a class="post-list-link" href="/post/RAID简介.html">RAID简介</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Linux性能优化企业实战.html">Linux性能优化企业实战</a></li><li class="post-list-item"><a class="post-list-link" href="/post/pyenv安装.html">pyenv安装</a></li><li class="post-list-item"><a class="post-list-link" href="/post/Linux硬盘故障修复.html">Linux硬盘故障修复</a></li><li class="post-list-item"><a class="post-list-link" href="/post/MYSQL最常见的报错信息.html">MYSQL最常见的报错信息</a></li><li class="post-list-item"><a class="post-list-link" href="/post/使用expect实现无交互操作远程主机.html">使用expect实现无交互操作远程主机</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">29</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a><span class="category-list-count">9</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/Web服务器/" style="font-size: 15px;">Web服务器</a> <a href="/tags/文件服务器/" style="font-size: 15px;">文件服务器</a> <a href="/tags/系统管理/" style="font-size: 15px;">系统管理</a> <a href="/tags/运维基本功/" style="font-size: 15px;">运维基本功</a> <a href="/tags/高可用/" style="font-size: 15px;">高可用</a> <a href="/tags/虚拟化/" style="font-size: 15px;">虚拟化</a> <a href="/tags/Python基础/" style="font-size: 15px;">Python基础</a> <a href="/tags/小工具/" style="font-size: 15px;">小工具</a> <a href="/tags/小技巧/" style="font-size: 15px;">小技巧</a> <a href="/tags/磁盘管理/" style="font-size: 15px;">磁盘管理</a> <a href="/tags/系统命令/" style="font-size: 15px;">系统命令</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">Mr.Chen.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
