@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://www.dookt.com/post/shell%E5%9F%BA%E7%A1%80.html</loc>
-    <lastmod>2019-07-27</lastmod>
+    <loc>http://www.dookt.com/post/k8s-%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E4%BE%8B%E5%AD%90.html</loc>
+    <lastmod>2019-07-31</lastmod>
   </url>  <url>
     <loc>http://www.dookt.com/post/%E9%98%B2%E6%AD%A2linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%99%BB%E5%BD%95mysql%E7%99%BB%E5%BD%95%E5%AF%86%E7%A0%81%E6%B3%84%E9%9C%B2.html</loc>
     <lastmod>2019-07-27</lastmod>
@@ -43,6 +43,9 @@
     <loc>http://www.dookt.com/post/vim%E7%BC%96%E8%BE%91%E5%99%A8%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE.html</loc>
     <lastmod>2019-07-27</lastmod>
   </url>  <url>
+    <loc>http://www.dookt.com/post/shell%E5%9F%BA%E7%A1%80.html</loc>
+    <lastmod>2019-07-27</lastmod>
+  </url>  <url>
     <loc>http://www.dookt.com/post/Rocketmq%E5%8F%8Cmaster%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2.html</loc>
     <lastmod>2019-07-27</lastmod>
   </url>  <url>
@@ -52,7 +55,7 @@
     <loc>http://www.dookt.com/post/Innobackupex-MySQL-%E5%85%A8%E5%A4%87%E3%80%81%E5%A2%9E%E5%A4%87%E5%8F%8A%E6%81%A2%E5%A4%8D.html</loc>
     <lastmod>2019-07-27</lastmod>
   </url>  <url>
-    <loc>http://www.dookt.com/post/Python%E9%9B%86%E5%90%88.html</loc>
+    <loc>http://www.dookt.com/post/RAID%E7%AE%80%E4%BB%8B.html</loc>
     <lastmod>2019-07-27</lastmod>
   </url>  <url>
     <loc>http://www.dookt.com/post/Python%E9%80%92%E5%BD%92.html</loc>
@@ -94,7 +97,7 @@
     <loc>http://www.dookt.com/post/Linux%E7%A1%AC%E7%9B%98%E6%95%85%E9%9A%9C%E4%BF%AE%E5%A4%8D.html</loc>
     <lastmod>2019-07-27</lastmod>
   </url>  <url>
-    <loc>http://www.dookt.com/post/RAID%E7%AE%80%E4%BB%8B.html</loc>
+    <loc>http://www.dookt.com/post/Python%E9%9B%86%E5%90%88.html</loc>
     <lastmod>2019-07-27</lastmod>
   </url>  <url>
     <loc>http://www.dookt.com/post/Fedora%E5%AE%89%E8%A3%85%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90.html</loc>
