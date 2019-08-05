@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.dookt.com/"/>
-  <updated>2019-08-04T05:40:10.709Z</updated>
+  <updated>2019-08-05T02:45:45.637Z</updated>
   <id>http://www.dookt.com/</id>
   
   <author>
@@ -21,15 +21,16 @@
     <link href="http://www.dookt.com/post/a583c2ce.html"/>
     <id>http://www.dookt.com/post/a583c2ce.html</id>
     <published>2019-08-04T05:39:11.000Z</published>
-    <updated>2019-08-04T05:40:10.709Z</updated>
+    <updated>2019-08-05T02:45:45.637Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="Could-not-open-dev-vmmon"><a href="#Could-not-open-dev-vmmon" class="headerlink" title="Could not open /dev/vmmon"></a>Could not open /dev/vmmon</h3><p>安装界面可以打开，启动虚拟机时报错Could not open /dev/vmmon，是因为没有编译vmmon</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmmon.tar</span><br><span class="line">cd vmmon-only</span><br><span class="line">make</span><br><span class="line">cp vmmon.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmmon.ko</span><br><span class="line">modprobe vmmon</span><br></pre></td></tr></table></figure>]]></content>
+    <content type="html"><![CDATA[<p>Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。</p><h3 id="Could-not-open-dev-vmmon"><a href="#Could-not-open-dev-vmmon" class="headerlink" title="Could not open /dev/vmmon"></a>Could not open /dev/vmmon</h3><p>安装界面可以打开，启动虚拟机时报错Could not open /dev/vmmon，是因为没有编译vmmon模块</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmmon.tar</span><br><span class="line">cd vmmon-only</span><br><span class="line">make</span><br><span class="line">cp vmmon.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmmon.ko</span><br><span class="line">modprobe vmmon</span><br></pre></td></tr></table></figure><h3 id="打不开网络配置器vmware-ntcfg"><a href="#打不开网络配置器vmware-ntcfg" class="headerlink" title="打不开网络配置器vmware-ntcfg"></a>打不开网络配置器vmware-ntcfg</h3><p>点击网络设置没反应，命令使用vmware-ntecfg也没反应。因为没有编译vmnet模块</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmnet.tar</span><br><span class="line">cd vmnet-only</span><br><span class="line">make</span><br><span class="line">cp vmnet.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmnet.ko</span><br><span class="line">modprobe vmnet</span><br></pre></td></tr></table></figure>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;h3 id=&quot;Could-not-open-dev-vmmon&quot;&gt;&lt;a href=&quot;#Could-not-open-dev-vmmon&quot; class=&quot;headerlink&quot; title=&quot;Could not open /dev/vmmon&quot;&gt;&lt;/a&gt;Could not ope
+        &lt;p&gt;Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。&lt;/p&gt;
+&lt;h3 id=&quot;Could-not-open-dev-vmmon&quot;&gt;&lt;a href=&quot;#Could-not-open-dev-vmmon&quot; class=&quot;headerlink&quot; title=&quot;
       
     
     </summary>
