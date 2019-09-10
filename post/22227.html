@@ -38,7 +38,7 @@
 </tr>
 <tr>
 <td>elk07</td>
-<td>172.17.0.1</td>
+<td>172.17.0.7</td>
 <td>elasticsearch，logstash</td>
 </tr>
 <tr>
@@ -63,7 +63,7 @@
 
 <h5 id="修改elasticsearch配置文件："><a href="#修改elasticsearch配置文件：" class="headerlink" title="修改elasticsearch配置文件："></a>修改elasticsearch配置文件：</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cat /etc/elasticsearch/elasticsearch.yml</span><br><span class="line">cluster.name: test</span><br><span class="line">node.name: test-node-1</span><br><span class="line">path.data: /opt/data/elasticsearch</span><br><span class="line">path.logs: /opt/logs/elasticsearch</span><br><span class="line">bootstrap.memory_lock: false</span><br><span class="line">network.host: 172.17.0.2</span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.zen.ping.unicast.hosts: ["172.16.0.4","172.16.0.5","172.16.0.6","172.16.0.7","172.16.0.8","172.16.0.9"，"172.16.0.10"]</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir /opt/data/elasticsearch</span><br><span class="line">mkdir /opt/logs/elasticsearch</span><br><span class="line">chow -R elasticsearch.  /opt/&#123;data,logs&#125;/elasticsearch</span><br><span class="line">service elasticsearch restart;tail -f /opt/logs/elasticsearch/test-node-1.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir /opt/data/elasticsearch</span><br><span class="line">mkdir /opt/logs/elasticsearch</span><br><span class="line">chow -R elasticsearch. /opt/&#123;data,logs&#125;/elasticsearch</span><br><span class="line">service elasticsearch restart</span><br></pre></td></tr></table></figure>
 
 <h5 id="安装kibana-只需要在一台机器上安装就行"><a href="#安装kibana-只需要在一台机器上安装就行" class="headerlink" title="安装kibana(只需要在一台机器上安装就行)"></a>安装kibana(只需要在一台机器上安装就行)</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh kibana-6.2.4.rpm</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> cat /etc/kibana/kibana.yml</span><br><span class="line">server.port: 5601</span><br><span class="line">server.host: "0.0.0.0"</span><br><span class="line">elasticsearch.url: "http://172.17.0.4:9200"</span><br><span class="line"></span><br><span class="line">service restart kibana</span><br></pre></td></tr></table></figure>
 
