@@ -1,4 +1,336 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="个人博客系统"><meta name="keywords" content="Nginx, Zabbix, Shell, Python, OPS, HA"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>Nginx-HTTP模块详解 | MINT</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Nginx-HTTP模块详解</h1><a id="logo" href="/.">MINT</a><p class="description">感谢平庸与我随行!</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">Nginx-HTTP模块详解</h1><div class="post-meta"><a href="/post/60161.html#comments" class="comment-count"></a><p><span class="date">Jul 25, 2019</span><span><a href="/categories/Nginx/" class="category">Nginx</a></span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h2 id="openresty使用content-by-lua打印出用户浏览器信息"><a href="#openresty使用content-by-lua打印出用户浏览器信息" class="headerlink" title="openresty使用content_by_lua打印出用户浏览器信息"></a>openresty使用content_by_lua打印出用户浏览器信息</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /lua &#123;</span><br><span class="line">    default_type text/html;</span><br><span class="line">    content_by_lua <span class="string">'ngx.say("User-Agent:", ngx.req.get_headers()["User-Agent"])'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+  <link rel="alternate" href="/atom.xml" title="MINT" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="http模块从外到内有http块、server块、location块，同时各个模块有各自的属性元素。">
+<meta name="keywords" content="Nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx-HTTP模块详解">
+<meta property="og:url" content="http://www.dookt.com/post/60161.html">
+<meta property="og:site_name" content="MINT">
+<meta property="og:description" content="http模块从外到内有http块、server块、location块，同时各个模块有各自的属性元素。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-10T14:35:38.607Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nginx-HTTP模块详解">
+<meta name="twitter:description" content="http模块从外到内有http块、server块、location块，同时各个模块有各自的属性元素。">
+  <link rel="canonical" href="http://www.dookt.com/post/60161">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Nginx-HTTP模块详解 | MINT</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MINT</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">感谢平庸与我随行!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/60161.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Nginx-HTTP模块详解
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-25 22:33:53" itemprop="dateCreated datePublished" datetime="2019-07-25T22:33:53+08:00">2019-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 22:35:38" itemprop="dateModified" datetime="2019-09-10T22:35:38+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>http模块从外到内有http块、server块、location块，同时各个模块有各自的属性元素。</p>
+<a id="more"></a>
+
+<h2 id="openresty使用content-by-lua打印出用户浏览器信息"><a href="#openresty使用content-by-lua打印出用户浏览器信息" class="headerlink" title="openresty使用content_by_lua打印出用户浏览器信息"></a>openresty使用content_by_lua打印出用户浏览器信息</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /lua &#123;</span><br><span class="line">    default_type text/html;</span><br><span class="line">    content_by_lua <span class="string">'ngx.say("User-Agent:", ngx.req.get_headers()["User-Agent"])'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="Nginx-HTTP模块详解"><a href="#Nginx-HTTP模块详解" class="headerlink" title="Nginx HTTP模块详解"></a>Nginx HTTP模块详解</h2><h3 id="配置块的嵌套"><a href="#配置块的嵌套" class="headerlink" title="配置块的嵌套"></a>配置块的嵌套</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">main</span><br><span class="line">http &#123;</span><br><span class="line">    upstream &#123;...&#125;</span><br><span class="line">    split_clients &#123;...&#125;</span><br><span class="line">    map &#123;...&#125;</span><br><span class="line">    geo &#123;...&#125;</span><br><span class="line">    server &#123;</span><br><span class="line">        if () &#123;...&#125;</span><br><span class="line">        location &#123;</span><br><span class="line">            limit_except &#123;...&#125;</span><br><span class="line">        &#125;</span><br><span class="line">        location &#123;</span><br><span class="line">            location &#123;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    server &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -2148,11 +2480,252 @@
 <td><code>http</code>, <code>server</code>, <code>location</code></td>
 </tr>
 </tbody></table>
-</div><div class="post-copyright"><blockquote><p>原文作者: Mr.Chen</p><p>原文链接: <a href="http://www.dookt.com/post/60161.html">http://www.dookt.com/post/60161.html</a></p><p>版权声明: 转载请注明出处(必须保留原文作者署名原文链接)</p></blockquote></div><div class="tags"><a href="/tags/Nginx/">Nginx</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/post/39643.html" class="pre">Python递归</a><a href="/post/6325.html" class="next">Nginx-反向代理与负载均衡</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#openresty使用content-by-lua打印出用户浏览器信息"><span class="toc-text">openresty使用content_by_lua打印出用户浏览器信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx-HTTP模块详解"><span class="toc-text">Nginx HTTP模块详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置块的嵌套"><span class="toc-text">配置块的嵌套</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指令的context"><span class="toc-text">指令的context</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指令的合并"><span class="toc-text">指令的合并</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#需要理解的问题"><span class="toc-text">需要理解的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#listen指令"><span class="toc-text">listen指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx正则表达式"><span class="toc-text">Nginx正则表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#server-name指令块"><span class="toc-text">server_name指令块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用正则表达式创建变量"><span class="toc-text">用正则表达式创建变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他用法"><span class="toc-text">其他用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#server-name匹配顺序"><span class="toc-text">server_name匹配顺序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP请求的11个阶段"><span class="toc-text">HTTP请求的11个阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#postread阶段—realip模块"><span class="toc-text">postread阶段—realip模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#如何拿到用户的真实IP地址？"><span class="toc-text">如何拿到用户的真实IP地址？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#拿到用户真实IP地址如何使用"><span class="toc-text">拿到用户真实IP地址如何使用?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#realip模块的指令"><span class="toc-text">realip模块的指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：return指令"><span class="toc-text">Rewrite模块：return指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Nginx返回状态码"><span class="toc-text">Nginx返回状态码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：return指令和error-page"><span class="toc-text">Rewrite模块：return指令和error_page</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#return指令和error-page例子"><span class="toc-text">return指令和error_page例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：重写URL"><span class="toc-text">Rewrite模块：重写URL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rewrite功能"><span class="toc-text">rewrite功能</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rewrite模块：条件判断if"><span class="toc-text">Rewrite模块：条件判断if</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#if指令的条件表达式"><span class="toc-text">if指令的条件表达式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#find-config阶段：找到处理请求的location指令块"><span class="toc-text">find_config阶段：找到处理请求的location指令块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#location匹配规则：仅匹配URI-忽略参数"><span class="toc-text">location匹配规则：仅匹配URI,忽略参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#location匹配顺序"><span class="toc-text">location匹配顺序</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#preaccess阶段：对连接做限制的limit-conn模块"><span class="toc-text">preaccess阶段：对连接做限制的limit_conn模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#limit-conn指令"><span class="toc-text">limit_conn指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#preaccess阶段对连接做限制的limit-req模块"><span class="toc-text">preaccess阶段对连接做限制的limit_req模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段的模块"><span class="toc-text">access阶段的模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：对IP做限制的access模块"><span class="toc-text">access阶段：对IP做限制的access模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：对用户名和密码做限制的auth-basic模块"><span class="toc-text">access阶段：对用户名和密码做限制的auth_basic模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#auth-basic模块的功能"><span class="toc-text">auth_basic模块的功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#auth-basic模块指令"><span class="toc-text">auth_basic模块指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#生成密码文件"><span class="toc-text">生成密码文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：使用第三方做授权控制的auth-request模块"><span class="toc-text">access阶段：使用第三方做授权控制的auth_request模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#access阶段：satisfy指令"><span class="toc-text">access阶段：satisfy指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#执行顺序"><span class="toc-text">执行顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-amp-A环节"><span class="toc-text">Q&amp;A环节</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#precontent阶段：按序访问资源的try-file模块"><span class="toc-text">precontent阶段：按序访问资源的try_file模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#precoppntent阶段：实时拷贝流量的mirror模块"><span class="toc-text">precoppntent阶段：实时拷贝流量的mirror模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content阶段：root和alias指令"><span class="toc-text">content阶段：root和alias指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#alias和root功能及差别："><span class="toc-text">alias和root功能及差别：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#static模块提供的3个变量"><span class="toc-text">static模块提供的3个变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态文件返回的content-type"><span class="toc-text">静态文件返回的content-type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#static模块url不以斜杆结尾却访问目录的做法"><span class="toc-text">static模块url不以斜杆结尾却访问目录的做法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#重定向跳转的域名"><span class="toc-text">重定向跳转的域名</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content阶段的：index和autoindex模块"><span class="toc-text">content阶段的：index和autoindex模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content阶段：concat模块"><span class="toc-text">content阶段：concat模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log阶段：access日志的用法"><span class="toc-text">log阶段：access日志的用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#log-format指令"><span class="toc-text">log_format指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#默认的日志格式"><span class="toc-text">默认的日志格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#日志文件格式"><span class="toc-text">日志文件格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#日志文件名包含变量的优化"><span class="toc-text">日志文件名包含变量的优化</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP过滤模块的调用流程"><span class="toc-text">HTTP过滤模块的调用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP过滤模块介绍"><span class="toc-text">HTTP过滤模块介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP过滤模块：替换修改响应内容的sub模块"><span class="toc-text">HTTP过滤模块：替换修改响应内容的sub模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP过滤模块：在响应前后添加内容的addition模块"><span class="toc-text">HTTP过滤模块：在响应前后添加内容的addition模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx变量"><span class="toc-text">Nginx变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx变量的运行原理"><span class="toc-text">Nginx变量的运行原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#存放变量的哈希表"><span class="toc-text">存放变量的哈希表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP框架提供的变量"><span class="toc-text">HTTP框架提供的变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#referer模块"><span class="toc-text">referer模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#valid-referers指令"><span class="toc-text">valid_referers指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防盗链secure-link模块"><span class="toc-text">防盗链secure_link模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#变量值带过期时间的配置实例"><span class="toc-text">变量值带过期时间的配置实例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#命令行生成安全链接"><span class="toc-text">命令行生成安全链接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Nginx配置"><span class="toc-text">Nginx配置</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#仅对URI进行哈希的简单办法"><span class="toc-text">仅对URI进行哈希的简单办法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#命令行生成安全链接-1"><span class="toc-text">命令行生成安全链接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Nginx配置-1"><span class="toc-text">Nginx配置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为复杂业务生成新的变量：map模块"><span class="toc-text">为复杂业务生成新的变量：map模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#map模块的指令"><span class="toc-text">map模块的指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#map模块：通过映射新变量提供更多可能性"><span class="toc-text">map模块：通过映射新变量提供更多可能性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-amp-A-环节演示实例"><span class="toc-text">Q &amp; A 环节演示实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过变量指定少量用户实现AB测试：split-client"><span class="toc-text">通过变量指定少量用户实现AB测试：split_client</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#split-client模块的指令"><span class="toc-text">split_client模块的指令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#根据IP地址范围的匹配生成新的变量：geo模块"><span class="toc-text">根据IP地址范围的匹配生成新的变量：geo模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-amp-A-环节及实例"><span class="toc-text">Q &amp; A 环节及实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用变量获取用户的地理位置：geoip模块"><span class="toc-text">使用变量获取用户的地理位置：geoip模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#geoip-country指令提供的变量"><span class="toc-text">geoip_country指令提供的变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#geoip-city指令提供的变量"><span class="toc-text">geoip_city指令提供的变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx对客户端使用keepalived特性提升连接效率"><span class="toc-text">Nginx对客户端使用keepalived特性提升连接效率</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#keepalive行为控制的指令"><span class="toc-text">keepalive行为控制的指令</span></a></li></ol></li></ol></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/6782be63.html">Docker入门</a></li><li class="post-list-item"><a class="post-list-link" href="/post/a583c2ce.html">Centos安装vmware虚拟机报错</a></li><li class="post-list-item"><a class="post-list-link" href="/post/b2e09379.html">k8s平台搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/post/c6b0c30c.html">Nginx设置为系统服务</a></li><li class="post-list-item"><a class="post-list-link" href="/post/a2c1797d.html">Tomcat设置为系统服务</a></li><li class="post-list-item"><a class="post-list-link" href="/post/7df7e5a.html">Python编写zabbix告警邮件</a></li><li class="post-list-item"><a class="post-list-link" href="/post/4120479c.html">DockerFile生成镜像</a></li><li class="post-list-item"><a class="post-list-link" href="/post/d936a15c.html">Jenkins发布脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/post/d6261197.html">k8s-一个简单的例子</a></li><li class="post-list-item"><a class="post-list-link" href="/post/41380.html">Mysql设置权限</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Jenkins/">Jenkins</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/K8S/">K8S</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">32</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/虚拟化/" style="font-size: 15px;">虚拟化</a> <a href="/tags/系统管理/" style="font-size: 15px;">系统管理</a> <a href="/tags/高可用/" style="font-size: 15px;">高可用</a> <a href="/tags/Docker/" style="font-size: 15px;">Docker</a> <a href="/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/tags/Scripts/" style="font-size: 15px;">Scripts</a> <a href="/tags/Jenkins/" style="font-size: 15px;">Jenkins</a> <a href="/tags/FTP/" style="font-size: 15px;">FTP</a> <a href="/tags/Python基础/" style="font-size: 15px;">Python基础</a> <a href="/tags/Zabbix/" style="font-size: 15px;">Zabbix</a> <a href="/tags/监控/" style="font-size: 15px;">监控</a> <a href="/tags/磁盘管理/" style="font-size: 15px;">磁盘管理</a> <a href="/tags/Tomcat/" style="font-size: 15px;">Tomcat</a> <a href="/tags/运维基本功/" style="font-size: 15px;">运维基本功</a> <a href="/tags/系统命令/" style="font-size: 15px;">系统命令</a> <a href="/tags/容器/" style="font-size: 15px;">容器</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">Mr.Chen.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script>var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "//hm.baidu.com/hm.js?c6588ff9864e03b5fbcbba5a323ad966";
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-  })();
-</script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/post/6325.html" rel="next" title="Nginx-反向代理与负载均衡">
+                  <i class="fa fa-chevron-left"></i> Nginx-反向代理与负载均衡
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/post/30018.html" rel="prev" title="磁盘分区挂载parted及LVM操作">
+                  磁盘分区挂载parted及LVM操作 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#openresty使用content-by-lua打印出用户浏览器信息"><span class="nav-number">1.</span> <span class="nav-text">openresty使用content_by_lua打印出用户浏览器信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx-HTTP模块详解"><span class="nav-number">2.</span> <span class="nav-text">Nginx HTTP模块详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置块的嵌套"><span class="nav-number">2.1.</span> <span class="nav-text">配置块的嵌套</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指令的context"><span class="nav-number">2.2.</span> <span class="nav-text">指令的context</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指令的合并"><span class="nav-number">2.3.</span> <span class="nav-text">指令的合并</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#需要理解的问题"><span class="nav-number">2.4.</span> <span class="nav-text">需要理解的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#listen指令"><span class="nav-number">2.5.</span> <span class="nav-text">listen指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx正则表达式"><span class="nav-number">2.6.</span> <span class="nav-text">Nginx正则表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#server-name指令块"><span class="nav-number">2.7.</span> <span class="nav-text">server_name指令块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用正则表达式创建变量"><span class="nav-number">2.8.</span> <span class="nav-text">用正则表达式创建变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他用法"><span class="nav-number">2.9.</span> <span class="nav-text">其他用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#server-name匹配顺序"><span class="nav-number">2.10.</span> <span class="nav-text">server_name匹配顺序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP请求的11个阶段"><span class="nav-number">3.</span> <span class="nav-text">HTTP请求的11个阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#postread阶段—realip模块"><span class="nav-number">3.1.</span> <span class="nav-text">postread阶段—realip模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何拿到用户的真实IP地址？"><span class="nav-number">3.1.1.</span> <span class="nav-text">如何拿到用户的真实IP地址？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#拿到用户真实IP地址如何使用"><span class="nav-number">3.1.2.</span> <span class="nav-text">拿到用户真实IP地址如何使用?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#realip模块的指令"><span class="nav-number">3.1.3.</span> <span class="nav-text">realip模块的指令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rewrite模块：return指令"><span class="nav-number">3.2.</span> <span class="nav-text">Rewrite模块：return指令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx返回状态码"><span class="nav-number">3.2.1.</span> <span class="nav-text">Nginx返回状态码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rewrite模块：return指令和error-page"><span class="nav-number">3.3.</span> <span class="nav-text">Rewrite模块：return指令和error_page</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#return指令和error-page例子"><span class="nav-number">3.4.</span> <span class="nav-text">return指令和error_page例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rewrite模块：重写URL"><span class="nav-number">3.5.</span> <span class="nav-text">Rewrite模块：重写URL</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rewrite功能"><span class="nav-number">3.5.1.</span> <span class="nav-text">rewrite功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rewrite模块：条件判断if"><span class="nav-number">3.6.</span> <span class="nav-text">Rewrite模块：条件判断if</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#if指令的条件表达式"><span class="nav-number">3.6.1.</span> <span class="nav-text">if指令的条件表达式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#find-config阶段：找到处理请求的location指令块"><span class="nav-number">3.7.</span> <span class="nav-text">find_config阶段：找到处理请求的location指令块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#location匹配规则：仅匹配URI-忽略参数"><span class="nav-number">3.7.1.</span> <span class="nav-text">location匹配规则：仅匹配URI,忽略参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#location匹配顺序"><span class="nav-number">3.7.2.</span> <span class="nav-text">location匹配顺序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#preaccess阶段：对连接做限制的limit-conn模块"><span class="nav-number">3.8.</span> <span class="nav-text">preaccess阶段：对连接做限制的limit_conn模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#limit-conn指令"><span class="nav-number">3.8.1.</span> <span class="nav-text">limit_conn指令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#preaccess阶段对连接做限制的limit-req模块"><span class="nav-number">3.9.</span> <span class="nav-text">preaccess阶段对连接做限制的limit_req模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#access阶段的模块"><span class="nav-number">3.10.</span> <span class="nav-text">access阶段的模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#access阶段：对IP做限制的access模块"><span class="nav-number">3.11.</span> <span class="nav-text">access阶段：对IP做限制的access模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#access阶段：对用户名和密码做限制的auth-basic模块"><span class="nav-number">3.12.</span> <span class="nav-text">access阶段：对用户名和密码做限制的auth_basic模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#auth-basic模块的功能"><span class="nav-number">3.12.1.</span> <span class="nav-text">auth_basic模块的功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#auth-basic模块指令"><span class="nav-number">3.12.2.</span> <span class="nav-text">auth_basic模块指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成密码文件"><span class="nav-number">3.12.3.</span> <span class="nav-text">生成密码文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#access阶段：使用第三方做授权控制的auth-request模块"><span class="nav-number">3.13.</span> <span class="nav-text">access阶段：使用第三方做授权控制的auth_request模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#access阶段：satisfy指令"><span class="nav-number">3.14.</span> <span class="nav-text">access阶段：satisfy指令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#执行顺序"><span class="nav-number">3.14.1.</span> <span class="nav-text">执行顺序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q-amp-A环节"><span class="nav-number">3.14.2.</span> <span class="nav-text">Q&amp;A环节</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#precontent阶段：按序访问资源的try-file模块"><span class="nav-number">3.15.</span> <span class="nav-text">precontent阶段：按序访问资源的try_file模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#precoppntent阶段：实时拷贝流量的mirror模块"><span class="nav-number">3.16.</span> <span class="nav-text">precoppntent阶段：实时拷贝流量的mirror模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#content阶段：root和alias指令"><span class="nav-number">3.17.</span> <span class="nav-text">content阶段：root和alias指令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#alias和root功能及差别："><span class="nav-number">3.17.1.</span> <span class="nav-text">alias和root功能及差别：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#static模块提供的3个变量"><span class="nav-number">3.18.</span> <span class="nav-text">static模块提供的3个变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态文件返回的content-type"><span class="nav-number">3.19.</span> <span class="nav-text">静态文件返回的content-type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#static模块url不以斜杆结尾却访问目录的做法"><span class="nav-number">3.20.</span> <span class="nav-text">static模块url不以斜杆结尾却访问目录的做法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重定向跳转的域名"><span class="nav-number">3.20.1.</span> <span class="nav-text">重定向跳转的域名</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#content阶段的：index和autoindex模块"><span class="nav-number">3.21.</span> <span class="nav-text">content阶段的：index和autoindex模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#content阶段：concat模块"><span class="nav-number">3.22.</span> <span class="nav-text">content阶段：concat模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#log阶段：access日志的用法"><span class="nav-number">3.23.</span> <span class="nav-text">log阶段：access日志的用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#log-format指令"><span class="nav-number">3.23.1.</span> <span class="nav-text">log_format指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#默认的日志格式"><span class="nav-number">3.23.2.</span> <span class="nav-text">默认的日志格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日志文件格式"><span class="nav-number">3.23.3.</span> <span class="nav-text">日志文件格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日志文件名包含变量的优化"><span class="nav-number">3.23.4.</span> <span class="nav-text">日志文件名包含变量的优化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP过滤模块的调用流程"><span class="nav-number">4.</span> <span class="nav-text">HTTP过滤模块的调用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP过滤模块介绍"><span class="nav-number">4.1.</span> <span class="nav-text">HTTP过滤模块介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP过滤模块：替换修改响应内容的sub模块"><span class="nav-number">4.2.</span> <span class="nav-text">HTTP过滤模块：替换修改响应内容的sub模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP过滤模块：在响应前后添加内容的addition模块"><span class="nav-number">4.3.</span> <span class="nav-text">HTTP过滤模块：在响应前后添加内容的addition模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx变量"><span class="nav-number">5.</span> <span class="nav-text">Nginx变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx变量的运行原理"><span class="nav-number">5.1.</span> <span class="nav-text">Nginx变量的运行原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存放变量的哈希表"><span class="nav-number">5.2.</span> <span class="nav-text">存放变量的哈希表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP框架提供的变量"><span class="nav-number">5.3.</span> <span class="nav-text">HTTP框架提供的变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#referer模块"><span class="nav-number">5.4.</span> <span class="nav-text">referer模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#valid-referers指令"><span class="nav-number">5.4.1.</span> <span class="nav-text">valid_referers指令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防盗链secure-link模块"><span class="nav-number">5.5.</span> <span class="nav-text">防盗链secure_link模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#变量值带过期时间的配置实例"><span class="nav-number">5.5.1.</span> <span class="nav-text">变量值带过期时间的配置实例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#命令行生成安全链接"><span class="nav-number">5.5.1.1.</span> <span class="nav-text">命令行生成安全链接</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Nginx配置"><span class="nav-number">5.5.1.2.</span> <span class="nav-text">Nginx配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#仅对URI进行哈希的简单办法"><span class="nav-number">5.5.2.</span> <span class="nav-text">仅对URI进行哈希的简单办法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#命令行生成安全链接-1"><span class="nav-number">5.5.2.1.</span> <span class="nav-text">命令行生成安全链接</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Nginx配置-1"><span class="nav-number">5.5.2.2.</span> <span class="nav-text">Nginx配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为复杂业务生成新的变量：map模块"><span class="nav-number">5.6.</span> <span class="nav-text">为复杂业务生成新的变量：map模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#map模块的指令"><span class="nav-number">5.6.1.</span> <span class="nav-text">map模块的指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#map模块：通过映射新变量提供更多可能性"><span class="nav-number">5.6.2.</span> <span class="nav-text">map模块：通过映射新变量提供更多可能性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q-amp-A-环节演示实例"><span class="nav-number">5.6.3.</span> <span class="nav-text">Q &amp; A 环节演示实例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过变量指定少量用户实现AB测试：split-client"><span class="nav-number">5.7.</span> <span class="nav-text">通过变量指定少量用户实现AB测试：split_client</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#split-client模块的指令"><span class="nav-number">5.7.1.</span> <span class="nav-text">split_client模块的指令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#根据IP地址范围的匹配生成新的变量：geo模块"><span class="nav-number">5.8.</span> <span class="nav-text">根据IP地址范围的匹配生成新的变量：geo模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q-amp-A-环节及实例"><span class="nav-number">5.8.1.</span> <span class="nav-text">Q &amp; A 环节及实例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用变量获取用户的地理位置：geoip模块"><span class="nav-number">5.9.</span> <span class="nav-text">使用变量获取用户的地理位置：geoip模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#geoip-country指令提供的变量"><span class="nav-number">5.9.1.</span> <span class="nav-text">geoip_country指令提供的变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#geoip-city指令提供的变量"><span class="nav-number">5.9.2.</span> <span class="nav-text">geoip_city指令提供的变量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx对客户端使用keepalived特性提升连接效率"><span class="nav-number">5.10.</span> <span class="nav-text">Nginx对客户端使用keepalived特性提升连接效率</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#keepalive行为控制的指令"><span class="nav-number">5.10.1.</span> <span class="nav-text">keepalive行为控制的指令</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/avatar.jpg"
+      alt="Mr.Chen">
+  <p class="site-author-name" itemprop="name">Mr.Chen</p>
+  <div class="site-description" itemprop="description">个人博客系统</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/tanlay" title="GitHub &rarr; https://github.com/tanlay" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:dooktmint@gmail.com" title="E-Mail &rarr; mailto:dooktmint@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Chen</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

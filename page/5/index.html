@@ -1,8 +1,1450 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="个人博客系统"><meta name="keywords" content="Nginx, Zabbix, Shell, Python, OPS, HA"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>MINT | 感谢平庸与我随行!</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">MINT</h1><a id="logo" href="/.">MINT</a><p class="description">感谢平庸与我随行!</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h2 class="post-title"><a href="/post/58392.html">开机rc.local不生效</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Linux/" class="category">Linux</a></span></p></div><div class="post-content"><p>添加了开机启动任务cron，但是未能成功执行，需要注意一下几点</p></div><p class="readmore"><a href="/post/58392.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/41762.html">FTP被动模式安装部署</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Linux/" class="category">Linux</a></span></p></div><div class="post-content"><p>由于生产环境两端都有防火墙，故vsftp需要使用被动模式。</p></div><p class="readmore"><a href="/post/41762.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/10505.html">Nginx使用stream模块转发ssh请求</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Nginx/" class="category">Nginx</a></span></p></div><div class="post-content"><h4 id="服务器环境"><a href="#服务器环境" class="headerlink" title="服务器环境"></a>服务器环境</h4><p>nginx服务器IP：192.168.99.113<br>ssh服务器IP：192.168.99.9，端口2222</p></div><p class="readmore"><a href="/post/10505.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/30018.html">磁盘分区挂载parted及LVM操作</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Linux/" class="category">Linux</a></span></p></div><div class="post-content"><h4 id="LVM介绍"><a href="#LVM介绍" class="headerlink" title="LVM介绍"></a>LVM介绍</h4><p>它是Linux环境下对磁盘分区进行管理的一种机制，LVM是建立在硬盘和分区之上的一个逻辑层，来提高磁盘分区管理的灵活性。通过LVM系统管理员可以轻松管理磁盘分区，如：将若干个磁盘分区连接为一个整块的卷组（volume group），形成一个存储池。管理员可以在卷组上随意创建逻辑卷组（logical volumes），并进一步在逻辑卷组上创建文件系统。管理员通过LVM可以方便的调整存储卷组的大小，并且可以对磁盘存储按照组的方式进行命名、管理和分配。当系统添加了新的磁盘，通过LVM管理员就不必将磁盘的文件移动到新的磁盘上以充分利用新的存储空间，而是直接扩展文件系统跨越磁盘即可。</p></div><p class="readmore"><a href="/post/30018.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/19235.html">Python列表</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Python/" class="category">Python</a></span></p></div><div class="post-content"><ul></ul></div><p class="readmore"><a href="/post/19235.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/35224.html">Python字符串</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Python/" class="category">Python</a></span></p></div><div class="post-content"><p>定义：它是一个有序的字符的集合，用于存储和表示基本的文本信息，’’或””或””” “””中间包含的内容称之为字符串</p></div><p class="readmore"><a href="/post/35224.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/9630.html">Python变量</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Python/" class="category">Python</a></span></p></div><div class="post-content"><ul></ul></div><p class="readmore"><a href="/post/9630.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/49699.html">Python表达式</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Python/" class="category">Python</a></span></p></div><div class="post-content"><ul></ul></div><p class="readmore"><a href="/post/49699.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/41256.html">Python程序结构</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Python/" class="category">Python</a></span></p></div><div class="post-content"><ul></ul></div><p class="readmore"><a href="/post/41256.html">阅读更多</a></p></div><div class="post"><h2 class="post-title"><a href="/post/50225.html">Python元组</a></h2><div class="post-meta"><p><span class="date">2019-07-26</span><span><a href="/categories/Python/" class="category">Python</a></span></p></div><div class="post-content"><p>tuple（元组）:可以理解成一个不允许更改的列表</p></div><p class="readmore"><a href="/post/50225.html">阅读更多</a></p></div><nav class="page-navigator"><a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/">下一页</a></nav></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/post/6782be63.html">Docker入门</a></li><li class="post-list-item"><a class="post-list-link" href="/post/a583c2ce.html">Centos安装vmware虚拟机报错</a></li><li class="post-list-item"><a class="post-list-link" href="/post/b2e09379.html">k8s平台搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/post/c6b0c30c.html">Nginx设置为系统服务</a></li><li class="post-list-item"><a class="post-list-link" href="/post/a2c1797d.html">Tomcat设置为系统服务</a></li><li class="post-list-item"><a class="post-list-link" href="/post/7df7e5a.html">Python编写zabbix告警邮件</a></li><li class="post-list-item"><a class="post-list-link" href="/post/4120479c.html">DockerFile生成镜像</a></li><li class="post-list-item"><a class="post-list-link" href="/post/d936a15c.html">Jenkins发布脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/post/d6261197.html">k8s-一个简单的例子</a></li><li class="post-list-item"><a class="post-list-link" href="/post/41380.html">Mysql设置权限</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Jenkins/">Jenkins</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/K8S/">K8S</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">32</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/虚拟化/" style="font-size: 15px;">虚拟化</a> <a href="/tags/系统管理/" style="font-size: 15px;">系统管理</a> <a href="/tags/高可用/" style="font-size: 15px;">高可用</a> <a href="/tags/Docker/" style="font-size: 15px;">Docker</a> <a href="/tags/数据库/" style="font-size: 15px;">数据库</a> <a href="/tags/Scripts/" style="font-size: 15px;">Scripts</a> <a href="/tags/Jenkins/" style="font-size: 15px;">Jenkins</a> <a href="/tags/FTP/" style="font-size: 15px;">FTP</a> <a href="/tags/Python基础/" style="font-size: 15px;">Python基础</a> <a href="/tags/Zabbix/" style="font-size: 15px;">Zabbix</a> <a href="/tags/监控/" style="font-size: 15px;">监控</a> <a href="/tags/磁盘管理/" style="font-size: 15px;">磁盘管理</a> <a href="/tags/Tomcat/" style="font-size: 15px;">Tomcat</a> <a href="/tags/运维基本功/" style="font-size: 15px;">运维基本功</a> <a href="/tags/系统命令/" style="font-size: 15px;">系统命令</a> <a href="/tags/容器/" style="font-size: 15px;">容器</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">Mr.Chen.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script>var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "//hm.baidu.com/hm.js?c6588ff9864e03b5fbcbba5a323ad966";
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-  })();
-</script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/totop.js?v=2.0.4" async></script></body></html>
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+  <link rel="alternate" href="/atom.xml" title="MINT" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="个人博客系统">
+<meta name="keywords" content="Nginx, Zabbix, Shell, Python, OPS, HA">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MINT">
+<meta property="og:url" content="http://www.dookt.com/page/5/index.html">
+<meta property="og:site_name" content="MINT">
+<meta property="og:description" content="个人博客系统">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MINT">
+<meta name="twitter:description" content="个人博客系统">
+  <link rel="canonical" href="http://www.dookt.com/page/5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: true,
+    isPost: false,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>MINT</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MINT</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">感谢平庸与我随行!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+  <div id="posts" class="posts-expand">
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/58392.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/58392.html" class="post-title-link" itemprop="url">开机rc.local不生效</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-26 16:56:34" itemprop="dateCreated datePublished" datetime="2019-07-26T16:56:34+08:00">2019-07-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 23:13:11" itemprop="dateModified" datetime="2019-09-10T23:13:11+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>添加了开机启动任务cron，但是未能成功执行，需要注意一下几点</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/58392.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/41762.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/41762.html" class="post-title-link" itemprop="url">FTP被动模式安装部署</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-26 16:53:04" itemprop="dateCreated datePublished" datetime="2019-07-26T16:53:04+08:00">2019-07-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 22:29:12" itemprop="dateModified" datetime="2019-09-10T22:29:12+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>由于生产环境两端都有防火墙，故vsftp需要使用被动模式。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/41762.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/10505.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/10505.html" class="post-title-link" itemprop="url">Nginx使用stream模块转发ssh请求</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-26 16:51:40" itemprop="dateCreated datePublished" datetime="2019-07-26T16:51:40+08:00">2019-07-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 22:37:32" itemprop="dateModified" datetime="2019-09-10T22:37:32+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>nginx从1.9.0开始，新增加了一个stream模块，用来实现四层协议的转发、代理或者负载均衡等。比如在内网有一个mysql服务，想暴露到公网上去使用，就可以通过nginx代理的方式通过nginx来进行内网mysql的访问。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/10505.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/30018.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/30018.html" class="post-title-link" itemprop="url">磁盘分区挂载parted及LVM操作</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-26 16:49:22" itemprop="dateCreated datePublished" datetime="2019-07-26T16:49:22+08:00">2019-07-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 23:14:29" itemprop="dateModified" datetime="2019-09-10T23:14:29+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>LVM是Linux环境下对磁盘分区进行管理的一种机制，LVM是建立在硬盘和分区之上的一个逻辑层，来提高磁盘分区管理的灵活性。通过LVM系统管理员可以轻松管理磁盘分区，如：将若干个磁盘分区连接为一个整块的卷组（volume group），形成一个存储池。管理员可以在卷组上随意创建逻辑卷组（logical volumes），并进一步在逻辑卷组上创建文件系统。管理员通过LVM可以方便的调整存储卷组的大小，并且可以对磁盘存储按照组的方式进行命名、管理和分配。当系统添加了新的磁盘，通过LVM管理员就不必将磁盘的文件移动到新的磁盘上以充分利用新的存储空间，而是直接扩展文件系统跨越磁盘即可。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/30018.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/60161.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/60161.html" class="post-title-link" itemprop="url">Nginx-HTTP模块详解</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-25 22:33:53" itemprop="dateCreated datePublished" datetime="2019-07-25T22:33:53+08:00">2019-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 22:35:38" itemprop="dateModified" datetime="2019-09-10T22:35:38+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>http模块从外到内有http块、server块、location块，同时各个模块有各自的属性元素。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/60161.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/6325.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/6325.html" class="post-title-link" itemprop="url">Nginx-反向代理与负载均衡</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-25 21:38:23" itemprop="dateCreated datePublished" datetime="2019-07-25T21:38:23+08:00">2019-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 22:40:36" itemprop="dateModified" datetime="2019-09-10T22:40:36+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>多台服务器绑定一个域名，当A用户访问WEB服务器的时候，可能访问的是A服务器，当B用户访问WEB服务器的时候可能是A服务器也可能是B服务器，但是一旦A服务器挂掉后，Nginx负载均衡会自动的把所有的访问者全部指向另外一个可以正常工作的WEB server.</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/6325.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/47516.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/47516.html" class="post-title-link" itemprop="url">Nginx-架构基础</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-25 21:38:23" itemprop="dateCreated datePublished" datetime="2019-07-25T21:38:23+08:00">2019-07-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 22:43:59" itemprop="dateModified" datetime="2019-09-10T22:43:59+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>为什么Nginx会那么流行?</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/47516.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/73feb5a.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/post/73feb5a.html" class="post-title-link" itemprop="url">Python基础</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-01 19:06:26" itemprop="dateCreated datePublished" datetime="2019-07-01T19:06:26+08:00">2019-07-01</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-10 23:04:35" itemprop="dateModified" datetime="2019-09-10T23:04:35+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="Python变量"><a href="#Python变量" class="headerlink" title="Python变量"></a>Python变量</h3><ul>
+<li>变量就是可以重复使用的一个量，或者一个代号</li>
+<li>变量命名规则<ul>
+<li>变量命名可以包含数字、大小写字母、下划线（不推荐以上三种之外的字符）</li>
+<li>数字不能打头<ul>
+<li>4man，5for 是不合法的变量名</li>
+<li>man4，for5 是合法的变量名</li>
+</ul>
+</li>
+<li>一般在python中，以下划线开头的内容有特殊含义，不建议使用<ul>
+<li>比如_age，_name，理论上是可以的，强烈不推荐，包括但不限于一个下划线和两个下划线开头<ul>
+<li>大小写不一样，大小写敏感</li>
+<li>ForMat跟forMat不是一个变量名称</li>
+<li>推荐：</li>
+<li>使用具有固定含义的英文单词或缩写，srv=server skt=socket，一般以posix命名规则为主</li>
+<li>驼峰命名法：<ul>
+<li>大驼峰，每个单词首字母大写<ul>
+<li>在Python中给类命名使用此法</li>
+<li>MyFirstLove，IntOne</li>
+</ul>
+</li>
+<li>小驼峰，类似大驼峰，但第一个小写<ul>
+<li>在Python中一般给普通变量或函数命名</li>
+<li>myFirstLove.IntOne</li>
+</ul>
+</li>
+<li>posix写法<ul>
+<li>多个单词用下划线</li>
+<li>单词全部小写</li>
+<li>my_first_love,int_one</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>保留字和关键字<ul>
+<li>变量命名必须避开，不能跟关键字和保留字重复</li>
+<li>class，def，break，for</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看关键字的方法</span></span><br><span class="line"><span class="keyword">import</span> keyword     <span class="comment">#引入关键字模块</span></span><br><span class="line"><span class="comment">#打印系统全部关键字</span></span><br><span class="line">print(keyword.kwlist)</span><br></pre></td></tr></table></figure>
+
+<pre><code>[&apos;False&apos;, &apos;None&apos;, &apos;True&apos;, &apos;and&apos;, &apos;as&apos;, &apos;assert&apos;, &apos;async&apos;, &apos;await&apos;, &apos;break&apos;, &apos;class&apos;, &apos;continue&apos;, &apos;def&apos;, &apos;del&apos;, &apos;elif&apos;, &apos;else&apos;, &apos;except&apos;, &apos;finally&apos;, &apos;for&apos;, &apos;from&apos;, &apos;global&apos;, &apos;if&apos;, &apos;import&apos;, &apos;in&apos;, &apos;is&apos;, &apos;lambda&apos;, &apos;nonlocal&apos;, &apos;not&apos;, &apos;or&apos;, &apos;pass&apos;, &apos;raise&apos;, &apos;return&apos;, &apos;try&apos;, &apos;while&apos;, &apos;with&apos;, &apos;yield&apos;]</code></pre><h2 id="变量申明"><a href="#变量申明" class="headerlink" title="变量申明"></a>变量申明</h2><ul>
+<li>var_name = var_value</li>
+<li>var1 = var2 = var3 = var_value</li>
+<li>var1,var2,var3 = v1,v2,v3</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定义变量age。把18放入变量age中</span></span><br><span class="line">age = <span class="number">18</span></span><br><span class="line">print(age)</span><br><span class="line">print(<span class="number">18</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 给age1，age2，age3放入同样的一个内容或值</span></span><br><span class="line">age1 = age2 = age3 = <span class="number">18</span></span><br><span class="line">print(age1)</span><br><span class="line">print(age2)</span><br><span class="line">print(age3)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一行内给多个变量赋值</span></span><br><span class="line">age4, age5, age6 = <span class="number">12</span>, <span class="number">21</span>, <span class="number">45</span></span><br><span class="line">print(age4)</span><br><span class="line">print(age5)</span><br><span class="line">print(age6)</span><br></pre></td></tr></table></figure>
+
+<pre><code>18
+18
+18
+18
+18
+12
+21
+45</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#申明的三种格式</span></span><br><span class="line"><span class="comment">#格式1</span></span><br><span class="line">s1 = <span class="string">"我爱王晓静"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#格式2</span></span><br><span class="line">s2 = s1 = <span class="string">"I love wangxiaojing"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#格式3</span></span><br><span class="line">s1, s2, s3 = <span class="string">"I love wangxiaojing"</span>, <span class="string">"爱生活爱图灵"</span>, <span class="number">123</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="变量类型"><a href="#变量类型" class="headerlink" title="变量类型"></a>变量类型</h2><ul>
+<li>严格来讲，python只有一个数据类型</li>
+<li>标准数据类型一共六种<ul>
+<li>数字类型 Number</li>
+<li>字符串类型 str</li>
+<li>列表 list</li>
+<li>元组 tuple</li>
+<li>字典 dict</li>
+<li>集合 set</li>
+</ul>
+</li>
+</ul>
+<h2 id="数据类型-Number"><a href="#数据类型-Number" class="headerlink" title="数据类型 Number"></a>数据类型 Number</h2><ul>
+<li>python中的数字没有大小限制<h2 id="常见数字分类"><a href="#常见数字分类" class="headerlink" title="常见数字分类"></a>常见数字分类</h2><h3 id="整数"><a href="#整数" class="headerlink" title="整数"></a>整数</h3><ul>
+<li>没有小数部分</li>
+<li>表示正数，负数，0</li>
+<li>二进制<ul>
+<li>只有0，1</li>
+<li>以0b开头的01串</li>
+<li>例如：<ul>
+<li>0b110</li>
+<li>0b11110</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>八进制<ul>
+<li>以0o开的0到7之间的数字串</li>
+<li>例如：<ul>
+<li>0o71</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>十六进制<ul>
+<li>以0x组成的由0-9，a-f构成的串</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>浮点数</li>
+<li>科学计数法</li>
+<li>复数</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  二进制案例</span></span><br><span class="line">a1 = <span class="number">0b110</span></span><br><span class="line">print(a1)</span><br><span class="line">a2 = <span class="number">0b11110</span></span><br><span class="line">print(a2)</span><br></pre></td></tr></table></figure>
+
+<pre><code>6
+30</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 八进制案例</span></span><br><span class="line">a3 = <span class="number">0o71</span></span><br><span class="line">print(a3)</span><br></pre></td></tr></table></figure>
+
+<pre><code>57</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#十六进制案例</span></span><br><span class="line">a4 = <span class="number">0xffff</span></span><br><span class="line">print(a4)</span><br><span class="line"></span><br><span class="line">a5 = <span class="number">0x53f2</span></span><br><span class="line">print(a5)</span><br></pre></td></tr></table></figure>
+
+<pre><code>65535
+21490</code></pre><h3 id="浮点数"><a href="#浮点数" class="headerlink" title="浮点数"></a>浮点数</h3><ul>
+<li>就是通俗意义上的小数</li>
+<li>常见的案例格式<ul>
+<li>3.14.59</li>
+<li>3.</li>
+<li>0.4</li>
+<li>.4</li>
+</ul>
+</li>
+<li>科学计数法<ul>
+<li>定义与数学定义一致</li>
+<li>写法就是e后面跟整数用来表示10的指数</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 科学计数法</span></span><br><span class="line">height = <span class="number">184</span></span><br><span class="line">print(<span class="number">184</span>)</span><br><span class="line"></span><br><span class="line">height = <span class="number">1.84e2</span></span><br><span class="line">print(height)</span><br><span class="line"></span><br><span class="line">a = <span class="number">.2</span></span><br><span class="line">print(a)</span><br></pre></td></tr></table></figure>
+
+<pre><code>184
+184.0
+0.2</code></pre><h3 id="复数-complex"><a href="#复数-complex" class="headerlink" title="复数 complex"></a>复数 complex</h3><ul>
+<li>与数学定义一致</li>
+<li>复数的虚部用就j/J表示</li>
+<li>例如：<ul>
+<li>5+4j</li>
+<li>4j</li>
+<li>(4j)</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a = <span class="number">4j</span></span><br><span class="line">print(a)</span><br></pre></td></tr></table></figure>
+
+<pre><code>4j</code></pre><h3 id="布尔值"><a href="#布尔值" class="headerlink" title="布尔值"></a>布尔值</h3><ul>
+<li>布尔值就是用来表示真假的值</li>
+<li>只有两个值：True/False</li>
+<li>在Python中，布尔值可以当数字使用<ul>
+<li>布尔值如果当数字使用，True=1,False=0</li>
+<li>如果数字用来当做布尔值使用，0=False，其余的当做True</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 布尔值当做数字使用</span></span><br><span class="line">age = <span class="number">18</span> + <span class="literal">True</span></span><br><span class="line">print(age)</span><br><span class="line"></span><br><span class="line">age = <span class="number">18</span> + <span class="literal">False</span></span><br><span class="line">print(age)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断语句</span></span><br><span class="line">a = <span class="number">-1</span></span><br><span class="line"><span class="keyword">if</span> a:</span><br><span class="line">    print(<span class="string">"负数是True"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    print(<span class="string">"负数是False"</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>19
+18
+负数是True</code></pre><h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><ul>
+<li>表达文字信息的内容，比如”我爱王晓静”</li>
+<li>形式上是引号引起来的一段内容</li>
+<li>引号包括<ul>
+<li>单引号</li>
+<li>双引号</li>
+<li>三引号，用来表示多行信息</li>
+</ul>
+</li>
+<li>单双引号含义一致，只能引用一行</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 字符串案例</span></span><br><span class="line">love = <span class="string">"Ich liebe Wang Xiaojing"</span></span><br><span class="line">print(love)</span><br><span class="line"></span><br><span class="line">love2 = <span class="string">"I love wangxiaojing"</span></span><br><span class="line">print(love2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 三引号可以表示多行</span></span><br><span class="line">love3 = <span class="string">'''</span></span><br><span class="line"><span class="string">我</span></span><br><span class="line"><span class="string">爱你呀</span></span><br><span class="line"><span class="string">哈哈哈哈</span></span><br><span class="line"><span class="string">北国风光</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">print(love3)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Ich liebe Wang Xiaojing
+I love wangxiaojing
+
+我
+爱你呀
+哈哈哈哈
+北国风光</code></pre><h3 id="None类型"><a href="#None类型" class="headerlink" title="None类型"></a>None类型</h3><ul>
+<li>表示什么都没有。通常用来站位</li>
+<li>比如返回，用来表示返回一个空</li>
+</ul>
+<h2 id="Python列表"><a href="#Python列表" class="headerlink" title="Python列表"></a>Python列表</h2><p>序列是Python中最基本的数据结构。序列中的每个元素都分配一个数字 - 它的位置，或索引，第一个索引是0，第二个索引是1，依此类推。Python有6个序列的内置类型，但最常见的是列表和元组。序列都可以进行的操作包括索引，切片，加，乘，检查成员.此外，Python已经内置确定序列的长度以及确定最大和最小的元素的方法。列表是最常用的Python数据类型，它可以作为一个方括号内的逗号分隔值出现。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/post/73feb5a.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+  </div>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+  </nav>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/avatar.jpg"
+      alt="Mr.Chen">
+  <p class="site-author-name" itemprop="name">Mr.Chen</p>
+  <div class="site-description" itemprop="description">个人博客系统</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/tanlay" title="GitHub &rarr; https://github.com/tanlay" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:dooktmint@gmail.com" title="E-Mail &rarr; mailto:dooktmint@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Chen</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
