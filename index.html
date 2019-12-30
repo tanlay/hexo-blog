@@ -288,7 +288,7 @@
                 
               
 
-              <time title="创建时间：2019-12-27 14:48:18 / 修改时间：15:04:44" itemprop="dateCreated datePublished" datetime="2019-12-27T14:48:18+08:00">2019-12-27</time>
+              <time title="创建时间：2019-12-27 14:48:18 / 修改时间：20:48:58" itemprop="dateCreated datePublished" datetime="2019-12-27T14:48:18+08:00">2019-12-27</time>
             </span>
           
             
@@ -322,7 +322,7 @@
       
           <h1 id="双网卡keepalived监控nginx状态"><a href="#双网卡keepalived监控nginx状态" class="headerlink" title="双网卡keepalived监控nginx状态"></a>双网卡keepalived监控nginx状态</h1><h5 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h5><p>项目使用nginx做负载均衡，防止有单点故障使用两台nginx并且通过keepalived实现高可用，nginx01的nginx进程停了则自动切换至nginx02，由nginx02提供服务。并且内网和外网是独立分开的，故障时内网和外网实现同步漂移。此时需要使用vrrp_sync_group设置同步漂移组。来达到故障同步漂移。keepalived在组播模式下所有的信息都会向224.0.0.18的组播地址发送，产生众多的无用信息，并且会产生干扰和冲突，所以需要将其组播的模式改为单播。避免局域网内有大量的keepalived造成虚拟路由id的冲突。 单播模式需要关闭vrrp_strict这个选项。单播需要在VIP实例配置段加入单播的源地址和目标地址。</p>
 <h5 id="环境介绍"><a href="#环境介绍" class="headerlink" title="环境介绍"></a>环境介绍</h5><ul>
-<li>内网VIP（10.1.1.100）与公网VIP（10.1.13.100）是一个同步组</li>
+<li>内网VIP（10.1.1.100）与公网VIP（10.1.19.100）是一个同步组</li>
 <li>Nginx01和Nginx02可以故障切换</li>
 <li>Nginx01<ul>
 <li>eth0：10.1.1.11</li>
