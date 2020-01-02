@@ -5,9 +5,9 @@
   <subtitle>感谢平庸与我随行!</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://tanlay.coding.me/hexo-blog/"/>
+  <link href="http://www.dookt.com/"/>
   <updated>2020-01-02T02:25:22.424Z</updated>
-  <id>http://tanlay.coding.me/hexo-blog/</id>
+  <id>http://www.dookt.com/</id>
   
   <author>
     <name>Mr.Chen</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>keepalived双网卡VIP同步漂移</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/a817c57b.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/a817c57b.html</id>
+    <link href="http://www.dookt.com/post/a817c57b.html"/>
+    <id>http://www.dookt.com/post/a817c57b.html</id>
     <published>2019-12-27T06:48:18.000Z</published>
     <updated>2020-01-02T02:25:22.424Z</updated>
     
@@ -31,17 +31,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="运维基本功" scheme="http://tanlay.coding.me/hexo-blog/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
+      <category term="运维基本功" scheme="http://www.dookt.com/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
     
   </entry>
   
   <entry>
     <title>df -h 命令执行被卡住</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/10b29f05.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/10b29f05.html</id>
+    <link href="http://www.dookt.com/post/10b29f05.html"/>
+    <id>http://www.dookt.com/post/10b29f05.html</id>
     <published>2019-11-12T07:26:02.000Z</published>
     <updated>2019-11-12T07:26:42.955Z</updated>
     
@@ -57,17 +57,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="运维基本功" scheme="http://tanlay.coding.me/hexo-blog/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
+      <category term="运维基本功" scheme="http://www.dookt.com/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
     
   </entry>
   
   <entry>
     <title>Docker入门</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/6782be63.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/6782be63.html</id>
+    <link href="http://www.dookt.com/post/6782be63.html"/>
+    <id>http://www.dookt.com/post/6782be63.html</id>
     <published>2019-08-13T11:49:12.000Z</published>
     <updated>2019-09-10T14:25:18.000Z</updated>
     
@@ -79,17 +79,17 @@
     
     </summary>
     
-      <category term="Docker" scheme="http://tanlay.coding.me/hexo-blog/categories/Docker/"/>
+      <category term="Docker" scheme="http://www.dookt.com/categories/Docker/"/>
     
     
-      <category term="容器" scheme="http://tanlay.coding.me/hexo-blog/tags/%E5%AE%B9%E5%99%A8/"/>
+      <category term="容器" scheme="http://www.dookt.com/tags/%E5%AE%B9%E5%99%A8/"/>
     
   </entry>
   
   <entry>
     <title>Centos安装vmware虚拟机报错</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/a583c2ce.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/a583c2ce.html</id>
+    <link href="http://www.dookt.com/post/a583c2ce.html"/>
+    <id>http://www.dookt.com/post/a583c2ce.html</id>
     <published>2019-08-04T05:39:11.000Z</published>
     <updated>2019-09-10T14:24:14.000Z</updated>
     
@@ -101,17 +101,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="虚拟化" scheme="http://tanlay.coding.me/hexo-blog/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/"/>
+      <category term="虚拟化" scheme="http://www.dookt.com/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/"/>
     
   </entry>
   
   <entry>
     <title>k8s平台搭建</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/b2e09379.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/b2e09379.html</id>
+    <link href="http://www.dookt.com/post/b2e09379.html"/>
+    <id>http://www.dookt.com/post/b2e09379.html</id>
     <published>2019-08-01T12:04:01.000Z</published>
     <updated>2019-09-10T14:18:39.000Z</updated>
     
@@ -123,17 +123,17 @@
     
     </summary>
     
-      <category term="k8s" scheme="http://tanlay.coding.me/hexo-blog/categories/k8s/"/>
+      <category term="k8s" scheme="http://www.dookt.com/categories/k8s/"/>
     
     
-      <category term="容器" scheme="http://tanlay.coding.me/hexo-blog/tags/%E5%AE%B9%E5%99%A8/"/>
+      <category term="容器" scheme="http://www.dookt.com/tags/%E5%AE%B9%E5%99%A8/"/>
     
   </entry>
   
   <entry>
     <title>Nginx设置为系统服务</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/c6b0c30c.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/c6b0c30c.html</id>
+    <link href="http://www.dookt.com/post/c6b0c30c.html"/>
+    <id>http://www.dookt.com/post/c6b0c30c.html</id>
     <published>2019-07-31T11:17:37.000Z</published>
     <updated>2019-09-10T14:44:21.000Z</updated>
     
@@ -145,19 +145,19 @@
     
     </summary>
     
-      <category term="Nginx" scheme="http://tanlay.coding.me/hexo-blog/categories/Nginx/"/>
+      <category term="Nginx" scheme="http://www.dookt.com/categories/Nginx/"/>
     
     
-      <category term="Scripts" scheme="http://tanlay.coding.me/hexo-blog/tags/Scripts/"/>
+      <category term="Scripts" scheme="http://www.dookt.com/tags/Scripts/"/>
     
-      <category term="Nginx" scheme="http://tanlay.coding.me/hexo-blog/tags/Nginx/"/>
+      <category term="Nginx" scheme="http://www.dookt.com/tags/Nginx/"/>
     
   </entry>
   
   <entry>
     <title>Tomcat设置为系统服务</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/a2c1797d.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/a2c1797d.html</id>
+    <link href="http://www.dookt.com/post/a2c1797d.html"/>
+    <id>http://www.dookt.com/post/a2c1797d.html</id>
     <published>2019-07-31T11:09:33.000Z</published>
     <updated>2019-09-10T15:08:30.000Z</updated>
     
@@ -169,19 +169,19 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="Scripts" scheme="http://tanlay.coding.me/hexo-blog/tags/Scripts/"/>
+      <category term="Scripts" scheme="http://www.dookt.com/tags/Scripts/"/>
     
-      <category term="Tomcat" scheme="http://tanlay.coding.me/hexo-blog/tags/Tomcat/"/>
+      <category term="Tomcat" scheme="http://www.dookt.com/tags/Tomcat/"/>
     
   </entry>
   
   <entry>
     <title>Python编写zabbix告警邮件</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/7df7e5a.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/7df7e5a.html</id>
+    <link href="http://www.dookt.com/post/7df7e5a.html"/>
+    <id>http://www.dookt.com/post/7df7e5a.html</id>
     <published>2019-07-31T11:06:26.000Z</published>
     <updated>2019-09-10T14:47:36.000Z</updated>
     
@@ -193,19 +193,19 @@
     
     </summary>
     
-      <category term="Python" scheme="http://tanlay.coding.me/hexo-blog/categories/Python/"/>
+      <category term="Python" scheme="http://www.dookt.com/categories/Python/"/>
     
     
-      <category term="Zabbix" scheme="http://tanlay.coding.me/hexo-blog/tags/Zabbix/"/>
+      <category term="Zabbix" scheme="http://www.dookt.com/tags/Zabbix/"/>
     
-      <category term="监控" scheme="http://tanlay.coding.me/hexo-blog/tags/%E7%9B%91%E6%8E%A7/"/>
+      <category term="监控" scheme="http://www.dookt.com/tags/%E7%9B%91%E6%8E%A7/"/>
     
   </entry>
   
   <entry>
     <title>DockerFile生成镜像</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/4120479c.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/4120479c.html</id>
+    <link href="http://www.dookt.com/post/4120479c.html"/>
+    <id>http://www.dookt.com/post/4120479c.html</id>
     <published>2019-07-31T11:01:46.000Z</published>
     <updated>2019-09-10T14:24:51.000Z</updated>
     
@@ -217,17 +217,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="Docker" scheme="http://tanlay.coding.me/hexo-blog/tags/Docker/"/>
+      <category term="Docker" scheme="http://www.dookt.com/tags/Docker/"/>
     
   </entry>
   
   <entry>
     <title>Jenkins发布脚本</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/d936a15c.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/d936a15c.html</id>
+    <link href="http://www.dookt.com/post/d936a15c.html"/>
+    <id>http://www.dookt.com/post/d936a15c.html</id>
     <published>2019-07-31T10:56:28.000Z</published>
     <updated>2019-09-10T14:29:53.000Z</updated>
     
@@ -239,19 +239,19 @@
     
     </summary>
     
-      <category term="Jenkins" scheme="http://tanlay.coding.me/hexo-blog/categories/Jenkins/"/>
+      <category term="Jenkins" scheme="http://www.dookt.com/categories/Jenkins/"/>
     
     
-      <category term="Scripts" scheme="http://tanlay.coding.me/hexo-blog/tags/Scripts/"/>
+      <category term="Scripts" scheme="http://www.dookt.com/tags/Scripts/"/>
     
-      <category term="Jenkins" scheme="http://tanlay.coding.me/hexo-blog/tags/Jenkins/"/>
+      <category term="Jenkins" scheme="http://www.dookt.com/tags/Jenkins/"/>
     
   </entry>
   
   <entry>
     <title>k8s-一个简单的例子</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/d6261197.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/d6261197.html</id>
+    <link href="http://www.dookt.com/post/d6261197.html"/>
+    <id>http://www.dookt.com/post/d6261197.html</id>
     <published>2019-07-31T02:14:21.000Z</published>
     <updated>2019-09-10T14:30:08.000Z</updated>
     
@@ -263,17 +263,17 @@
     
     </summary>
     
-      <category term="K8S" scheme="http://tanlay.coding.me/hexo-blog/categories/K8S/"/>
+      <category term="K8S" scheme="http://www.dookt.com/categories/K8S/"/>
     
     
-      <category term="容器" scheme="http://tanlay.coding.me/hexo-blog/tags/%E5%AE%B9%E5%99%A8/"/>
+      <category term="容器" scheme="http://www.dookt.com/tags/%E5%AE%B9%E5%99%A8/"/>
     
   </entry>
   
   <entry>
     <title>Mysql设置权限</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/41380.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/41380.html</id>
+    <link href="http://www.dookt.com/post/41380.html"/>
+    <id>http://www.dookt.com/post/41380.html</id>
     <published>2019-07-26T14:25:22.000Z</published>
     <updated>2019-09-10T15:39:09.000Z</updated>
     
@@ -285,17 +285,17 @@
     
     </summary>
     
-      <category term="MySQL" scheme="http://tanlay.coding.me/hexo-blog/categories/MySQL/"/>
+      <category term="MySQL" scheme="http://www.dookt.com/categories/MySQL/"/>
     
     
-      <category term="数据库" scheme="http://tanlay.coding.me/hexo-blog/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+      <category term="数据库" scheme="http://www.dookt.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
   <entry>
     <title>Docker实战</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/11988.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/11988.html</id>
+    <link href="http://www.dookt.com/post/11988.html"/>
+    <id>http://www.dookt.com/post/11988.html</id>
     <published>2019-07-26T14:17:23.000Z</published>
     <updated>2019-09-10T14:27:03.000Z</updated>
     
@@ -307,17 +307,17 @@
     
     </summary>
     
-      <category term="Docker" scheme="http://tanlay.coding.me/hexo-blog/categories/Docker/"/>
+      <category term="Docker" scheme="http://www.dookt.com/categories/Docker/"/>
     
     
-      <category term="虚拟化" scheme="http://tanlay.coding.me/hexo-blog/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/"/>
+      <category term="虚拟化" scheme="http://www.dookt.com/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/"/>
     
   </entry>
   
   <entry>
     <title>Mycat+MySQL读写分离</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/35152.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/35152.html</id>
+    <link href="http://www.dookt.com/post/35152.html"/>
+    <id>http://www.dookt.com/post/35152.html</id>
     <published>2019-07-26T14:03:59.000Z</published>
     <updated>2019-09-10T14:33:33.000Z</updated>
     
@@ -329,17 +329,17 @@
     
     </summary>
     
-      <category term="MySQL" scheme="http://tanlay.coding.me/hexo-blog/categories/MySQL/"/>
+      <category term="MySQL" scheme="http://www.dookt.com/categories/MySQL/"/>
     
     
-      <category term="数据库" scheme="http://tanlay.coding.me/hexo-blog/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+      <category term="数据库" scheme="http://www.dookt.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
   <entry>
     <title>RAID简介</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/59899.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/59899.html</id>
+    <link href="http://www.dookt.com/post/59899.html"/>
+    <id>http://www.dookt.com/post/59899.html</id>
     <published>2019-07-26T13:24:45.000Z</published>
     <updated>2019-09-10T15:05:45.000Z</updated>
     
@@ -351,17 +351,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="磁盘管理" scheme="http://tanlay.coding.me/hexo-blog/tags/%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
+      <category term="磁盘管理" scheme="http://www.dookt.com/tags/%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
     
   </entry>
   
   <entry>
     <title>Linux性能优化企业实战</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/44413.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/44413.html</id>
+    <link href="http://www.dookt.com/post/44413.html"/>
+    <id>http://www.dookt.com/post/44413.html</id>
     <published>2019-07-26T12:51:48.000Z</published>
     <updated>2019-09-10T14:30:54.000Z</updated>
     
@@ -373,17 +373,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="运维基本功" scheme="http://tanlay.coding.me/hexo-blog/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
+      <category term="运维基本功" scheme="http://www.dookt.com/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
     
   </entry>
   
   <entry>
     <title>pyenv安装</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/651295d4.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/651295d4.html</id>
+    <link href="http://www.dookt.com/post/651295d4.html"/>
+    <id>http://www.dookt.com/post/651295d4.html</id>
     <published>2019-07-26T10:07:51.000Z</published>
     <updated>2019-09-10T15:05:16.000Z</updated>
     
@@ -395,17 +395,17 @@
     
     </summary>
     
-      <category term="Python" scheme="http://tanlay.coding.me/hexo-blog/categories/Python/"/>
+      <category term="Python" scheme="http://www.dookt.com/categories/Python/"/>
     
     
-      <category term="Python基础" scheme="http://tanlay.coding.me/hexo-blog/tags/Python%E5%9F%BA%E7%A1%80/"/>
+      <category term="Python基础" scheme="http://www.dookt.com/tags/Python%E5%9F%BA%E7%A1%80/"/>
     
   </entry>
   
   <entry>
     <title>Linux硬盘故障修复</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/57688.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/57688.html</id>
+    <link href="http://www.dookt.com/post/57688.html"/>
+    <id>http://www.dookt.com/post/57688.html</id>
     <published>2019-07-26T10:04:50.000Z</published>
     <updated>2019-09-10T14:31:27.000Z</updated>
     
@@ -417,17 +417,17 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="系统管理" scheme="http://tanlay.coding.me/hexo-blog/tags/%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/"/>
+      <category term="系统管理" scheme="http://www.dookt.com/tags/%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/"/>
     
   </entry>
   
   <entry>
     <title>MYSQL最常见的报错信息</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/29811.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/29811.html</id>
+    <link href="http://www.dookt.com/post/29811.html"/>
+    <id>http://www.dookt.com/post/29811.html</id>
     <published>2019-07-26T10:04:05.000Z</published>
     <updated>2019-09-10T14:33:59.000Z</updated>
     
@@ -439,17 +439,17 @@
     
     </summary>
     
-      <category term="MySQL" scheme="http://tanlay.coding.me/hexo-blog/categories/MySQL/"/>
+      <category term="MySQL" scheme="http://www.dookt.com/categories/MySQL/"/>
     
     
-      <category term="数据库" scheme="http://tanlay.coding.me/hexo-blog/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+      <category term="数据库" scheme="http://www.dookt.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
   <entry>
     <title>使用expect实现无交互操作远程主机</title>
-    <link href="http://tanlay.coding.me/hexo-blog/post/38203.html"/>
-    <id>http://tanlay.coding.me/hexo-blog/post/38203.html</id>
+    <link href="http://www.dookt.com/post/38203.html"/>
+    <id>http://www.dookt.com/post/38203.html</id>
     <published>2019-07-26T10:03:00.000Z</published>
     <updated>2019-09-10T15:11:24.000Z</updated>
     
@@ -461,10 +461,10 @@
     
     </summary>
     
-      <category term="Linux" scheme="http://tanlay.coding.me/hexo-blog/categories/Linux/"/>
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
     
     
-      <category term="运维基本功" scheme="http://tanlay.coding.me/hexo-blog/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
+      <category term="运维基本功" scheme="http://www.dookt.com/tags/%E8%BF%90%E7%BB%B4%E5%9F%BA%E6%9C%AC%E5%8A%9F/"/>
     
   </entry>
   
