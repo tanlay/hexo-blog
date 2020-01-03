@@ -43,18 +43,13 @@
     <link href="http://www.dookt.com/post/10b29f05.html"/>
     <id>http://www.dookt.com/post/10b29f05.html</id>
     <published>2019-11-12T07:26:02.000Z</published>
-    <updated>2020-01-03T07:54:18.493Z</updated>
+    <updated>2020-01-03T08:16:06.896Z</updated>
     
-    <content type="html"><![CDATA[<a id="more"></a><h5 id="记一次df-h-命令执行被卡住的问题"><a href="#记一次df-h-命令执行被卡住的问题" class="headerlink" title="记一次df -h 命令执行被卡住的问题"></a>记一次df -h 命令执行被卡住的问题</h5><p>磁盘空间告警，登录服务器使用df -h命令查询磁盘空间,发现命令一直执行但是不返回结果，赶紧执行一下starce df跟踪一下系统调用.发现卡在了nfs挂载上，原因是nfs服务器死机了。</p><ol><li>使用strace df，发现卡在nfs上</li><li>取消挂载nfs盘，问题还未解决</li><li>重启nfs服务端，再次验证成功</li></ol><h5 id="Read-only-filesystem"><a href="#Read-only-filesystem" class="headerlink" title="Read-only filesystem"></a>Read-only filesystem</h5><p>企业服务器运维中，经常会发现操作系统的分区变成只读文件系统，错误提示信息为“Read-only filesystem”，出现只读文件系统，会导致只能读取，而无法写入新文件、新数据等操作。<br>造成该问题的原因包括：磁盘老旧长期大量的读写、文件系统文件被破坏、磁盘碎片文件、异常断电、读写中断等等。</p><p>以CentOS 7 Linux为案例，来修复文件系统，步骤如下：</p><ol><li><p>远程备份本地重要数据。<br>出现只读文件系统，需先备份其他重要数据，基于rsync|scp远程备份，/data为源目录，/backup/2018/为目标备份目录。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rsync -av /data/ root@192.168.21.98:/backup/2017/</span><br><span class="line">mount -o remount,rw /</span><br></pre></td></tr></table></figure></li><li><p>如果重新挂载/系统无法解决问题，则需重启服务器<br>以CD/DVD光盘引导进入Linux Rescue修复模式，如图所示，光标选择“Troubleshooting”,按Enter键，然后选择“Rescue a CentOS system”，按Enter键。</p></li></ol><p>光盘引导进入修复模式，</p><ul><li><p>选择Continue继续进入系统</p></li><li><p>登录修复模式，执行如下命令，df –h显示原来的文件系统</p></li><li><p>更改root目录</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chroot /mnt/sysimage</span><br><span class="line">df -h</span><br></pre></td></tr></table></figure></li><li><p>切换原分区目录<br>对有异常的分区进行检测并修复，根据文件系统类型，执行相应的命令如下：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">umount /dev/sda3</span><br><span class="line">fsck.ext4 /dev/sda3 –y</span><br></pre></td></tr></table></figure></li></ul><ol start="3"><li>修复完成之后，重启系统即可<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure></li></ol>]]></content>
+    <content type="html"><![CDATA[<p>作为一名运维工程师，一定要明确解决问题的思路，当遇到各种问题，才能快速定位并解决问题。需要重视错误提示，善于查看日志文件，这样才能快速定位并解决问题。</p><a id="more"></a><h5 id="记一次df-h-命令执行被卡住的问题"><a href="#记一次df-h-命令执行被卡住的问题" class="headerlink" title="记一次df -h 命令执行被卡住的问题"></a>记一次df -h 命令执行被卡住的问题</h5><p>磁盘空间告警，登录服务器使用df -h命令查询磁盘空间,发现命令一直执行但是不返回结果，赶紧执行一下starce df跟踪一下系统调用.发现卡在了nfs挂载上，原因是nfs服务器死机了。</p><ol><li>使用strace df，发现卡在nfs上</li><li>取消挂载nfs盘，问题还未解决</li><li>重启nfs服务端，再次验证成功</li></ol><h5 id="Read-only-filesystem"><a href="#Read-only-filesystem" class="headerlink" title="Read-only filesystem"></a>Read-only filesystem</h5><p>企业服务器运维中，经常会发现操作系统的分区变成只读文件系统，错误提示信息为“Read-only filesystem”，出现只读文件系统，会导致只能读取，而无法写入新文件、新数据等操作。<br>造成该问题的原因包括：磁盘老旧长期大量的读写、文件系统文件被破坏、磁盘碎片文件、异常断电、读写中断等等。</p><p>以CentOS 7 Linux为案例，来修复文件系统，步骤如下：</p><ol><li><p>远程备份本地重要数据。<br>出现只读文件系统，需先备份其他重要数据，基于rsync|scp远程备份，/data为源目录，/backup/2018/为目标备份目录。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rsync -av /data/ root@192.168.21.98:/backup/2017/</span><br><span class="line">mount -o remount,rw /</span><br></pre></td></tr></table></figure></li><li><p>如果重新挂载/系统无法解决问题，则需重启服务器<br>以CD/DVD光盘引导进入Linux Rescue修复模式，如图所示，光标选择“Troubleshooting”,按Enter键，然后选择“Rescue a CentOS system”，按Enter键。</p></li></ol><p>光盘引导进入修复模式，</p><ul><li><p>选择Continue继续进入系统</p></li><li><p>登录修复模式，执行如下命令，df –h显示原来的文件系统</p></li><li><p>更改root目录</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chroot /mnt/sysimage</span><br><span class="line">df -h</span><br></pre></td></tr></table></figure></li><li><p>切换原分区目录<br>对有异常的分区进行检测并修复，根据文件系统类型，执行相应的命令如下：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">umount /dev/sda3</span><br><span class="line">fsck.ext4 /dev/sda3 –y</span><br></pre></td></tr></table></figure></li></ul><ol start="3"><li>修复完成之后，重启系统即可<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure></li></ol><h5 id="Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。"><a href="#Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。" class="headerlink" title="Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。"></a>Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。</h5><ol><li>Could not open /dev/vmmon</li></ol><p>安装界面可以打开，启动虚拟机时报错Could not open /dev/vmmon，是因为没有编译vmmon模块</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmmon.tar</span><br><span class="line">cd vmmon-only</span><br><span class="line">make</span><br><span class="line">cp vmmon.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmmon.ko</span><br><span class="line">modprobe vmmon</span><br></pre></td></tr></table></figure><ol start="2"><li>打不开网络配置器vmware-ntcfg</li></ol><p>点击网络设置没反应，命令使用vmware-ntecfg也没反应。因为没有编译vmnet模块</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmnet.tar</span><br><span class="line">cd vmnet-only</span><br><span class="line">make</span><br><span class="line">cp vmnet.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmnet.ko</span><br><span class="line">modprobe vmnet</span><br></pre></td></tr></table></figure>]]></content>
     
     <summary type="html">
     
-      
-      
-        &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-&lt;h5 id=&quot;记一次df-h-命令执行被卡住的问题&quot;&gt;&lt;a href=&quot;#记一次df-h-命令执行被卡住的问题&quot; class=&quot;headerlink&quot; title=&quot;记一次df -h 命令执行被卡住的问题&quot;&gt;&lt;/a&gt;记一次df -h 命令执
-      
+      &lt;p&gt;作为一名运维工程师，一定要明确解决问题的思路，当遇到各种问题，才能快速定位并解决问题。需要重视错误提示，善于查看日志文件，这样才能快速定位并解决问题。&lt;/p&gt;
     
     </summary>
     
@@ -84,28 +79,6 @@
     
     
       <category term="容器" scheme="http://www.dookt.com/tags/%E5%AE%B9%E5%99%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Centos安装vmware虚拟机报错</title>
-    <link href="http://www.dookt.com/post/a583c2ce.html"/>
-    <id>http://www.dookt.com/post/a583c2ce.html</id>
-    <published>2019-08-04T05:39:11.000Z</published>
-    <updated>2019-09-10T14:24:14.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。</p><a id="more"></a><h3 id="Could-not-open-dev-vmmon"><a href="#Could-not-open-dev-vmmon" class="headerlink" title="Could not open /dev/vmmon"></a>Could not open /dev/vmmon</h3><p>安装界面可以打开，启动虚拟机时报错Could not open /dev/vmmon，是因为没有编译vmmon模块</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmmon.tar</span><br><span class="line">cd vmmon-only</span><br><span class="line">make</span><br><span class="line">cp vmmon.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmmon.ko</span><br><span class="line">modprobe vmmon</span><br></pre></td></tr></table></figure><h3 id="打不开网络配置器vmware-ntcfg"><a href="#打不开网络配置器vmware-ntcfg" class="headerlink" title="打不开网络配置器vmware-ntcfg"></a>打不开网络配置器vmware-ntcfg</h3><p>点击网络设置没反应，命令使用vmware-ntecfg也没反应。因为没有编译vmnet模块</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp</span><br><span class="line">tar xvf /usr/lib/vmware/modules/source/vmnet.tar</span><br><span class="line">cd vmnet-only</span><br><span class="line">make</span><br><span class="line">cp vmnet.ko /lib/modules/2.6.32-504.el6.x86_64/misc/vmnet.ko</span><br><span class="line">modprobe vmnet</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Centos安装vmware不能正常使用。有可能是因为某些模块没有编译。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
-    
-    
-      <category term="虚拟化" scheme="http://www.dookt.com/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/"/>
     
   </entry>
   
@@ -466,6 +439,28 @@
     
     
       <category term="系统管理" scheme="http://www.dookt.com/tags/%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>解决Nginx报错The plain HTTP request was sent to HTTPS port</title>
+    <link href="http://www.dookt.com/post/23576.html"/>
+    <id>http://www.dookt.com/post/23576.html</id>
+    <published>2019-07-26T10:01:26.000Z</published>
+    <updated>2019-09-10T15:15:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Nginx报错The plain HTTP request was sent to HTTPS port。从报错的字面意思上来看，是因为HTTP请求被发送到HTTPS端口，这种报错多出现在Nginx既处理HTTP请求又处理HTTPS请求的情况。</p><a id="more"></a><h5 id="修改nginx对应虚拟机的配置文件，找到https段"><a href="#修改nginx对应虚拟机的配置文件，找到https段" class="headerlink" title="修改nginx对应虚拟机的配置文件，找到https段"></a>修改nginx对应虚拟机的配置文件，找到https段</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       443;</span><br><span class="line">    ssl on;</span><br><span class="line">    server_name  localhost;</span><br><span class="line">        ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h5 id="修改为如下即可实现http和https共存："><a href="#修改为如下即可实现http和https共存：" class="headerlink" title="修改为如下即可实现http和https共存："></a>修改为如下即可实现http和https共存：</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       443 ssl;</span><br><span class="line">    server_name  localhost;</span><br><span class="line">        ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Nginx报错The plain HTTP request was sent to HTTPS port。从报错的字面意思上来看，是因为HTTP请求被发送到HTTPS端口，这种报错多出现在Nginx既处理HTTP请求又处理HTTPS请求的情况。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.dookt.com/categories/Linux/"/>
+    
+    
+      <category term="Nginx" scheme="http://www.dookt.com/tags/Nginx/"/>
     
   </entry>
   
