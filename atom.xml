@@ -39,20 +39,21 @@
   </entry>
   
   <entry>
-    <title>df -h 命令执行被卡住</title>
+    <title>Linux服务器异常案例集合</title>
     <link href="http://www.dookt.com/post/10b29f05.html"/>
     <id>http://www.dookt.com/post/10b29f05.html</id>
     <published>2019-11-12T07:26:02.000Z</published>
-    <updated>2019-11-12T07:26:42.955Z</updated>
+    <updated>2020-01-03T07:54:18.493Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="记一次df-h-命令执行被卡住的问题"><a href="#记一次df-h-命令执行被卡住的问题" class="headerlink" title="记一次df -h 命令执行被卡住的问题"></a>记一次df -h 命令执行被卡住的问题</h1><ol><li>使用strace df，发现卡在nfs上</li><li>取消挂载nfs盘，问题还未解决</li><li>重启nfs服务端，再次验证成功</li></ol>]]></content>
+    <content type="html"><![CDATA[<a id="more"></a><h5 id="记一次df-h-命令执行被卡住的问题"><a href="#记一次df-h-命令执行被卡住的问题" class="headerlink" title="记一次df -h 命令执行被卡住的问题"></a>记一次df -h 命令执行被卡住的问题</h5><p>磁盘空间告警，登录服务器使用df -h命令查询磁盘空间,发现命令一直执行但是不返回结果，赶紧执行一下starce df跟踪一下系统调用.发现卡在了nfs挂载上，原因是nfs服务器死机了。</p><ol><li>使用strace df，发现卡在nfs上</li><li>取消挂载nfs盘，问题还未解决</li><li>重启nfs服务端，再次验证成功</li></ol><h5 id="Read-only-filesystem"><a href="#Read-only-filesystem" class="headerlink" title="Read-only filesystem"></a>Read-only filesystem</h5><p>企业服务器运维中，经常会发现操作系统的分区变成只读文件系统，错误提示信息为“Read-only filesystem”，出现只读文件系统，会导致只能读取，而无法写入新文件、新数据等操作。<br>造成该问题的原因包括：磁盘老旧长期大量的读写、文件系统文件被破坏、磁盘碎片文件、异常断电、读写中断等等。</p><p>以CentOS 7 Linux为案例，来修复文件系统，步骤如下：</p><ol><li><p>远程备份本地重要数据。<br>出现只读文件系统，需先备份其他重要数据，基于rsync|scp远程备份，/data为源目录，/backup/2018/为目标备份目录。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rsync -av /data/ root@192.168.21.98:/backup/2017/</span><br><span class="line">mount -o remount,rw /</span><br></pre></td></tr></table></figure></li><li><p>如果重新挂载/系统无法解决问题，则需重启服务器<br>以CD/DVD光盘引导进入Linux Rescue修复模式，如图所示，光标选择“Troubleshooting”,按Enter键，然后选择“Rescue a CentOS system”，按Enter键。</p></li></ol><p>光盘引导进入修复模式，</p><ul><li><p>选择Continue继续进入系统</p></li><li><p>登录修复模式，执行如下命令，df –h显示原来的文件系统</p></li><li><p>更改root目录</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chroot /mnt/sysimage</span><br><span class="line">df -h</span><br></pre></td></tr></table></figure></li><li><p>切换原分区目录<br>对有异常的分区进行检测并修复，根据文件系统类型，执行相应的命令如下：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">umount /dev/sda3</span><br><span class="line">fsck.ext4 /dev/sda3 –y</span><br></pre></td></tr></table></figure></li></ul><ol start="3"><li>修复完成之后，重启系统即可<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure></li></ol>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;h1 id=&quot;记一次df-h-命令执行被卡住的问题&quot;&gt;&lt;a href=&quot;#记一次df-h-命令执行被卡住的问题&quot; class=&quot;headerlink&quot; title=&quot;记一次df -h 命令执行被卡住的问题&quot;&gt;&lt;/a&gt;记一次df -h 命令执行被卡住的问题&lt;/h1&gt;&lt;ol&gt;
-&lt;l
+        &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h5 id=&quot;记一次df-h-命令执行被卡住的问题&quot;&gt;&lt;a href=&quot;#记一次df-h-命令执行被卡住的问题&quot; class=&quot;headerlink&quot; title=&quot;记一次df -h 命令执行被卡住的问题&quot;&gt;&lt;/a&gt;记一次df -h 命令执
       
     
     </summary>
