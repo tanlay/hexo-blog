@@ -66,7 +66,7 @@
 <meta property="og:site_name" content="MINT">
 <meta property="og:description" content="日志主要包括系统日志、应用程序日志和安全日志。系统运维和开发人员可以通过日志了解服务器软硬件信息、检查配置过程中的错误及错误发生的原因。经常分析日志可以了解服务器的负荷，性能安全性，从而及时采取措施纠正错误。通常，日志被分散的储存不同的设备上。如果你管理数十上百台服务器，你还在使用依次登录每台机器的传统方法查阅日志。这样是不是感觉很繁琐和效率低下。当务之急我们使用集中化的日志管理，例如：开源的sy">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-01-04T07:10:09.881Z">
+<meta property="og:updated_time" content="2020-01-04T07:13:17.929Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用ansible部署ELK+Filebeat+kafka+Zookeeper">
 <meta name="twitter:description" content="日志主要包括系统日志、应用程序日志和安全日志。系统运维和开发人员可以通过日志了解服务器软硬件信息、检查配置过程中的错误及错误发生的原因。经常分析日志可以了解服务器的负荷，性能安全性，从而及时采取措施纠正错误。通常，日志被分散的储存不同的设备上。如果你管理数十上百台服务器，你还在使用依次登录每台机器的传统方法查阅日志。这样是不是感觉很繁琐和效率低下。当务之急我们使用集中化的日志管理，例如：开源的sy">
@@ -300,7 +300,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-04 15:10:09" itemprop="dateModified" datetime="2020-01-04T15:10:09+08:00">2020-01-04</time>
+                <time title="修改时间：2020-01-04 15:13:17" itemprop="dateModified" datetime="2020-01-04T15:13:17+08:00">2020-01-04</time>
               </span>
             
           
@@ -428,10 +428,10 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/opt/app/kafka/bin/kafka-topics.sh --zookeeper 172.17.0.1:2181,172.17.0.2:2181,172.17.0.3:2181 --list            #该命令显示kafka中的topic，即为filebeat中定义的appname的值</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>创建topic<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/opt/app/kafka/bin/kafka-topics.sh --create --zookeeper 10.1.1.41:2181 --replication-factor 1 --partitions 1 --topic test-01</span><br></pre></td></tr></table></figure>
-
-</li>
+<li>创建topic</li>
 </ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/opt/app/kafka/bin/kafka-topics.sh --create --zookeeper 10.1.1.41:2181 --replication-factor 1 --partitions 1 --topic test-01</span><br></pre></td></tr></table></figure>
+
 <h5 id="安装logstash"><a href="#安装logstash" class="headerlink" title="安装logstash"></a>安装logstash</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh logstash-6.2.4.rpm</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>cat /etc/logstash/conf.d/test.conf</span><br><span class="line"></span><br><span class="line">input&#123;</span><br><span class="line">    kafka &#123;</span><br><span class="line">        bootstrap_servers = "172.17.0.1:9092,172.17.0.2:9092,172.17.0.3:9092,"</span><br><span class="line">        topics = "tdtp-transport"   #该值为filebeat配置文件中定义的值，可以通过kafka-topic查看</span><br><span class="line">        codec = json</span><br><span class="line">        consumer_threads = 1</span><br><span class="line">        decorate_events = false</span><br><span class="line">        type = "tdtp-transport"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">output &#123;</span><br><span class="line">    elasticsearch &#123;</span><br><span class="line">        hosts = ["172.17.0.4:9200","172.17.0.5:9200","172.17.0.6:9200","172.17.0.7:9200","172.17.0.8:9200","172.17.0.9:9200","172.17.0.10:9200",]</span><br><span class="line">        index = "%&#123;type&#125;-%&#123;+YYYY.MM.dd&#125;"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service logstash restart</span><br></pre></td></tr></table></figure>
