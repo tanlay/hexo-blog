@@ -59,14 +59,14 @@
 </script>
 
   <meta name="description" content="随着企业网站访问量越来越大，服务器的压力也逐渐增加，主要体现在CPU使用率、内存、硬盘、网卡流量等方面资源占用情况很高。此时需对服务器性能进行调优，尽量在保持服务器的现有数量，然后对其各个环节参数进行优化。">
-<meta name="keywords" content="运维基本功">
+<meta name="keywords" content="玩转Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux性能优化企业实战">
 <meta property="og:url" content="http://www.dookt.com/post/44413.html">
 <meta property="og:site_name" content="MINT">
 <meta property="og:description" content="随着企业网站访问量越来越大，服务器的压力也逐渐增加，主要体现在CPU使用率、内存、硬盘、网卡流量等方面资源占用情况很高。此时需对服务器性能进行调优，尽量在保持服务器的现有数量，然后对其各个环节参数进行优化。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-10T14:30:54.000Z">
+<meta property="og:updated_time" content="2020-01-14T05:58:50.153Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux性能优化企业实战">
 <meta name="twitter:description" content="随着企业网站访问量越来越大，服务器的压力也逐渐增加，主要体现在CPU使用率、内存、硬盘、网卡流量等方面资源占用情况很高。此时需对服务器性能进行调优，尽量在保持服务器的现有数量，然后对其各个环节参数进行优化。">
@@ -300,7 +300,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-10 22:30:54" itemprop="dateModified" datetime="2019-09-10T22:30:54+08:00">2019-09-10</time>
+                <time title="修改时间：2020-01-14 13:58:50" itemprop="dateModified" datetime="2020-01-14T13:58:50+08:00">2020-01-14</time>
               </span>
             
           
@@ -366,7 +366,7 @@
 <h5 id="Linux内核抛出Too-many-open-files错误："><a href="#Linux内核抛出Too-many-open-files错误：" class="headerlink" title="Linux内核抛出Too many open files错误："></a>Linux内核抛出Too many open files错误：</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Benchmarking localhost (be patient)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br></pre></td></tr></table></figure>
 
 <p>每个文件描述符与一个打开文件相对应，不同的文件描述符可以指向同一个文件。相同的文件可以被不同的进程打开，也可以在同一个进程中被多次打开。Linux内核对应每个用户打开的文件最大数一般为1024，需要将该值调高满足大并发网站的访问。<br>Linux每个用户打开文件最大数永久设置方法，将如下代码加入内核限制文件/etc/security/limits.conf的末尾，Exit退出终端，重新登录即生效：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/security/limits.conf</span></span><br><span class="line">*    soft        noproc                  65535</span><br><span class="line">*    hard       noproc                  65535</span><br><span class="line">*    soft        nofile                    65535</span><br><span class="line">*    hard       nofile                    65535</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cat /etc/security/limits.conf</span><br><span class="line">*    soft        noproc                  65535</span><br><span class="line">*    hard       noproc                  65535</span><br><span class="line">*    soft        nofile                    65535</span><br><span class="line">*    hard       nofile                    65535</span><br></pre></td></tr></table></figure>
 
 <h5 id="Linux内核抛出possible-SYN-flooding-on-port-80-Sending-cookies错误："><a href="#Linux内核抛出possible-SYN-flooding-on-port-80-Sending-cookies错误：" class="headerlink" title="Linux内核抛出possible SYN flooding on port 80. Sending cookies错误："></a>Linux内核抛出possible SYN flooding on port 80. Sending cookies错误：</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">May 31 14:20:14 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:21:28 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:22:44 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:25:33 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:27:06 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:28:44 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:28:51 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:31:01 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br></pre></td></tr></table></figure>
 
@@ -503,7 +503,7 @@
           
           <div class="post-tags">
             
-              <a href="/tags/运维基本功/" rel="tag"><i class="fa fa-tag"></i>运维基本功</a>
+              <a href="/tags/玩转Linux/" rel="tag"><i class="fa fa-tag"></i>玩转Linux</a>
             
           </div>
         
@@ -618,7 +618,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-count">31</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
