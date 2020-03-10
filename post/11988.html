@@ -66,7 +66,7 @@
 <meta property="og:site_name" content="MINT">
 <meta property="og:description" content="Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的linux机器上，也可以实现虚拟化。Docker虚拟化有三个概念需要理解，分别镜像、容器、仓库。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-01-13T06:11:04.995Z">
+<meta property="og:updated_time" content="2020-01-14T05:58:50.041Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker实战">
 <meta name="twitter:description" content="Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的linux机器上，也可以实现虚拟化。Docker虚拟化有三个概念需要理解，分别镜像、容器、仓库。">
@@ -300,7 +300,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-13 14:11:04" itemprop="dateModified" datetime="2020-01-13T14:11:04+08:00">2020-01-13</time>
+                <time title="修改时间：2020-01-14 13:58:50" itemprop="dateModified" datetime="2020-01-14T13:58:50+08:00">2020-01-14</time>
               </span>
             
           
@@ -392,9 +392,9 @@
 <ul>
 <li>运行一个基础镜像来启动一个容器，修改相应配置，并使用docker commit提交</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd docker.io/lemonbar/centos6-ssh       #启动镜像</span><br><span class="line">docker exec -it 44b3fb717f9f /bin/bash          #进去刚启动的容器中</span><br><span class="line">rm /etc/yum.repos.d/*.repo;wget -c http://mirrors.aliyun.com/repo/Centos-6.repo  # 在容器中中执行，更换阿里云镜像源</span><br><span class="line">docker commit 44b3fb717f9f centos-test:v1        #在宿主机上提交</span><br><span class="line">```    </span><br><span class="line"></span><br><span class="line">- 根据需求编写Dockerfile文件</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##生成nginx镜像</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置基本镜像</span></span><br><span class="line">FROM centos-test:v1</span><br><span class="line"><span class="meta">#</span><span class="bash">作者信息</span></span><br><span class="line">MAINTAINER MINT</span><br><span class="line"><span class="meta">#</span><span class="bash">设置工作目录</span></span><br><span class="line">WORKDIR /root</span><br><span class="line">RUN cp /etc/skel/.bash* /root</span><br><span class="line">RUN echo '123456'|passwd --stdin root</span><br><span class="line">RUN rpm --rebuilddb &amp;&amp; yum -y install tar vim wget gcc gcc-c++ make pcre pcre-devel zlib zlib-devel gzip* bzip* net-tools ntpdate</span><br><span class="line">RUN wget -c http://nginx.org/download/nginx-1.12.2.tar.gz;tar -xf nginx-1.12.2.tar.gz;cd nginx-1.12.2;./configure --prefix=/usr/local/nginx &amp;&amp; make &amp;&amp; make install</span><br><span class="line"><span class="meta">#</span><span class="bash">暴露端口</span></span><br><span class="line">EXPOSE 22 80</span><br><span class="line"><span class="meta">#</span><span class="bash">设置运行镜像时的默认命令</span></span><br><span class="line">CMD /usr/local/nginx/sbin/nginx; /usr/sbin/sshd -D</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd docker.io/lemonbar/centos6-ssh       #启动镜像</span><br><span class="line">docker exec -it 44b3fb717f9f /bin/bash          #进去刚启动的容器中</span><br><span class="line">rm /etc/yum.repos.d/*.repo;wget -c http://mirrors.aliyun.com/repo/Centos-6.repo  # 在容器中中执行，更换阿里云镜像源</span><br><span class="line">docker commit 44b3fb717f9f centos-test:v1        #在宿主机上提交</span><br><span class="line">```    </span><br><span class="line"></span><br><span class="line">- 根据需求编写Dockerfile文件</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line"><span class="meta">#</span>##生成nginx镜像</span><br><span class="line"><span class="meta">#</span>设置基本镜像</span><br><span class="line">FROM centos-test:v1</span><br><span class="line"><span class="meta">#</span>作者信息</span><br><span class="line">MAINTAINER MINT</span><br><span class="line"><span class="meta">#</span>设置工作目录</span><br><span class="line">WORKDIR /root</span><br><span class="line">RUN cp /etc/skel/.bash* /root</span><br><span class="line">RUN echo '123456'|passwd --stdin root</span><br><span class="line">RUN rpm --rebuilddb &amp;&amp; yum -y install tar vim wget gcc gcc-c++ make pcre pcre-devel zlib zlib-devel gzip* bzip* net-tools ntpdate</span><br><span class="line">RUN wget -c http://nginx.org/download/nginx-1.12.2.tar.gz;tar -xf nginx-1.12.2.tar.gz;cd nginx-1.12.2;./configure --prefix=/usr/local/nginx &amp;&amp; make &amp;&amp; make install</span><br><span class="line"><span class="meta">#</span>暴露端口</span><br><span class="line">EXPOSE 22 80</span><br><span class="line"><span class="meta">#</span>设置运行镜像时的默认命令</span><br><span class="line">CMD /usr/local/nginx/sbin/nginx; /usr/sbin/sshd -D</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##生成redis镜像</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置基本镜像</span></span><br><span class="line">FROM centos-test:v2</span><br><span class="line"><span class="meta">#</span><span class="bash">作者信息</span></span><br><span class="line">MAINTAINER  MINT</span><br><span class="line"><span class="meta">#</span><span class="bash">设置工作目录</span></span><br><span class="line">WORKDIR /root</span><br><span class="line">RUN cp /etc/skel/.bash* /root</span><br><span class="line">RUN echo '123456'|passwd --stdin root</span><br><span class="line">RUN rpm --rebuilddb &amp;&amp; yum -y install wget tar gcc gcc-c++ make</span><br><span class="line">RUN tar -xf redis-4.0.10.tar.gz;cd redis-4.0.10;make PREFIX=/usr/local/redis install</span><br><span class="line"><span class="meta">#</span><span class="bash">暴露端口</span></span><br><span class="line">EXPOSE 22 6379</span><br><span class="line"><span class="meta">#</span><span class="bash">设置运行镜像时的默认命令</span></span><br><span class="line">CMD /usr/local/redis/bin/redis-server; /usr/sbin/sshd -D</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>##生成redis镜像</span><br><span class="line"><span class="meta">#</span>设置基本镜像</span><br><span class="line">FROM centos-test:v2</span><br><span class="line"><span class="meta">#</span>作者信息</span><br><span class="line">MAINTAINER  MINT</span><br><span class="line"><span class="meta">#</span>设置工作目录</span><br><span class="line">WORKDIR /root</span><br><span class="line">RUN cp /etc/skel/.bash* /root</span><br><span class="line">RUN echo '123456'|passwd --stdin root</span><br><span class="line">RUN rpm --rebuilddb &amp;&amp; yum -y install wget tar gcc gcc-c++ make</span><br><span class="line">RUN tar -xf redis-4.0.10.tar.gz;cd redis-4.0.10;make PREFIX=/usr/local/redis install</span><br><span class="line"><span class="meta">#</span>暴露端口</span><br><span class="line">EXPOSE 22 6379</span><br><span class="line"><span class="meta">#</span>设置运行镜像时的默认命令</span><br><span class="line">CMD /usr/local/redis/bin/redis-server; /usr/sbin/sshd -D</span><br></pre></td></tr></table></figure>
 
 
 <ul>
@@ -508,7 +508,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -521,7 +521,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -534,7 +534,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>

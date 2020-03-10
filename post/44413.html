@@ -366,7 +366,7 @@
 <h5 id="Linux内核抛出Too-many-open-files错误："><a href="#Linux内核抛出Too-many-open-files错误：" class="headerlink" title="Linux内核抛出Too many open files错误："></a>Linux内核抛出Too many open files错误：</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Benchmarking localhost (be patient)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br><span class="line">socket: Too many open files (24)</span><br></pre></td></tr></table></figure>
 
 <p>每个文件描述符与一个打开文件相对应，不同的文件描述符可以指向同一个文件。相同的文件可以被不同的进程打开，也可以在同一个进程中被多次打开。Linux内核对应每个用户打开的文件最大数一般为1024，需要将该值调高满足大并发网站的访问。<br>Linux每个用户打开文件最大数永久设置方法，将如下代码加入内核限制文件/etc/security/limits.conf的末尾，Exit退出终端，重新登录即生效：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cat /etc/security/limits.conf</span><br><span class="line">*    soft        noproc                  65535</span><br><span class="line">*    hard       noproc                  65535</span><br><span class="line">*    soft        nofile                    65535</span><br><span class="line">*    hard       nofile                    65535</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/security/limits.conf</span></span><br><span class="line">*    soft        noproc                  65535</span><br><span class="line">*    hard       noproc                  65535</span><br><span class="line">*    soft        nofile                    65535</span><br><span class="line">*    hard       nofile                    65535</span><br></pre></td></tr></table></figure>
 
 <h5 id="Linux内核抛出possible-SYN-flooding-on-port-80-Sending-cookies错误："><a href="#Linux内核抛出possible-SYN-flooding-on-port-80-Sending-cookies错误：" class="headerlink" title="Linux内核抛出possible SYN flooding on port 80. Sending cookies错误："></a>Linux内核抛出possible SYN flooding on port 80. Sending cookies错误：</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">May 31 14:20:14 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:21:28 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:22:44 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:25:33 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:27:06 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:28:44 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:28:51 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br><span class="line">May 31 14:31:01 localhost kernel: possible SYN flooding on port 80. Sending cookies.</span><br></pre></td></tr></table></figure>
 
@@ -592,7 +592,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -605,7 +605,7 @@
             <a href="/categories/">
           
         
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -618,7 +618,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
