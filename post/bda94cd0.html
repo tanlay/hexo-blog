@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+  <link rel="alternate" href="/atom.xml" title="MINT" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+<link rel="stylesheet" href="//fonts.lug.ustc.edu.cn/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="FTP是一种字在互联网中进行文件传输的协议，基于C/S架构，默认使用20,21号端口，其中20号端口（数据端口）用户数据传输，21号端口（命令端口）用于接收客户端发出的FTP命令及参数。">
+<meta name="keywords" content="运维基本功">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RHEL安装配置vsftpd">
+<meta property="og:url" content="http://www.dookt.com/post/bda94cd0.html">
+<meta property="og:site_name" content="MINT">
+<meta property="og:description" content="FTP是一种字在互联网中进行文件传输的协议，基于C/S架构，默认使用20,21号端口，其中20号端口（数据端口）用户数据传输，21号端口（命令端口）用于接收客户端发出的FTP命令及参数。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-14T15:09:41.776Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RHEL安装配置vsftpd">
+<meta name="twitter:description" content="FTP是一种字在互联网中进行文件传输的协议，基于C/S架构，默认使用20,21号端口，其中20号端口（数据端口）用户数据传输，21号端口（命令端口）用于接收客户端发出的FTP命令及参数。">
+  <link rel="canonical" href="http://www.dookt.com/post/bda94cd0">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>RHEL安装配置vsftpd | MINT</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MINT</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">感谢平庸与我随行!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/bda94cd0.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">RHEL安装配置vsftpd
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-14 22:47:03 / 修改时间：23:09:41" itemprop="dateCreated datePublished" datetime="2020-03-14T22:47:03+08:00">2020-03-14</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>FTP是一种字在互联网中进行文件传输的协议，基于C/S架构，默认使用20,21号端口，其中20号端口（数据端口）用户数据传输，21号端口（命令端口）用于接收客户端发出的FTP命令及参数。</p>
+<a id="more"></a>
+
+<p>FTP协议有两工作模式：</p>
+<ul>
+<li>主动模式：FTP服务器主动向客户端发起连接请求</li>
+<li>被动模式：FTP服务器等待客户端发起连接请求（FTP默认的工作模式）</li>
+</ul>
+<h3 id="vsftpd服务程序的参数及作用"><a href="#vsftpd服务程序的参数及作用" class="headerlink" title="vsftpd服务程序的参数及作用"></a>vsftpd服务程序的参数及作用</h3><table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">listen=yes|no</td>
+<td align="center">是否以独立运行的方式监听服务</td>
+</tr>
+<tr>
+<td align="center">listen_address=IP地址</td>
+<td align="center">设置要监听的地址</td>
+</tr>
+<tr>
+<td align="center">listen_port=21</td>
+<td align="center">设置FTP服务监听的端口</td>
+</tr>
+<tr>
+<td align="center">download_enable=YES|NO</td>
+<td align="center">是否允许下载文件</td>
+</tr>
+<tr>
+<td align="center">userlist_enable=yes|no,userlist_deny=YES</td>
+<td align="center">设置用户列表为允许还是禁止</td>
+</tr>
+<tr>
+<td align="center">anonymous_enable=YES|no</td>
+<td align="center">是否开启匿名访问</td>
+</tr>
+<tr>
+<td align="center">anon_upload-enable=YES|no</td>
+<td align="center">是否允许匿名用户上传文件</td>
+</tr>
+<tr>
+<td align="center">anon_mkdir_write_enable=YES|no</td>
+<td align="center">是否允许匿名用户创建目录</td>
+</tr>
+<tr>
+<td align="center">anon_other_write_eanble=YES|NO</td>
+<td align="center">是否开启匿名用户的其他权限（重命名、删除等）</td>
+</tr>
+<tr>
+<td align="center">anon_max_rate=0</td>
+<td align="center">匿名用户的最大传输速率,0为不限制</td>
+</tr>
+<tr>
+<td align="center">local_enable=YES|NO</td>
+<td align="center">是否允许本地用户登录</td>
+</tr>
+<tr>
+<td align="center">chroot_local_user=YES|NO</td>
+<td align="center">是否将目录权限禁锢在FTP根目录下，保证安全</td>
+</tr>
+<tr>
+<td align="center">local_max_reate=0</td>
+<td align="center">本地用户的最大传输速率,0为不限制</td>
+</tr>
+</tbody></table>
+<h3 id="vsftpd有三种登录模式"><a href="#vsftpd有三种登录模式" class="headerlink" title="vsftpd有三种登录模式"></a>vsftpd有三种登录模式</h3><ul>
+<li>匿名开放模式：是一种最不安全的认证模式，任何人都可以无需密码而访问FTP服务器</li>
+<li>本地用户模式：通过系统本地账户进行登录认证，于匿名模式较安全，配置也稍简单。但如果破解了FTP密码，就可以登录FTP服务器，进而控制整个服务器</li>
+<li>虚拟用户模式：是更安全的一种认证模式。它需要为FTP服务单独生成用户数据库文件，虚拟出用来登录的账户信息，但是这些账户并不是真实的系统账户，仅供FTP登录验证使用。这样，及时FTP密码泄露也不能登录系统。</li>
+</ul>
+<h4 id="匿名开放模式"><a href="#匿名开放模式" class="headerlink" title="匿名开放模式"></a>匿名开放模式</h4><p>vsftpd默认开启了匿名开放模式，开放匿名用户的上传、下载、创建、删除、更名文件的权限。</p>
+<h5 id="修改vsftpd主配置文件"><a href="#修改vsftpd主配置文件" class="headerlink" title="修改vsftpd主配置文件"></a>修改vsftpd主配置文件</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/vsftpd/vsftpd.conf</span></span><br><span class="line"><span class="meta">#</span><span class="bash">vsftpd开放匿名用户模式</span></span><br><span class="line">anonymous_enable=YES</span><br><span class="line">anon_umask=022</span><br><span class="line">anon_upload_enable=YES</span><br><span class="line">anon_mkdir_write_enable=YES</span><br><span class="line">anon_other_write_enable=YES</span><br><span class="line">local_enable=YES</span><br><span class="line">write_enable=YES</span><br><span class="line">local_umask=022</span><br><span class="line">dirmessage_enable=YES</span><br><span class="line">xferlog_enable=YES</span><br><span class="line">connect_from_port_20=YES</span><br><span class="line">xferlog_std_format=YES</span><br><span class="line">listen=NO</span><br><span class="line">listen_ipv6=YES</span><br><span class="line">pam_service_name=vsftpd</span><br><span class="line">userlist_enable=YES</span><br><span class="line">tcp_wrappers=YES</span><br><span class="line"><span class="meta">#</span><span class="bash"> systemctl restart vsftpd</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="修改vsftpd数据目录权限"><a href="#修改vsftpd数据目录权限" class="headerlink" title="修改vsftpd数据目录权限"></a>修改vsftpd数据目录权限</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> chown -R  ftp.root /var/ftp/pub/</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="修改ftp相关的SElinux域策略"><a href="#修改ftp相关的SElinux域策略" class="headerlink" title="修改ftp相关的SElinux域策略"></a>修改ftp相关的SElinux域策略</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> getsebool -a | grep ftp</span></span><br><span class="line">ftpd_anon_write --&gt; off</span><br><span class="line">ftpd_connect_all_unreserved --&gt; off</span><br><span class="line">ftpd_connect_db --&gt; off</span><br><span class="line">ftpd_full_access --&gt; off</span><br><span class="line">ftpd_use_cifs --&gt; off</span><br><span class="line">ftpd_use_fusefs --&gt; off</span><br><span class="line">ftpd_use_nfs --&gt; off</span><br><span class="line">ftpd_use_passive_mode --&gt; off</span><br><span class="line">httpd_can_connect_ftp --&gt; off</span><br><span class="line">httpd_enable_ftp_server --&gt; off</span><br><span class="line">tftp_anon_write --&gt; off</span><br><span class="line">tftp_home_dir --&gt; off</span><br><span class="line"><span class="meta">#</span><span class="bash"> setsebool -P ftpd_full_access=on</span></span><br></pre></td></tr></table></figure>
+
+<p>可以判断是ftpd_full_access –&gt; off策略导致创建目录失败，使用setsebool -P永久修改策略</p>
+<h4 id="本地用户模式"><a href="#本地用户模式" class="headerlink" title="本地用户模式"></a>本地用户模式</h4><h5 id="修改vsftpd主配置文件-1"><a href="#修改vsftpd主配置文件-1" class="headerlink" title="修改vsftpd主配置文件"></a>修改vsftpd主配置文件</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/vsftpd/vsftpd.conf</span></span><br><span class="line">anonymous_enable=NO</span><br><span class="line">local_enable=YES</span><br><span class="line">write_enable=YES</span><br><span class="line">local_umask=022</span><br><span class="line">dirmessage_enable=YES</span><br><span class="line">xferlog_enable=YES</span><br><span class="line">connect_from_port_20=YES</span><br><span class="line">xferlog_std_format=YES</span><br><span class="line">listen=NO</span><br><span class="line">listen_ipv6=YES</span><br><span class="line">pam_service_name=vsftpd</span><br><span class="line">userlist_enable=YES</span><br><span class="line">tcp_wrappers=YES</span><br><span class="line"><span class="meta">#</span><span class="bash"> systemctl restart vsftpd</span></span><br></pre></td></tr></table></figure>
+
+<p>使用root用户登录ftp提示”530 Permission denied .”，是因为vsftpd中存放着两个用户名单（ftpusers和user_list）。只要里面有某位用户的名字。就不在允许该用户登录到FTP服务器。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/vsftpd/ftpusers </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Users that are not allowed to login via ftp</span></span><br><span class="line">root</span><br><span class="line">bin</span><br><span class="line">daemon</span><br><span class="line">adm</span><br><span class="line">lp</span><br><span class="line">sync</span><br><span class="line">shutdown</span><br><span class="line">halt</span><br><span class="line">mail</span><br><span class="line">news</span><br><span class="line">uucp</span><br><span class="line">operator</span><br><span class="line">games</span><br><span class="line">nobody</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/vsftpd/user_list </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> vsftpd userlist</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> If userlist_deny=NO, only allow users <span class="keyword">in</span> this file</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> If userlist_deny=YES (default), never allow users <span class="keyword">in</span> this file, and</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="keyword">do</span> not even prompt <span class="keyword">for</span> a password.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Note that the default vsftpd pam config also checks /etc/vsftpd/ftpusers</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="keyword">for</span> users that are denied.</span></span><br><span class="line">root</span><br><span class="line">bin</span><br><span class="line">daemon</span><br><span class="line">adm</span><br><span class="line">lp</span><br><span class="line">sync</span><br><span class="line">shutdown</span><br><span class="line">halt</span><br><span class="line">mail</span><br><span class="line">news</span><br><span class="line">uucp</span><br><span class="line">operator</span><br><span class="line">games</span><br><span class="line">nobody</span><br></pre></td></tr></table></figure>
+
+<p>所以使用非该文件中的系统用户输入正确的密码，即可登陆成功</p>
+<h4 id="虚拟用户模式"><a href="#虚拟用户模式" class="headerlink" title="虚拟用户模式"></a>虚拟用户模式</h4><h5 id="创建用户认证数据库文件"><a href="#创建用户认证数据库文件" class="headerlink" title="创建用户认证数据库文件"></a>创建用户认证数据库文件</h5><p>其中奇数行是用户名，偶数行是密码。例如分别创建出zhangsan和lisi两个用户，密码均为redhat</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/vsftpd/vuser.list</span></span><br><span class="line">zhangsan</span><br><span class="line">redhat</span><br><span class="line">lisi</span><br><span class="line">redhat</span><br></pre></td></tr></table></figure>
+
+<p>可以发现用户名密码都是明文的，不也不符合vsftpd服务可以识别加载的格式，需要使用db_load命令用hash算法将明文信息转化为数据库文件。并且减小数据库文件的权限，避免其他人看到数据文件内容，在删除原始明文信息文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> db_load -T -t <span class="built_in">hash</span> -f vuser.list vuser.db</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chmod 600 vuser.db</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> rm vuser.list -f</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="创建vsftpd根目录以及虚拟用户映射的本地用户"><a href="#创建vsftpd根目录以及虚拟用户映射的本地用户" class="headerlink" title="创建vsftpd根目录以及虚拟用户映射的本地用户"></a>创建vsftpd根目录以及虚拟用户映射的本地用户</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> useradd -d /var/ftproot  -s /sbin/nologin virtualftpuser</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chmod -R 755 /var/ftproot</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="创建支持虚拟用户的PAM文件"><a href="#创建支持虚拟用户的PAM文件" class="headerlink" title="创建支持虚拟用户的PAM文件"></a>创建支持虚拟用户的PAM文件</h5><p>PAM（可拔插认证模块）使用一种认证机制，通过动态链接库和统一的AP把系统提供的服务与认证方式分开，使得SA可以根据需求调整合适的认证方式。新建一个虚拟用户认证的PAM文件vftpd.vu，其中PAM文件中”db=”参数为使用db_Load命令生成的账户密码数据库文件路径，不用写数据库文件的后缀：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/pam.d/vsftpd.vu </span></span><br><span class="line">auth    required        pam_userdb.so   db=/etc/vsftpd/vuser</span><br><span class="line">account required        pam_userdb.so   db=/etc/vsftpd/vuser</span><br></pre></td></tr></table></figure>
+
+<h5 id="修改vsftpd中的PAM认证方式"><a href="#修改vsftpd中的PAM认证方式" class="headerlink" title="修改vsftpd中的PAM认证方式"></a>修改vsftpd中的PAM认证方式</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># sed &apos;/pam_service_name/s/vsftpd/vsftpd.vu/g&apos; /etc/vsftpd/vsftpd.conf</span><br></pre></td></tr></table></figure>
+
+<h5 id="为不同的虚拟用户设置不同的权限"><a href="#为不同的虚拟用户设置不同的权限" class="headerlink" title="为不同的虚拟用户设置不同的权限"></a>为不同的虚拟用户设置不同的权限</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> mkdir /etc/vsftpd/vusers_dir</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> /etc/vsftpd/vusers_dir</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> touch lisi</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cat zhangsan</span></span><br><span class="line">anon_upload_enable=YES</span><br><span class="line">anon_mkdir_write_enable=YES</span><br><span class="line">anon_other_write_enable=YES</span><br></pre></td></tr></table></figure>
+
+<h5 id="vsftpd主配置文件"><a href="#vsftpd主配置文件" class="headerlink" title="vsftpd主配置文件"></a>vsftpd主配置文件</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/vsftpd/vsftpd.conf</span></span><br><span class="line">anonymous_enable=NO</span><br><span class="line">local_enable=YES</span><br><span class="line">guest_enable=YES</span><br><span class="line">guest_username=virtualftp</span><br><span class="line">allow_writeable_chroot=YES</span><br><span class="line">write_enable=YES</span><br><span class="line">local_umask=022</span><br><span class="line">dirmessage_enable=YES</span><br><span class="line">xferlog_enable=YES</span><br><span class="line">connect_from_port_20=YES</span><br><span class="line">xferlog_std_format=YES</span><br><span class="line">listen=NO</span><br><span class="line">listen_ipv6=YES</span><br><span class="line">pam_service_name=vsftpd.vu</span><br><span class="line">userlist_enable=YES</span><br><span class="line">tcp_wrappers=YES</span><br><span class="line">user_config_dir=/etc/vsftpd/vuser_dir</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/运维基本功/" rel="tag"><i class="fa fa-tag"></i>运维基本功</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/post/667129de.html" rel="next" title="CentOS7系统配置链路聚合以及配置IPV6地址">
+                  <i class="fa fa-chevron-left"></i> CentOS7系统配置链路聚合以及配置IPV6地址
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#vsftpd服务程序的参数及作用"><span class="nav-number">1.</span> <span class="nav-text">vsftpd服务程序的参数及作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vsftpd有三种登录模式"><span class="nav-number">2.</span> <span class="nav-text">vsftpd有三种登录模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#匿名开放模式"><span class="nav-number">2.1.</span> <span class="nav-text">匿名开放模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#修改vsftpd主配置文件"><span class="nav-number">2.1.1.</span> <span class="nav-text">修改vsftpd主配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#修改vsftpd数据目录权限"><span class="nav-number">2.1.2.</span> <span class="nav-text">修改vsftpd数据目录权限</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#修改ftp相关的SElinux域策略"><span class="nav-number">2.1.3.</span> <span class="nav-text">修改ftp相关的SElinux域策略</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#本地用户模式"><span class="nav-number">2.2.</span> <span class="nav-text">本地用户模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#修改vsftpd主配置文件-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">修改vsftpd主配置文件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚拟用户模式"><span class="nav-number">2.3.</span> <span class="nav-text">虚拟用户模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建用户认证数据库文件"><span class="nav-number">2.3.1.</span> <span class="nav-text">创建用户认证数据库文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建vsftpd根目录以及虚拟用户映射的本地用户"><span class="nav-number">2.3.2.</span> <span class="nav-text">创建vsftpd根目录以及虚拟用户映射的本地用户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建支持虚拟用户的PAM文件"><span class="nav-number">2.3.3.</span> <span class="nav-text">创建支持虚拟用户的PAM文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#修改vsftpd中的PAM认证方式"><span class="nav-number">2.3.4.</span> <span class="nav-text">修改vsftpd中的PAM认证方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#为不同的虚拟用户设置不同的权限"><span class="nav-number">2.3.5.</span> <span class="nav-text">为不同的虚拟用户设置不同的权限</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#vsftpd主配置文件"><span class="nav-number">2.3.6.</span> <span class="nav-text">vsftpd主配置文件</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/avatar.jpg"
+      alt="Mr.Chen">
+  <p class="site-author-name" itemprop="name">Mr.Chen</p>
+  <div class="site-description" itemprop="description">个人博客系统</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/tanlay" title="GitHub &rarr; https://github.com/tanlay" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:dooktmint@gmail.com" title="E-Mail &rarr; mailto:dooktmint@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Chen</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<!-- 代码块复制功能 -->
+  <script type="text/javascript" src="/js/src/clipboard.min.js"></script>  
+  <script type="text/javascript" src="/js/src/clipboard-use.js"></script>
+</body>
+</html>

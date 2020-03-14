@@ -58,18 +58,18 @@
   };
 </script>
 
-  <meta name="description" content="个人博客系统">
+  <meta name="description" content="网卡的链路聚合就是将多块网卡连接起来，当一块网卡损坏，网络依旧可以正常运行，可以有效的防止因为网卡损坏带来的损失，同时也可以提高网络访问速度。网卡的链路聚合一般常用的有”bond”和”team”两种模式，”bond”模式最多可以添加两块网卡，”team”模式最多可以添加八块网卡。team的配置如下：">
 <meta name="keywords" content="运维基本功">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CentOS7系统配置链路聚合以及配置IPV6地址">
 <meta property="og:url" content="http://www.dookt.com/post/667129de.html">
 <meta property="og:site_name" content="MINT">
-<meta property="og:description" content="个人博客系统">
+<meta property="og:description" content="网卡的链路聚合就是将多块网卡连接起来，当一块网卡损坏，网络依旧可以正常运行，可以有效的防止因为网卡损坏带来的损失，同时也可以提高网络访问速度。网卡的链路聚合一般常用的有”bond”和”team”两种模式，”bond”模式最多可以添加两块网卡，”team”模式最多可以添加八块网卡。team的配置如下：">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-03-10T15:22:28.831Z">
+<meta property="og:updated_time" content="2020-03-10T15:26:02.967Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CentOS7系统配置链路聚合以及配置IPV6地址">
-<meta name="twitter:description" content="个人博客系统">
+<meta name="twitter:description" content="网卡的链路聚合就是将多块网卡连接起来，当一块网卡损坏，网络依旧可以正常运行，可以有效的防止因为网卡损坏带来的损失，同时也可以提高网络访问速度。网卡的链路聚合一般常用的有”bond”和”team”两种模式，”bond”模式最多可以添加两块网卡，”team”模式最多可以添加八块网卡。team的配置如下：">
   <link rel="canonical" href="http://www.dookt.com/post/667129de">
 
 
@@ -289,8 +289,12 @@
                 
               
 
-              <time title="创建时间：2020-03-10 23:22:28" itemprop="dateCreated datePublished" datetime="2020-03-10T23:22:28+08:00">2020-03-10</time>
+              <time title="创建时间：2020-03-10 23:22:28 / 修改时间：23:26:02" itemprop="dateCreated datePublished" datetime="2020-03-10T23:22:28+08:00">2020-03-10</time>
             </span>
+          
+            
+
+            
           
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -325,7 +329,31 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <p>网卡的链路聚合就是将多块网卡连接起来，当一块网卡损坏，网络依旧可以正常运行，可以有效的防止因为网卡损坏带来的损失，同时也可以提高网络访问速度。网卡的链路聚合一般常用的有”bond”和”team”两种模式，”bond”模式最多可以添加两块网卡，”team”模式最多可以添加八块网卡。team的配置如下：</p>
+<a id="more"></a>
+
+<h3 id="CentOS7系统配置链路聚合以及配置IPV6地址"><a href="#CentOS7系统配置链路聚合以及配置IPV6地址" class="headerlink" title="CentOS7系统配置链路聚合以及配置IPV6地址"></a>CentOS7系统配置链路聚合以及配置IPV6地址</h3><h4 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h4><ol>
+<li>链路接口使用eth1和eth2</li>
+<li>其中一个接口失效时仍能正常工作</li>
+<li>重启系统之后仍能正常工作</li>
+<li>聚合的IP地址是172.16.8.100</li>
+</ol>
+<h4 id="配置链路聚合"><a href="#配置链路聚合" class="headerlink" title="配置链路聚合"></a>配置链路聚合</h4><h5 id="添加虚拟网卡team0"><a href="#添加虚拟网卡team0" class="headerlink" title="添加虚拟网卡team0"></a>添加虚拟网卡team0</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> nmcli connection add con‐name team0 type team ifname team0 config</span><br><span class="line">'&#123;"runner":&#123;"name":"activebackup"&#125;&#125;'</span><br></pre></td></tr></table></figure>
+
+<h5 id="配置team0"><a href="#配置team0" class="headerlink" title="配置team0"></a>配置team0</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> nmcli connection modify team0 ipv4.addresses "172.16.8.100/24" connection.autoconnect yes ipv4.method</span><br><span class="line">manual</span><br></pre></td></tr></table></figure>
+
+<h5 id="添加eth1和eth2到team0网卡上"><a href="#添加eth1和eth2到team0网卡上" class="headerlink" title="添加eth1和eth2到team0网卡上"></a>添加eth1和eth2到team0网卡上</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> nmcli connection add con‐name team0‐slave1 ifname eth1 type team‐slave master team0</span><br><span class="line"><span class="meta">#</span> nmcli connection add con‐name team0‐slave2 ifname eth2 type team‐slave master team0</span><br></pre></td></tr></table></figure>
+
+<h5 id="启用team0网卡"><a href="#启用team0网卡" class="headerlink" title="启用team0网卡"></a>启用team0网卡</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> nmcli connection up team0</span><br></pre></td></tr></table></figure>
+
+<h5 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> ifconfig team0</span><br><span class="line">team0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.16.3.45  netmask 255.255.255.0  broadcast 172.16.3.255</span><br><span class="line">        inet6 fe80::20c:29ff:fe37:f0aa  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether 00:0c:29:37:f0:aa  txqueuelen 0  (Ethernet)</span><br><span class="line">        RX packets 893  bytes 95381 (93.1 KiB)</span><br><span class="line">        RX errors 0  dropped 654564  overruns 0  frame 0</span><br><span class="line">        TX packets 1955383  bytes 125296443 (119.4 MiB)</span><br><span class="line">        TX errors 0  dropped 3 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> teamdctl team0 state</span><br><span class="line">setup:</span><br><span class="line">  runner: activebackup</span><br><span class="line">ports:</span><br><span class="line">  eth1</span><br><span class="line">    link watches:</span><br><span class="line">      link summary: up</span><br><span class="line">      instance[link_watch_0]:</span><br><span class="line">        name: ethtool</span><br><span class="line">        link: up</span><br><span class="line">  eth2</span><br><span class="line">    link watches:</span><br><span class="line">      link summary: up</span><br><span class="line">      instance[link_watch_0]:</span><br><span class="line">        name: ethtool</span><br><span class="line">        link: up</span><br><span class="line">runner:</span><br><span class="line">  active port: eth2</span><br></pre></td></tr></table></figure>
+
+<p>备注：此时可以手动关闭eth1和eth2其中一块网卡，可以发现team0还是正常工作</p>
+<h4 id="删除配置"><a href="#删除配置" class="headerlink" title="删除配置"></a>删除配置</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> nmcli connection delete team0‐slave1</span><br><span class="line"><span class="meta">#</span> nmcli connection delete team0‐slave2</span><br><span class="line"><span class="meta">#</span> nmcli connection delete team0</span><br><span class="line"><span class="meta">#</span> nmcli connection reload</span><br></pre></td></tr></table></figure>
+
+<h4 id="为team0网卡配置IPV6地址"><a href="#为team0网卡配置IPV6地址" class="headerlink" title="为team0网卡配置IPV6地址"></a>为team0网卡配置IPV6地址</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> nmcli connection modify team0 ipv6.addresses "2003:ac18::305/64" ipv6.method manual connection.autoconnect</span><br><span class="line">yes</span><br><span class="line"><span class="meta">#</span> nmcli connection reload</span><br><span class="line"><span class="meta">#</span> nmcli connection down team0 &amp;&amp; nmcli connection up team0</span><br></pre></td></tr></table></figure>
+
+
     </div>
 
     
@@ -359,6 +387,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/post/bda94cd0.html" rel="prev" title="RHEL安装配置vsftpd">
+                  RHEL安装配置vsftpd <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -407,6 +439,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#CentOS7系统配置链路聚合以及配置IPV6地址"><span class="nav-number">1.</span> <span class="nav-text">CentOS7系统配置链路聚合以及配置IPV6地址</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置链路聚合"><span class="nav-number">1.2.</span> <span class="nav-text">配置链路聚合</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#添加虚拟网卡team0"><span class="nav-number">1.2.1.</span> <span class="nav-text">添加虚拟网卡team0</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置team0"><span class="nav-number">1.2.2.</span> <span class="nav-text">配置team0</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#添加eth1和eth2到team0网卡上"><span class="nav-number">1.2.3.</span> <span class="nav-text">添加eth1和eth2到team0网卡上</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#启用team0网卡"><span class="nav-number">1.2.4.</span> <span class="nav-text">启用team0网卡</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#验证"><span class="nav-number">1.2.5.</span> <span class="nav-text">验证</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#删除配置"><span class="nav-number">1.3.</span> <span class="nav-text">删除配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为team0网卡配置IPV6地址"><span class="nav-number">1.4.</span> <span class="nav-text">为team0网卡配置IPV6地址</span></a></li></ol></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
@@ -423,7 +457,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
