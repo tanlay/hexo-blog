@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+  <link rel="alternate" href="/atom.xml" title="MINT" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+<link rel="stylesheet" href="//fonts.lug.ustc.edu.cn/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="由于域名比数字更容易被人们记住，所以我们通常更习惯通过域名来访问网络资源。但是网络中是基于IP地址来互访的。DNS技术应运而生，它是一项管理和解析域名与IP关系的技术。是以实现用户输入域名，然后查找到对应的IP主机资源，反之，通过IP地址也能解析出对应的域名信息。">
+<meta name="keywords" content="运维基本功">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用BIND安装部署DNS提供域名解析服务">
+<meta property="og:url" content="http://www.dookt.com/post/758d9cad.html">
+<meta property="og:site_name" content="MINT">
+<meta property="og:description" content="由于域名比数字更容易被人们记住，所以我们通常更习惯通过域名来访问网络资源。但是网络中是基于IP地址来互访的。DNS技术应运而生，它是一项管理和解析域名与IP关系的技术。是以实现用户输入域名，然后查找到对应的IP主机资源，反之，通过IP地址也能解析出对应的域名信息。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-24T06:34:08.083Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用BIND安装部署DNS提供域名解析服务">
+<meta name="twitter:description" content="由于域名比数字更容易被人们记住，所以我们通常更习惯通过域名来访问网络资源。但是网络中是基于IP地址来互访的。DNS技术应运而生，它是一项管理和解析域名与IP关系的技术。是以实现用户输入域名，然后查找到对应的IP主机资源，反之，通过IP地址也能解析出对应的域名信息。">
+  <link rel="canonical" href="http://www.dookt.com/post/758d9cad">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>使用BIND安装部署DNS提供域名解析服务 | MINT</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MINT</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">感谢平庸与我随行!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.dookt.com/post/758d9cad.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.Chen">
+      <meta itemprop="description" content="个人博客系统">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MINT">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用BIND安装部署DNS提供域名解析服务
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-24 14:32:43 / 修改时间：14:34:08" itemprop="dateCreated datePublished" datetime="2020-03-24T14:32:43+08:00">2020-03-24</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>由于域名比数字更容易被人们记住，所以我们通常更习惯通过域名来访问网络资源。但是网络中是基于IP地址来互访的。DNS技术应运而生，它是一项管理和解析域名与IP关系的技术。是以实现用户输入域名，然后查找到对应的IP主机资源，反之，通过IP地址也能解析出对应的域名信息。</p>
+<a id="more"></a>
+
+<h4 id="DNS域名查询的两种方式"><a href="#DNS域名查询的两种方式" class="headerlink" title="DNS域名查询的两种方式"></a>DNS域名查询的两种方式</h4><p>DNS域名解析服务采用分布式的数据结构来存储海量的“区域数据”信息。在执行用户发起的域名解析请求时，具有递归查询和迭代查询两种方式。</p>
+<p><strong>递归查询</strong>，是指DNS服务收到用户发起的请求时，必须向用户返回一个准确的查询结果。如果DNS服务器本地没有存储与之对应的信息，则该服务器需要查询其他服务器，并将返回的结果提交给用户。</p>
+<p><strong>迭代查询</strong>，是指DNS在收到用户发起的请求时，不直接回复查询结果，而是告知另一台DNS服务器的地址，用户在向这台DNS服务器提交请求，依次查询直至返回查询结果。</p>
+<h4 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h4><table>
+<thead>
+<tr>
+<th>主机名称</th>
+<th>OS</th>
+<th>IP地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主服务器master</td>
+<td>CentOS 7</td>
+<td>172.16.100.201</td>
+</tr>
+<tr>
+<td>从服务器slave</td>
+<td>CentOS 7</td>
+<td>172.16.100.202</td>
+</tr>
+</tbody></table>
+<h4 id="安装BIND服务程序"><a href="#安装BIND服务程序" class="headerlink" title="安装BIND服务程序"></a>安装BIND服务程序</h4><p>DNS 域名解析服务作为互联网基础设施服务，非常重要，因此在生产环境中安装部署 bind 服务程序时加上 chroot（牢笼机制）扩展包，以便有效地限制 bind 服务程序仅能对自身的配置文件进行操作，以确保整个服务器的安全。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install  bind-chroot</span><br></pre></td></tr></table></figure>
+
+<p>BIND服务程序共有三个比较关键的配置文件</p>
+<ul>
+<li>主配置文件（/etc/named.conf）用来定义bind服务程序的运行</li>
+<li>区域配置文件（/etc/named.rfc1912.zones）用来保存域名和IP地址对应关系的所在位置</li>
+<li>数据配置文件目录 （/var/named）用于保存域名和IP地址真实对应关系的数据配置目录</li>
+</ul>
+<p>修改主配置文件所有IP地址均可提供DNS域名解析，并且允许所有人对本服务器发起DNS查询请求。用“any”表示。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">zone "dookt.com" IN &#123;</span><br><span class="line">    type    master;</span><br><span class="line">    file    "dookt.com.zone";</span><br><span class="line">    allow-update &#123;172.16.100.202;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">zone "100.16.172.in-addr.arpa" IN &#123;</span><br><span class="line">    type    master;</span><br><span class="line">    file    "172.16.100.arpa";</span><br><span class="line">    allow-update &#123;172.16.100.202;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>区域配置文件定义了域名与IP地址解析规则文件的位置以及服务类型等内容。服务类型有三种，根区域hint、主区域master、辅助区域slave。</p>
+<p><strong>正向解析</strong>：将域名解析为IP地址</p>
+<p><strong>反向解析</strong>：将IP地址解析为域名</p>
+<p>备注：启动bind服务失败时，可以通过named-checkconf和named_checkzone命令来检查主配置文件与数据配置文件中的语法或参数错误。</p>
+<h4 id="DNS正向解析"><a href="#DNS正向解析" class="headerlink" title="DNS正向解析"></a>DNS正向解析</h4><h5 id="编辑区域配置文件"><a href="#编辑区域配置文件" class="headerlink" title="编辑区域配置文件"></a>编辑区域配置文件</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/named.rfc1912.zones</span></span><br><span class="line">zone "dookt.com" IN &#123;</span><br><span class="line">    type    master;</span><br><span class="line">    file    "dookt.com.zone";</span><br><span class="line">    allow-update &#123;172.16.100.202;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="编辑数据配置文件"><a href="#编辑数据配置文件" class="headerlink" title="编辑数据配置文件"></a>编辑数据配置文件</h5><p>可以从/var/name目录下复制一份正向解析的模板文件（named.localhost）,保证复制前后文件全权限不做更改</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /var/named/dookt.com.zone   </span></span><br><span class="line"><span class="meta">$</span><span class="bash">TTL 1D</span></span><br><span class="line">@       IN SOA  dookt.com. root.dookt.com. (</span><br><span class="line">                                        0       ; serial</span><br><span class="line">                                        1D      ; refresh</span><br><span class="line">                                        1H      ; retry</span><br><span class="line">                                        1W      ; expire</span><br><span class="line">                                        3H )    ; minimum</span><br><span class="line">        NS              ns.dookt.com.                   ;域名服务器记录</span><br><span class="line">ns      IN A    172.16.100.201                  ;地址记录</span><br><span class="line">        IN MX 10 mail.dookt.com.                ;邮件交换记录</span><br><span class="line">mail IN A       172.16.100.201                  ;地址记录</span><br><span class="line">www     IN A    172.16.100.201</span><br><span class="line">bbs     IN A    172.16.100.201</span><br></pre></td></tr></table></figure>
+
+<h5 id="检验DNS正向解析结果"><a href="#检验DNS正向解析结果" class="headerlink" title="检验DNS正向解析结果"></a>检验DNS正向解析结果</h5><p>修改主机中的DNS（/etc/resolv.conf）以及网卡配置文件，将其修改为本机地址，使用nslookup命令来检测DNS域名和IP的解析记录。需要重启bind服务。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nslookup www.dookt.com</span></span><br><span class="line">Server:         172.16.100.201</span><br><span class="line">Address:        172.16.100.201#53</span><br><span class="line"></span><br><span class="line">Name:   www.dookt.com</span><br><span class="line">Address: 172.16.100.201</span><br></pre></td></tr></table></figure>
+
+<h4 id="DNS反向解析"><a href="#DNS反向解析" class="headerlink" title="DNS反向解析"></a>DNS反向解析</h4><h5 id="编辑区域配置文件-1"><a href="#编辑区域配置文件-1" class="headerlink" title="编辑区域配置文件"></a>编辑区域配置文件</h5><p>反向解析是把 IP 地址解析成域名格式，因此在定义 zone（区域）时应该要把 IP 地址反写，比如原来是 172.16.100.0，反写后应该就是 100.16.172，而且只需写出 IP 地址的网络位即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/named.rfc1912.zones</span></span><br><span class="line">zone "100.16.172.in-addr.arpa" IN &#123;</span><br><span class="line">        type    master;</span><br><span class="line">        file    "172.16.100.arpa";</span><br><span class="line">        allow-update &#123;172.16.100.202;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="编辑数据配置文件-1"><a href="#编辑数据配置文件-1" class="headerlink" title="编辑数据配置文件"></a>编辑数据配置文件</h5><p>从/var/named 目录中复制一份反向解析的模板文件（named.loopback），然后把下面的参数填写到文件中。其中，IP 地址仅需要写主机位。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat 172.16.100.arpa </span></span><br><span class="line"><span class="meta">$</span><span class="bash">TTL 1D</span></span><br><span class="line">@       IN SOA  dookt.com root.dookt.com. (</span><br><span class="line">                                        0       ; serial</span><br><span class="line">                                        1D      ; refresh</span><br><span class="line">                                        1H      ; retry</span><br><span class="line">                                        1W      ; expire</span><br><span class="line">                                        3H )    ; minimum</span><br><span class="line">        NS      ns.dookt.com.</span><br><span class="line">ns      A       172.16.100.201</span><br><span class="line">201     PTR     ns.dookt.com.           ;PTR为指针记录，仅用于反向解析</span><br><span class="line">201     PTR     mail.dookt.com.</span><br><span class="line">201     PTR     www.dookt.com.</span><br><span class="line">201     PTR     bbs.dookt.com.</span><br></pre></td></tr></table></figure>
+
+<h5 id="检验DNS反向解析结果"><a href="#检验DNS反向解析结果" class="headerlink" title="检验DNS反向解析结果"></a>检验DNS反向解析结果</h5><p>系统网卡中的 DNS 地址参数修改成了本机 IP 地址，因此可以直接使用 nslookup 命令来检验解析结果，仅需输入 IP 地址即可查询到对应的域名信息。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nslookup 172.16.100.201</span></span><br><span class="line">201.100.16.172.in-addr.arpa     name = bbs.dookt.com.</span><br><span class="line">201.100.16.172.in-addr.arpa     name = mail.dookt.com.</span><br><span class="line">201.100.16.172.in-addr.arpa     name = ns.dookt.com.</span><br><span class="line">201.100.16.172.in-addr.arpa     name = www.dookt.com.</span><br></pre></td></tr></table></figure>
+
+<h4 id="部署从服务器"><a href="#部署从服务器" class="headerlink" title="部署从服务器"></a>部署从服务器</h4><p>从服务器可以从主服务器上获取指定的区域数据文件，从而起到备份解析记录与负载均衡的作用，因此通<br>部署从服务器可以减轻主服务器的负载压力，还可以提升用户的查询效率。</p>
+<h5 id="修改主服务器区域配置文件"><a href="#修改主服务器区域配置文件" class="headerlink" title="修改主服务器区域配置文件"></a>修改主服务器区域配置文件</h5><p>允许该从服务器的更新请求，即修改allow-update{172.16.100.202;};重启BIND程序</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/named.rfc1912.zones</span></span><br><span class="line">zone "dookt.com" IN &#123;</span><br><span class="line">        type    master;</span><br><span class="line">        file    "dookt.com.zone";</span><br><span class="line">        allow-update &#123;172.16.100.202;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">zone "100.16.172.in-addr.arpa" IN &#123;</span><br><span class="line">        type    master;</span><br><span class="line">        file    "172.16.100.arpa";</span><br><span class="line">        allow-update &#123;172.16.100.202;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="配置从服务器区域配置文件"><a href="#配置从服务器区域配置文件" class="headerlink" title="配置从服务器区域配置文件"></a>配置从服务器区域配置文件</h5><p>填写主服务器的IP及要抓取的区域信息，重启BIND服务。注意从服务器的类型为slave，并加上masters参数来指定master服务器，file参数后面定义的是同步数据配置文件后保存的位置。重启BIND程序,即可看到slaves/目录下有从master复制来的数据文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> cat /etc/named.rfc1912.zones</span></span><br><span class="line">zone "dookt.com" IN &#123;</span><br><span class="line">        type    slave;</span><br><span class="line">        masters &#123;172.16.100.201;&#125;;</span><br><span class="line">        file    "slaves/dookt.com.zone";</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">zone "100.16.172.in-addr.arpa" IN &#123;</span><br><span class="line">        type    slave;</span><br><span class="line">        masters &#123;172.16.100.201;&#125;;</span><br><span class="line">        file    "slaves/172.16.100.arpa";</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="检验解析结果"><a href="#检验解析结果" class="headerlink" title="检验解析结果"></a>检验解析结果</h5><p>slave服务器BIND重启之后，会从master服务器上同步数据配置文件，该文件存放在slave区域配置文件定义的位置。当然也需要修改slave服务器的DNS为172.16.10.202。使用nslookup命令即可得到解析结果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ll /var/named/slaves/</span></span><br><span class="line">total 8</span><br><span class="line">-rw-r--r--. 1 named named 374 Mar 24 08:33 172.16.100.arpa</span><br><span class="line">-rw-r--r--. 1 named named 369 Mar 24 08:33 dookt.com.zone</span><br><span class="line"><span class="meta">#</span><span class="bash"> nslookup bbs.dookt.com </span></span><br><span class="line">Server:         172.16.100.202</span><br><span class="line">Address:        172.16.100.202#53</span><br><span class="line"></span><br><span class="line">Name:   bbs.dookt.com</span><br><span class="line">Address: 172.16.100.201</span><br><span class="line"></span><br><span class="line">nslookup 172.16.100.201</span><br><span class="line">201.100.16.172.in-addr.arpa     name = www.dookt.com.</span><br><span class="line">201.100.16.172.in-addr.arpa     name = ns.dookt.com.</span><br><span class="line">201.100.16.172.in-addr.arpa     name = mail.dookt.com.</span><br><span class="line">201.100.16.172.in-addr.arpa     name = bbs.dookt.com.</span><br></pre></td></tr></table></figure>
+
+<h4 id="安全加密传输"><a href="#安全加密传输" class="headerlink" title="安全加密传输"></a>安全加密传输</h4><p>DNS是整个网络服务中最重要的一环，近乎所有网络应用都依赖于DNS才能正常的运行。如果DNS故障，即便WEB网站或者电子邮件系统正常运行，用户也无法找到并使用他们了。所以BIND服务程序也提供了TSIG加密机制的支持。TSIG主要利用了密码编码的方式保护区域信息的传输，即TSIG加密机制保证了DNS服务器之间传输域名区域信息的安全。</p>
+<h5 id="主服务器生成秘钥"><a href="#主服务器生成秘钥" class="headerlink" title="主服务器生成秘钥"></a>主服务器生成秘钥</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> dnssec-keygen -a HMAC-MD5 -b 256 -n HOST master-slave</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ll </span></span><br><span class="line">-rw------- 1 mint mint  76 Mar 24 13:28 Kmaster-slave.+157+24217.key</span><br><span class="line">-rw------- 1 mint mint 185 Mar 24 13:28 Kmaster-slave.+157+24217.private</span><br><span class="line"><span class="meta">#</span><span class="bash"> cat Kmaster-slave.+157+24217.key </span></span><br><span class="line">master-slave. IN KEY 512 3 157 b84QshgV/3L1hFcV36DHVVNyu9DUtTYTGqeZILEuTmA=</span><br><span class="line"><span class="meta">#</span><span class="bash"> cat Kmaster-slave.+157+24217.private </span></span><br><span class="line">Private-key-format: v1.3</span><br><span class="line">Algorithm: 157 (HMAC_MD5)</span><br><span class="line">Key: b84QshgV/3L1hFcV36DHVVNyu9DUtTYTGqeZILEuTmA=</span><br><span class="line">Bits: AAA=</span><br><span class="line">Created: 20200324052826</span><br><span class="line">Publish: 20200324052826</span><br><span class="line">Activate: 20200324052826</span><br></pre></td></tr></table></figure>
+
+<p>dnssec-keygen命令常用的参数。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-a</td>
+<td>指定加密算法，包括RSAMD5（RSA）、RSASHA1、DSA等</td>
+</tr>
+<tr>
+<td>-b</td>
+<td>秘钥长度（HMAC-MD5的秘钥长度为1~512位之间）</td>
+</tr>
+<tr>
+<td>-n</td>
+<td>秘钥的类型（HOST表示与主机相关）</td>
+</tr>
+</tbody></table>
+<h5 id="主服务器创建秘钥验证文件"><a href="#主服务器创建秘钥验证文件" class="headerlink" title="主服务器创建秘钥验证文件"></a>主服务器创建秘钥验证文件</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> /var/named/chroot/etc/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cat transfer.key</span></span><br><span class="line">key "master-slave" &#123;</span><br><span class="line"> algorithm hmac-md5;</span><br><span class="line"> secret "b84QshgV/3L1hFcV36DHVVNyu9DUtTYTGqeZILEuTmA=";</span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#</span><span class="bash"> chown root.named transfer.key</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chmod 640 transfer.key</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ln transfer.key /etc/transfer.key</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="开启主服务器BIND服务秘钥验证"><a href="#开启主服务器BIND服务秘钥验证" class="headerlink" title="开启主服务器BIND服务秘钥验证"></a>开启主服务器BIND服务秘钥验证</h5><p>需在主服务器的主配置文件中加载秘钥验证文件，是的只允许带有master-slave秘钥认证的DNS服务器同步数据配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// named.conf</span><br><span class="line">//</span><br><span class="line">// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS</span><br><span class="line">// server as a caching only nameserver (as a localhost DNS resolver only).</span><br><span class="line">//</span><br><span class="line">// See /usr/share/doc/bind*/sample/ for example named configuration files.</span><br><span class="line">//</span><br><span class="line">// See the BIND Administrator's Reference Manual (ARM) for details about the</span><br><span class="line">// configuration located in /usr/share/doc/bind-&#123;version&#125;/Bv9ARM.html</span><br><span class="line"></span><br><span class="line">include "/etc/transfer.key";      </span><br><span class="line"></span><br><span class="line">options &#123;</span><br><span class="line">    listen-on port 53 &#123; any; &#125;;</span><br><span class="line">    listen-on-v6 port 53 &#123; ::1; &#125;;</span><br><span class="line">    directory   "/var/named";</span><br><span class="line">    dump-file   "/var/named/data/cache_dump.db";</span><br><span class="line">    statistics-file "/var/named/data/named_stats.txt";</span><br><span class="line">    memstatistics-file "/var/named/data/named_mem_stats.txt";</span><br><span class="line">    recursing-file  "/var/named/data/named.recursing";</span><br><span class="line">    secroots-file   "/var/named/data/named.secroots";</span><br><span class="line">    allow-query     &#123; any; &#125;;</span><br><span class="line">    allow-transfer  &#123; key master-slave; &#125;;</span><br><span class="line">...省略...</span><br></pre></td></tr></table></figure>
+
+<p>清空从服务器上同步的数据配置文件，重启从服务器BIND程序，发现已经不会自动同步主服务器的数据配置文件了。</p>
+<h5 id="从服务器创建秘钥验证文件"><a href="#从服务器创建秘钥验证文件" class="headerlink" title="从服务器创建秘钥验证文件"></a>从服务器创建秘钥验证文件</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> /var/named/chroot/etc/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cat transfer.key</span></span><br><span class="line">key "master-slave" &#123;</span><br><span class="line"> algorithm hmac-md5;</span><br><span class="line"> secret "b84QshgV/3L1hFcV36DHVVNyu9DUtTYTGqeZILEuTmA=";</span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#</span><span class="bash"> chown root.named transfer.key</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chmod 640 transfer.key</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ln transfer.key /etc/transfer.key</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="开启主服务器BIND服务秘钥验证-1"><a href="#开启主服务器BIND服务秘钥验证-1" class="headerlink" title="开启主服务器BIND服务秘钥验证"></a>开启主服务器BIND服务秘钥验证</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">// named.conf</span><br><span class="line">//</span><br><span class="line">// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS</span><br><span class="line">// server as a caching only nameserver (as a localhost DNS resolver only).</span><br><span class="line">//</span><br><span class="line">// See /usr/share/doc/bind*/sample/ for example named configuration files.</span><br><span class="line">//</span><br><span class="line">// See the BIND Administrator's Reference Manual (ARM) for details about the</span><br><span class="line">// configuration located in /usr/share/doc/bind-&#123;version&#125;/Bv9ARM.html</span><br><span class="line"></span><br><span class="line">include "/etc/transfer.key";</span><br><span class="line"></span><br><span class="line">options &#123;</span><br><span class="line">    listen-on port 53 &#123; any; &#125;;</span><br><span class="line">    listen-on-v6 port 53 &#123; ::1; &#125;;</span><br><span class="line">    directory   "/var/named";</span><br><span class="line">    dump-file   "/var/named/data/cache_dump.db";</span><br><span class="line">    statistics-file "/var/named/data/named_stats.txt";</span><br><span class="line">    memstatistics-file "/var/named/data/named_mem_stats.txt";</span><br><span class="line">    recursing-file  "/var/named/data/named.recursing";</span><br><span class="line">    secroots-file   "/var/named/data/named.secroots";</span><br><span class="line">    allow-query     &#123; any; &#125;;</span><br><span class="line"></span><br><span class="line">    /* </span><br><span class="line">     - If you are building an AUTHORITATIVE DNS server, do NOT enable recursion.</span><br><span class="line">     - If you are building a RECURSIVE (caching) DNS server, you need to enable </span><br><span class="line">       recursion. </span><br><span class="line">     - If your recursive DNS server has a public IP address, you MUST enable access </span><br><span class="line">       control to limit queries to your legitimate users. Failing to do so will</span><br><span class="line">       cause your server to become part of large scale DNS amplification </span><br><span class="line">       attacks. Implementing BCP38 within your network would greatly</span><br><span class="line">       reduce such attack surface </span><br><span class="line">    */</span><br><span class="line">    recursion yes;</span><br><span class="line"></span><br><span class="line">    dnssec-enable yes;</span><br><span class="line">    dnssec-validation yes;</span><br><span class="line"></span><br><span class="line">    /* Path to ISC DLV key */</span><br><span class="line">    bindkeys-file "/etc/named.root.key";</span><br><span class="line"></span><br><span class="line">    managed-keys-directory "/var/named/dynamic";</span><br><span class="line"></span><br><span class="line">    pid-file "/run/named/named.pid";</span><br><span class="line">    session-keyfile "/run/named/session.key";</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">server  172.16.100.201  &#123;</span><br><span class="line">    keys    &#123; master-slave;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="从服务器同步域名区域数据"><a href="#从服务器同步域名区域数据" class="headerlink" title="从服务器同步域名区域数据"></a>从服务器同步域名区域数据</h5><p>重启从服务器，已经能从主服务器同步数据配置文件了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> systemctl restart named</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ll /var/named/slaves/</span></span><br><span class="line">total 8</span><br><span class="line">-rw-r--r--. 1 named named 423 Mar 24 10:41 172.16.100.arpa</span><br><span class="line">-rw-r--r--. 1 named named 369 Mar 24 10:41 dookt.com.zone</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/运维基本功/" rel="tag"><i class="fa fa-tag"></i>运维基本功</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/post/bda94cd0.html" rel="next" title="RHEL安装配置vsftpd">
+                  <i class="fa fa-chevron-left"></i> RHEL安装配置vsftpd
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#DNS域名查询的两种方式"><span class="nav-number">1.</span> <span class="nav-text">DNS域名查询的两种方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系统环境"><span class="nav-number">2.</span> <span class="nav-text">系统环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装BIND服务程序"><span class="nav-number">3.</span> <span class="nav-text">安装BIND服务程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DNS正向解析"><span class="nav-number">4.</span> <span class="nav-text">DNS正向解析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#编辑区域配置文件"><span class="nav-number">4.1.</span> <span class="nav-text">编辑区域配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编辑数据配置文件"><span class="nav-number">4.2.</span> <span class="nav-text">编辑数据配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#检验DNS正向解析结果"><span class="nav-number">4.3.</span> <span class="nav-text">检验DNS正向解析结果</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DNS反向解析"><span class="nav-number">5.</span> <span class="nav-text">DNS反向解析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#编辑区域配置文件-1"><span class="nav-number">5.1.</span> <span class="nav-text">编辑区域配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编辑数据配置文件-1"><span class="nav-number">5.2.</span> <span class="nav-text">编辑数据配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#检验DNS反向解析结果"><span class="nav-number">5.3.</span> <span class="nav-text">检验DNS反向解析结果</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署从服务器"><span class="nav-number">6.</span> <span class="nav-text">部署从服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#修改主服务器区域配置文件"><span class="nav-number">6.1.</span> <span class="nav-text">修改主服务器区域配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置从服务器区域配置文件"><span class="nav-number">6.2.</span> <span class="nav-text">配置从服务器区域配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#检验解析结果"><span class="nav-number">6.3.</span> <span class="nav-text">检验解析结果</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全加密传输"><span class="nav-number">7.</span> <span class="nav-text">安全加密传输</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#主服务器生成秘钥"><span class="nav-number">7.1.</span> <span class="nav-text">主服务器生成秘钥</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#主服务器创建秘钥验证文件"><span class="nav-number">7.2.</span> <span class="nav-text">主服务器创建秘钥验证文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#开启主服务器BIND服务秘钥验证"><span class="nav-number">7.3.</span> <span class="nav-text">开启主服务器BIND服务秘钥验证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从服务器创建秘钥验证文件"><span class="nav-number">7.4.</span> <span class="nav-text">从服务器创建秘钥验证文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#开启主服务器BIND服务秘钥验证-1"><span class="nav-number">7.5.</span> <span class="nav-text">开启主服务器BIND服务秘钥验证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从服务器同步域名区域数据"><span class="nav-number">7.6.</span> <span class="nav-text">从服务器同步域名区域数据</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/avatar.jpg"
+      alt="Mr.Chen">
+  <p class="site-author-name" itemprop="name">Mr.Chen</p>
+  <div class="site-description" itemprop="description">个人博客系统</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/tanlay" title="GitHub &rarr; https://github.com/tanlay" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:dooktmint@gmail.com" title="E-Mail &rarr; mailto:dooktmint@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.Chen</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<!-- 代码块复制功能 -->
+  <script type="text/javascript" src="/js/src/clipboard.min.js"></script>  
+  <script type="text/javascript" src="/js/src/clipboard-use.js"></script>
+</body>
+</html>
